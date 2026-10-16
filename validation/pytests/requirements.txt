@@ -2,5 +2,5 @@
 # (validation/env-pin.txt). Install with:  python -m pip install -r validation/pytests/requirements.txt
 numpy==2.0.2
 pandas==2.3.3
-pytest==8.4.2
+pytest==9.0.3
 hypothesis==6.141.1
