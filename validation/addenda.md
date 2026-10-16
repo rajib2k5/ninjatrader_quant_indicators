@@ -25,3 +25,26 @@ C20/C23/C25 remain REJECTED-on-intraday as audited; the accepted engineering cla
 QI_ConnorsRSI, QI_ConsecDays, QI_CompositeVol, QI_VolumeDelta and README "Known quirks" updated.
 B runtime check: diff_values.py on the 5-min chart must show the C20/C23/C25 mismatches confined to the
 start of the series (first-mismatch bar reported) and zero mismatches on the daily chart.
+
+## ADD-4 (2026-10-16) — presentation re-assessment (user request after first chart review)
+On a live chart the user found modules rendering in two places (price labels/lines AND a sub-panel
+repeating the same information as bars) and the per-panel disclaimer text eating space. Changes
+(presentation only; no formula, guard or event logic touched):
+- Converted to IsOverlay = true with the computed values as `Brushes.Transparent` plots
+  (`ShowTransparentPlotsInDataBox = true`, the original's own technique): QI_HedgingPressure
+  (score; HP price lines + text panel unchanged), QI_LiquiditySweep / QI_OrderFlowPlus / QI_SMC
+  (Confidence, Structure), QI_VWAPDistance (now plots the VWAP level on price as Values[0] when
+  intraday and live; distance moved to Values[1]), QI_BollingerPctB (now plots Upper/Middle/Lower on
+  price as Values[0..2]; %B moved to Values[3]), QI_TurnOfMonth / QI_TurnaroundTuesday (shading only).
+- Removed the AddLine reference lines and their LowerThreshold/UpperThreshold properties from the
+  converted modules (lines at ±35 / ±100 / ±0.5 would be drawn on the price scale).
+- `ShowDisclaimer` default changed from true to false in all 27 files (header, Description,
+  README and DISCLAIMER.md still carry the disclaimer). C16's third element is re-scoped to
+  "a ShowDisclaimer property exists"; its B probe becomes `ShowDisclaimer\s*=\s*false;` == 1.
+Ledger consequences: C4 (DrawOnPricePanel) is now moot for the converted modules; C27 and C33
+harness columns are `QI_BollingerPctB.PctB` and `QI_VWAPDistance.VwapDistance` (diff_values.py
+updated). New runtime claim C45 (material): "transparent overlay plots with non-price values
+(HP score, confidence, %B, flags) do not stretch the price panel's auto-scale" — falsifier: the
+price panel's visible range widens to include 0 / ±100 when such a module is added. B probe:
+screenshot of the price panel before/after adding QI_HedgingPressure and QI_BollingerPctB.
+Harness regenerated; all 28 files recompiled with compile_probe.sh after the change.

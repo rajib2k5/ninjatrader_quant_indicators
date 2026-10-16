@@ -68,7 +68,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= 0.20;
 				UpperThreshold				= 0.80;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "IBS");
 				AddLine(Brushes.DodgerBlue, 0.20, "Lower Threshold");

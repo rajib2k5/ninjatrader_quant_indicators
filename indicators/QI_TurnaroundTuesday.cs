@@ -64,17 +64,17 @@ namespace NinjaTrader.NinjaScript.Indicators
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_TurnaroundTuesday";
 				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= false;
+				IsOverlay					= true;		// shades Monday bars on the price chart; no sub-panel
 				DisplayInDataBox			= true;
-				DrawOnPricePanel			= false;
 				PaintPriceMarkers			= false;
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
+				ShowTransparentPlotsInDataBox = true;
 
 				ShadeMonday					= true;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
-				AddPlot(new Stroke(Brushes.DodgerBlue, 2), PlotStyle.Bar, "Day of Week");
+				AddPlot(Brushes.Transparent, "Day of Week");	// DataBox only (0 = Sunday .. 6)
 			}
 			else if (State == State.Configure)
 			{

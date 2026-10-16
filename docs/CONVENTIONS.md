@@ -1,5 +1,11 @@
 # Conventions and module map
 
+> Presentation update (2026-10-16, see `validation/addenda.md` ADD-4): modules whose content
+> belongs on price — HedgingPressure, LiquiditySweep, OrderFlowPlus, SMC, VWAPDistance,
+> BollingerPctB, TurnOfMonth, TurnaroundTuesday — are now **overlay** indicators with their
+> numeric values as transparent DataBox-only plots, and have no reference lines. The "Panel"
+> and "Lines" columns below describe the first version; README.md is current.
+
 Every indicator in `indicators/` is a faithful, standalone split of one signal module from the
 original "IBSFade" multi-strategy indicator
 (`C:\Users\rajib\Documents\NinjaTrader 8\bin\Custom\Indicators\IBSFade.cs`, 3,230 lines,

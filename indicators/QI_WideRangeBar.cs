@@ -66,7 +66,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				IsSuspendedWhileInactive	= true;
 
 				Threshold					= 1.2;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.SteelBlue, 2), PlotStyle.Line, "Range/ATR14");
 				AddLine(Brushes.OrangeRed, 1.2, "Upper Threshold");

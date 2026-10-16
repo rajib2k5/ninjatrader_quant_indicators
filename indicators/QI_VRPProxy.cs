@@ -67,7 +67,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= 0.7;
 				UpperThreshold				= 1.5;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Teal, 2), PlotStyle.Line, "ATR5/ATR14");
 				AddLine(Brushes.DodgerBlue, 0.7, "Lower Threshold");

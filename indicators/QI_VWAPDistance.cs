@@ -67,7 +67,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 		private double	cumVol;
 		private double	manualVwap;
 		private int		vwapSessionDayOfYear;
-		private Series<double> vwapSeries;
 
 		private bool	disclaimerDrawn;
 
@@ -75,34 +74,28 @@ namespace NinjaTrader.NinjaScript.Indicators
 		{
 			if (State == State.SetDefaults)
 			{
-				Description					= "VWAP Distance: (Close - session VWAP) / ATR(14) on intraday charts, 0 otherwise. "
-											+ "Session VWAP is accumulated manually and resets when the bar's day-of-year changes. "
+				Description					= "Session VWAP drawn on price (intraday charts only), with the distance "
+											+ "(Close - VWAP) / ATR(14) as a hidden DataBox value (0 on non-intraday charts). "
+											+ "VWAP is accumulated manually and resets when the bar's day-of-year changes. "
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_VWAPDistance";
 				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= false;
+				IsOverlay					= true;
 				DisplayInDataBox			= true;
-				DrawOnPricePanel			= false;
 				PaintPriceMarkers			= false;
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
+				ShowTransparentPlotsInDataBox = true;
 
-				LowerThreshold				= -0.5;
-				UpperThreshold				= 0.5;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
-				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "VWAP Dist (ATR)");
-				AddLine(Brushes.DodgerBlue, -0.5, "Lower Threshold");
-				AddLine(Brushes.OrangeRed,   0.5, "Upper Threshold");
-				AddLine(Brushes.Gray,        0.0, "Zero");
+				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "VWAP");
+				AddPlot(Brushes.Transparent, "VWAP Dist (ATR)");	// DataBox only
 			}
 			else if (State == State.Configure)
 			{
 				// Original gate: the VWAP channel is only live on intraday charts.
 				isIntraday = Bars.BarsType.IsIntraday;
-
-				Lines[0].Value = LowerThreshold;
-				Lines[1].Value = UpperThreshold;
 			}
 			else if (State == State.DataLoaded)
 			{
@@ -112,7 +105,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 				cumVol				= 0;
 				manualVwap			= 0;
 				vwapSessionDayOfYear = -1;
-				vwapSeries			= new Series<double>(this);
 
 				disclaimerDrawn		= false;
 			}
@@ -127,11 +119,14 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (isIntraday)
 				UpdateManualVwap();
 
-			vwapSeries[0] = manualVwap;
+			// Plot the VWAP level on price only when it is live; an unset value is simply not drawn,
+			// so a non-intraday chart's price scale is never pulled toward 0.
+			if (isIntraday && manualVwap > 0)
+				Values[0][0] = manualVwap;
 
 			double vwapDist = (isIntraday && atr14[0] > 0 && manualVwap > 0)
 				? (Close[0] - manualVwap) / atr14[0] : 0;
-			Values[0][0] = vwapDist;
+			Values[1][0] = vwapDist;
 
 			DrawDisclaimerOnce();
 		}
@@ -175,34 +170,22 @@ namespace NinjaTrader.NinjaScript.Indicators
 		#region Properties
 
 		[NinjaScriptProperty]
-		[Range(-10.0, 0.0)]
-		[Display(Name = "Lower Threshold", Description = "Reference line only (ATR units). Original default -0.5.",
-			Order = 1, GroupName = "Parameters")]
-		public double LowerThreshold { get; set; }
-
-		[NinjaScriptProperty]
-		[Range(0.0, 10.0)]
-		[Display(Name = "Upper Threshold", Description = "Reference line only (ATR units). Original default 0.5.",
-			Order = 2, GroupName = "Parameters")]
-		public double UpperThreshold { get; set; }
-
-		[NinjaScriptProperty]
 		[Display(Name = "Show Disclaimer", Description = "Draw the educational-use disclaimer on the chart.",
 			Order = 1, GroupName = "Display")]
 		public bool ShowDisclaimer { get; set; }
 
 		[Browsable(false)]
 		[XmlIgnore]
-		public Series<double> VwapDistance
+		public Series<double> Vwap
 		{
 			get { return Values[0]; }
 		}
 
 		[Browsable(false)]
 		[XmlIgnore]
-		public Series<double> Vwap
+		public Series<double> VwapDistance
 		{
-			get { return vwapSeries; }
+			get { return Values[1]; }
 		}
 
 		#endregion

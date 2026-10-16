@@ -121,7 +121,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				ShowMonthlyLevels			= true;
 				ShowOrbLevels				= true;
 				ShowAsianSessionLevels		= true;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				// Colors
 				PrevDayHighBrush			= Brushes.White;

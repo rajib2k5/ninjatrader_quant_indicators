@@ -114,9 +114,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_SMC";
 				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= false;
+				IsOverlay					= true;		// labels live on the price chart; no sub-panel
 				DisplayInDataBox			= true;
-				DrawOnPricePanel			= true;
+				ShowTransparentPlotsInDataBox = true;
 				PaintPriceMarkers			= false;
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
@@ -127,14 +127,14 @@ namespace NinjaTrader.NinjaScript.Indicators
 				TextOffsetTicks				= 15;
 				SignalFontSize				= 13;
 				DuplicateBarWindow			= 5;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				// Colors
 				SmcBullishBrush				= Brushes.DeepSkyBlue;
 				SmcBearishBrush				= Brushes.OrangeRed;
 
-				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Bar, "Confidence");
-				AddPlot(new Stroke(Brushes.DodgerBlue, 2), PlotStyle.Bar, "Structure");
+				AddPlot(Brushes.Transparent, "Confidence");	// DataBox only
+				AddPlot(Brushes.Transparent, "Structure");	// DataBox only (+1 bullish / -1 bearish structure)
 			}
 			else if (State == State.Configure)
 			{

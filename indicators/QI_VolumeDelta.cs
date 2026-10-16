@@ -74,7 +74,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
 
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Gray,       2), PlotStyle.Bar,  "Vol Delta");
 				AddPlot(new Stroke(Brushes.DodgerBlue, 2), PlotStyle.Line, "CumDelta 20");

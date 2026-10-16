@@ -70,7 +70,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= 30;
 				UpperThreshold				= 70;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "%K");
 				AddPlot(new Stroke(Brushes.Gray,      1), PlotStyle.Line, "%D");

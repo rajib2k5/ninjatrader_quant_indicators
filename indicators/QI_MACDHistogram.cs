@@ -68,7 +68,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				IsSuspendedWhileInactive	= true;
 
 				Threshold					= 0;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Bar, "MACD Hist");
 				AddLine(Brushes.Gray, 0, "Zero");

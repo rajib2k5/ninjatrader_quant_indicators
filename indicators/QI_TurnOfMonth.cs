@@ -65,17 +65,17 @@ namespace NinjaTrader.NinjaScript.Indicators
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_TurnOfMonth";
 				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= false;
+				IsOverlay					= true;		// shades the window bars on the price chart; no sub-panel
 				DisplayInDataBox			= true;
-				DrawOnPricePanel			= false;
 				PaintPriceMarkers			= false;
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
+				ShowTransparentPlotsInDataBox = true;
 
 				ShadeWindow					= true;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
-				AddPlot(new Stroke(Brushes.DodgerBlue, 2), PlotStyle.Bar, "Turn-of-Month");
+				AddPlot(Brushes.Transparent, "Turn-of-Month");	// DataBox only (1 = in window)
 			}
 			else if (State == State.Configure)
 			{

@@ -77,7 +77,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= -3;
 				UpperThreshold				= 3;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Bar, "Streak");
 				AddLine(Brushes.DodgerBlue, -3, "Lower Threshold");

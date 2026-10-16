@@ -87,7 +87,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= 15;
 				UpperThreshold				= 85;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "ConnorsRSI");
 				AddLine(Brushes.DodgerBlue, 15, "Lower Threshold");

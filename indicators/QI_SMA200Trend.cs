@@ -69,7 +69,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
 
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "SMA 200");
 			}

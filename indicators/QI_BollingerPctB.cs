@@ -63,31 +63,27 @@ namespace NinjaTrader.NinjaScript.Indicators
 		{
 			if (State == State.SetDefaults)
 			{
-				Description					= "Bollinger %B: (Close - mid) / (half bandwidth) * 100 using Bollinger(Close, 2, 20); "
-											+ "+100 = upper band, -100 = lower band, 0 when bandwidth is zero. "
-											+ "Reference lines at +100 / -100 are neutral boundaries only. "
+				Description					= "Bollinger(Close, 2, 20) bands drawn on price, plus %B = (Close - middle) / (half bandwidth) * 100 "
+											+ "as a hidden DataBox value (+100 = upper band, -100 = lower band, 0 when bandwidth is zero). "
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_BollingerPctB";
 				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= false;
+				IsOverlay					= true;
 				DisplayInDataBox			= true;
-				DrawOnPricePanel			= false;
 				PaintPriceMarkers			= false;
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
+				ShowTransparentPlotsInDataBox = true;
 
-				LowerThreshold				= -100;
-				UpperThreshold				= 100;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
-				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "%B");
-				AddLine(Brushes.DodgerBlue, -100, "Lower Threshold");
-				AddLine(Brushes.OrangeRed,   100, "Upper Threshold");
+				AddPlot(new Stroke(Brushes.DodgerBlue, 1), PlotStyle.Line, "Upper");
+				AddPlot(new Stroke(Brushes.Goldenrod,  1), PlotStyle.Line, "Middle");
+				AddPlot(new Stroke(Brushes.DodgerBlue, 1), PlotStyle.Line, "Lower");
+				AddPlot(Brushes.Transparent, "%B");		// DataBox only (same scale trick as the original)
 			}
 			else if (State == State.Configure)
 			{
-				Lines[0].Value = LowerThreshold;
-				Lines[1].Value = UpperThreshold;
 			}
 			else if (State == State.DataLoaded)
 			{
@@ -110,7 +106,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 			double bollMid = boll.Middle[0];
 			double bollBandWidth = boll.Upper[0] - boll.Lower[0];
 			double bollPct = bollBandWidth > 0 ? (Close[0] - bollMid) / (bollBandWidth * 0.5) * 100.0 : 0;
-			Values[0][0] = bollPct;
+			Values[0][0] = boll.Upper[0];
+			Values[1][0] = bollMid;
+			Values[2][0] = boll.Lower[0];
+			Values[3][0] = bollPct;
 
 			DrawDisclaimerOnce();
 		}
@@ -134,27 +133,36 @@ namespace NinjaTrader.NinjaScript.Indicators
 		#region Properties
 
 		[NinjaScriptProperty]
-		[Range(-1000, 1000)]
-		[Display(Name = "Lower Threshold", Description = "Reference line only. Original default -100 (lower band).",
-			Order = 1, GroupName = "Parameters")]
-		public double LowerThreshold { get; set; }
-
-		[NinjaScriptProperty]
-		[Range(-1000, 1000)]
-		[Display(Name = "Upper Threshold", Description = "Reference line only. Original default 100 (upper band).",
-			Order = 2, GroupName = "Parameters")]
-		public double UpperThreshold { get; set; }
-
-		[NinjaScriptProperty]
 		[Display(Name = "Show Disclaimer", Description = "Draw the educational-use disclaimer on the chart.",
 			Order = 1, GroupName = "Display")]
 		public bool ShowDisclaimer { get; set; }
 
 		[Browsable(false)]
 		[XmlIgnore]
-		public Series<double> PctB
+		public Series<double> Upper
 		{
 			get { return Values[0]; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> Middle
+		{
+			get { return Values[1]; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> Lower
+		{
+			get { return Values[2]; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> PctB
+		{
+			get { return Values[3]; }
 		}
 
 		#endregion

@@ -66,7 +66,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				IsSuspendedWhileInactive	= true;
 
 				Threshold					= 1.5;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.SeaGreen, 2), PlotStyle.Line, "Vol / SMA20");
 				AddLine(Brushes.OrangeRed, 1.5, "Upper Threshold");

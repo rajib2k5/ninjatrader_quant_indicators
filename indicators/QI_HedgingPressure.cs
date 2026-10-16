@@ -86,36 +86,29 @@ namespace NinjaTrader.NinjaScript.Indicators
 			{
 				Description					= "Hedging Pressure: a four-component composite score (-100 to +100) built from "
 											+ "basis deviation, SMA slope divergence, volume/price divergence and range compression. "
-											+ "Daily/Weekly/Monthly HP price lines are drawn on the price panel. "
+											+ "Daily/Weekly/Monthly HP price lines and the score panel are drawn on the price chart; "
+											+ "the score itself is a hidden DataBox value. "
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_HedgingPressure";
 				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= false;
+				IsOverlay					= true;
 				DisplayInDataBox			= true;
-				DrawOnPricePanel			= true;
 				PaintPriceMarkers			= false;
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
+				ShowTransparentPlotsInDataBox = true;
 
-				LowerThreshold				= -35;
-				UpperThreshold				= 35;
 				ShowHpLines					= true;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				HpDailyLineBrush			= Brushes.Yellow;
 				HpWeeklyLineBrush			= Brushes.Orange;
 				HpMonthlyLineBrush			= Brushes.DarkOrange;
 
-				AddPlot(new Stroke(Brushes.Goldenrod, 2), PlotStyle.Line, "HP Score");
-				AddLine(Brushes.DodgerBlue, -35, "Lower Threshold");
-				AddLine(Brushes.OrangeRed,   35, "Upper Threshold");
-				AddLine(Brushes.Gray,       -15, "Lower Moderate");
-				AddLine(Brushes.Gray,        15, "Upper Moderate");
+				AddPlot(Brushes.Transparent, "HP Score");	// DataBox only (same scale trick as the original)
 			}
 			else if (State == State.Configure)
 			{
-				Lines[0].Value = LowerThreshold;
-				Lines[1].Value = UpperThreshold;
 			}
 			else if (State == State.DataLoaded)
 			{
@@ -330,17 +323,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 		#region Properties
 
-		[NinjaScriptProperty]
-		[Range(-100, -1)]
-		[Display(Name = "Lower Threshold", Description = "Reference line only. Original default -35.",
-			Order = 1, GroupName = "Parameters")]
-		public int LowerThreshold { get; set; }
-
-		[NinjaScriptProperty]
-		[Range(1, 100)]
-		[Display(Name = "Upper Threshold", Description = "Reference line only. Original default 35.",
-			Order = 2, GroupName = "Parameters")]
-		public int UpperThreshold { get; set; }
 
 		[NinjaScriptProperty]
 		[Display(Name = "Show HP Lines", Description = "Draw Daily (green/red), Weekly (orange), Monthly (dark orange) HP lines on the price panel.",

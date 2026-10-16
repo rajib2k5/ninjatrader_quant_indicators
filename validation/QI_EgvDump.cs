@@ -110,13 +110,13 @@ namespace NinjaTrader.NinjaScript.Indicators
 			else if (State == State.DataLoaded)
 			{
 				atrregime = CacheIndicator<QI_ATRRegime>(new QI_ATRRegime() { Threshold = 1.5, ShowDisclaimer = false }, Input, ref atrregimeCache);
-				bollingerpctb = CacheIndicator<QI_BollingerPctB>(new QI_BollingerPctB() { LowerThreshold = -100, UpperThreshold = 100, ShowDisclaimer = false }, Input, ref bollingerpctbCache);
+				bollingerpctb = CacheIndicator<QI_BollingerPctB>(new QI_BollingerPctB() { ShowDisclaimer = false }, Input, ref bollingerpctbCache);
 				chopindex = CacheIndicator<QI_ChopIndex>(new QI_ChopIndex() { LowerThreshold = 38.2, UpperThreshold = 61.8, ShowStateText = true, ShowDisclaimer = false }, Input, ref chopindexCache);
 				compositevol = CacheIndicator<QI_CompositeVol>(new QI_CompositeVol() { LowerThreshold = -1.5, UpperThreshold = 1.5, ShowDisclaimer = false }, Input, ref compositevolCache);
 				connorsrsi = CacheIndicator<QI_ConnorsRSI>(new QI_ConnorsRSI() { LowerThreshold = 15, UpperThreshold = 85, ShowDisclaimer = false }, Input, ref connorsrsiCache);
 				consecdays = CacheIndicator<QI_ConsecDays>(new QI_ConsecDays() { LowerThreshold = -3, UpperThreshold = 3, ShowDisclaimer = false }, Input, ref consecdaysCache);
 				emacross = CacheIndicator<QI_EMACross>(new QI_EMACross() { ShowDisclaimer = false }, Input, ref emacrossCache);
-				hedgingpressure = CacheIndicator<QI_HedgingPressure>(new QI_HedgingPressure() { LowerThreshold = -35, UpperThreshold = 35, ShowHpLines = true, ShowDisclaimer = false }, Input, ref hedgingpressureCache);
+				hedgingpressure = CacheIndicator<QI_HedgingPressure>(new QI_HedgingPressure() { ShowHpLines = true, ShowDisclaimer = false }, Input, ref hedgingpressureCache);
 				ibs = CacheIndicator<QI_IBS>(new QI_IBS() { LowerThreshold = 0.20, UpperThreshold = 0.80, ShowDisclaimer = false }, Input, ref ibsCache);
 				keylevels = CacheIndicator<QI_KeyLevels>(new QI_KeyLevels() { ShowPrevDayLevels = true, ShowMonthlyLevels = true, ShowOrbLevels = true, ShowAsianSessionLevels = true, ShowDisclaimer = false }, Input, ref keylevelsCache);
 				liquiditysweep = CacheIndicator<QI_LiquiditySweep>(new QI_LiquiditySweep() { SwingLookback = 20, SweepWickMultiple = 2.0, SweepVolMultiple = 1.5, EqualLevelTolerance = 0.05, ConsolidationAtrRatio = 0.6, UsePrevDayLevels = true, UseMonthlyLevels = true, UseOrbLevels = true, TextOffsetTicks = 15, SignalFontSize = 13, DuplicateBarWindow = 5, ShowDisclaimer = false }, Input, ref liquiditysweepCache);
@@ -134,7 +134,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				volumedelta = CacheIndicator<QI_VolumeDelta>(new QI_VolumeDelta() { ShowDisclaimer = false }, Input, ref volumedeltaCache);
 				volumespike = CacheIndicator<QI_VolumeSpike>(new QI_VolumeSpike() { Threshold = 1.5, ShowDisclaimer = false }, Input, ref volumespikeCache);
 				vrpproxy = CacheIndicator<QI_VRPProxy>(new QI_VRPProxy() { LowerThreshold = 0.7, UpperThreshold = 1.5, ShowDisclaimer = false }, Input, ref vrpproxyCache);
-				vwapdistance = CacheIndicator<QI_VWAPDistance>(new QI_VWAPDistance() { LowerThreshold = -0.5, UpperThreshold = 0.5, ShowDisclaimer = false }, Input, ref vwapdistanceCache);
+				vwapdistance = CacheIndicator<QI_VWAPDistance>(new QI_VWAPDistance() { ShowDisclaimer = false }, Input, ref vwapdistanceCache);
 				widerangebar = CacheIndicator<QI_WideRangeBar>(new QI_WideRangeBar() { Threshold = 1.2, ShowDisclaimer = false }, Input, ref widerangebarCache);
 
 				try
@@ -143,7 +143,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 					string tf = BarsPeriod.BarsPeriodType + "-" + BarsPeriod.Value;
 					string file = Path.Combine(OutputFolder, "qi_dump_" + Instrument.MasterInstrument.Name + "_" + tf + ".csv");
 					writer = new StreamWriter(file, false);
-					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,QI_ATRRegime.Values[0],QI_ATRRegime.ATRRegime,QI_BollingerPctB.Values[0],QI_BollingerPctB.PctB,QI_ChopIndex.Values[0],QI_ChopIndex.Chop,QI_ChopIndex.ChoppyFlag,QI_ChopIndex.Adx,QI_ChopIndex.VolRatio,QI_CompositeVol.Values[0],QI_CompositeVol.CompositeVol,QI_CompositeVol.RVZScore,QI_CompositeVol.AtrChange,QI_ConnorsRSI.Values[0],QI_ConnorsRSI.CRSI,QI_ConnorsRSI.Streak,QI_ConsecDays.Values[0],QI_ConsecDays.Streak,QI_EMACross.Values[0],QI_EMACross.Values[1],QI_EMACross.Ema20,QI_EMACross.Ema50,QI_EMACross.Spread,QI_HedgingPressure.Values[0],QI_HedgingPressure.HPScore,QI_IBS.Values[0],QI_IBS.IBS,QI_LiquiditySweep.Values[0],QI_LiquiditySweep.Values[1],QI_LiquiditySweep.Confidence,QI_LiquiditySweep.Structure,QI_MACDHistogram.Values[0],QI_MACDHistogram.Histogram,QI_OrderFlowPlus.Values[0],QI_OrderFlowPlus.Values[1],QI_OrderFlowPlus.Confidence,QI_OrderFlowPlus.Structure,QI_OvernightGap.Values[0],QI_OvernightGap.GapPct,QI_RSI14.Values[0],QI_RSI14.RSI14,QI_RSI2.Values[0],QI_RSI2.RSI2,QI_RVZScore.Values[0],QI_RVZScore.RVZScore,QI_SMA200Trend.Values[0],QI_SMA200Trend.Sma200,QI_SMA200Trend.Distance,QI_SMC.Values[0],QI_SMC.Values[1],QI_SMC.Confidence,QI_SMC.Structure,QI_SMC.TrendDir,QI_StochFade.Values[0],QI_StochFade.Values[1],QI_StochFade.K,QI_StochFade.D,QI_TurnaroundTuesday.Values[0],QI_TurnaroundTuesday.DayOfWeekValue,QI_TurnOfMonth.Values[0],QI_TurnOfMonth.TurnOfMonth,QI_VolumeDelta.Values[0],QI_VolumeDelta.Values[1],QI_VolumeDelta.Values[2],QI_VolumeDelta.VolDelta,QI_VolumeDelta.CumDelta20,QI_VolumeDelta.DeltaSMA10,QI_VolumeSpike.Values[0],QI_VolumeSpike.VolumeSpike,QI_VRPProxy.Values[0],QI_VRPProxy.VRPProxy,QI_VWAPDistance.Values[0],QI_VWAPDistance.VwapDistance,QI_VWAPDistance.Vwap,QI_WideRangeBar.Values[0],QI_WideRangeBar.WideRange");
+					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,QI_ATRRegime.Values[0],QI_ATRRegime.ATRRegime,QI_BollingerPctB.Values[0],QI_BollingerPctB.Values[1],QI_BollingerPctB.Values[2],QI_BollingerPctB.Values[3],QI_BollingerPctB.Upper,QI_BollingerPctB.Middle,QI_BollingerPctB.Lower,QI_BollingerPctB.PctB,QI_ChopIndex.Values[0],QI_ChopIndex.Chop,QI_ChopIndex.ChoppyFlag,QI_ChopIndex.Adx,QI_ChopIndex.VolRatio,QI_CompositeVol.Values[0],QI_CompositeVol.CompositeVol,QI_CompositeVol.RVZScore,QI_CompositeVol.AtrChange,QI_ConnorsRSI.Values[0],QI_ConnorsRSI.CRSI,QI_ConnorsRSI.Streak,QI_ConsecDays.Values[0],QI_ConsecDays.Streak,QI_EMACross.Values[0],QI_EMACross.Values[1],QI_EMACross.Ema20,QI_EMACross.Ema50,QI_EMACross.Spread,QI_HedgingPressure.Values[0],QI_HedgingPressure.HPScore,QI_IBS.Values[0],QI_IBS.IBS,QI_LiquiditySweep.Values[0],QI_LiquiditySweep.Values[1],QI_LiquiditySweep.Confidence,QI_LiquiditySweep.Structure,QI_MACDHistogram.Values[0],QI_MACDHistogram.Histogram,QI_OrderFlowPlus.Values[0],QI_OrderFlowPlus.Values[1],QI_OrderFlowPlus.Confidence,QI_OrderFlowPlus.Structure,QI_OvernightGap.Values[0],QI_OvernightGap.GapPct,QI_RSI14.Values[0],QI_RSI14.RSI14,QI_RSI2.Values[0],QI_RSI2.RSI2,QI_RVZScore.Values[0],QI_RVZScore.RVZScore,QI_SMA200Trend.Values[0],QI_SMA200Trend.Sma200,QI_SMA200Trend.Distance,QI_SMC.Values[0],QI_SMC.Values[1],QI_SMC.Confidence,QI_SMC.Structure,QI_SMC.TrendDir,QI_StochFade.Values[0],QI_StochFade.Values[1],QI_StochFade.K,QI_StochFade.D,QI_TurnaroundTuesday.Values[0],QI_TurnaroundTuesday.DayOfWeekValue,QI_TurnOfMonth.Values[0],QI_TurnOfMonth.TurnOfMonth,QI_VolumeDelta.Values[0],QI_VolumeDelta.Values[1],QI_VolumeDelta.Values[2],QI_VolumeDelta.VolDelta,QI_VolumeDelta.CumDelta20,QI_VolumeDelta.DeltaSMA10,QI_VolumeSpike.Values[0],QI_VolumeSpike.VolumeSpike,QI_VRPProxy.Values[0],QI_VRPProxy.VRPProxy,QI_VWAPDistance.Values[0],QI_VWAPDistance.Values[1],QI_VWAPDistance.Vwap,QI_VWAPDistance.VwapDistance,QI_WideRangeBar.Values[0],QI_WideRangeBar.WideRange");
 					writer.AutoFlush = true;
 				}
 				catch (Exception ex) { Print("QI_EgvDump init error: " + ex.Message); writer = null; }
@@ -168,6 +168,12 @@ namespace NinjaTrader.NinjaScript.Indicators
 				sb.Append(',').Append(Safe(atrregime.Values[0][0]));
 				sb.Append(',').Append(Safe(atrregime.ATRRegime[0]));
 				sb.Append(',').Append(Safe(bollingerpctb.Values[0][0]));
+				sb.Append(',').Append(Safe(bollingerpctb.Values[1][0]));
+				sb.Append(',').Append(Safe(bollingerpctb.Values[2][0]));
+				sb.Append(',').Append(Safe(bollingerpctb.Values[3][0]));
+				sb.Append(',').Append(Safe(bollingerpctb.Upper[0]));
+				sb.Append(',').Append(Safe(bollingerpctb.Middle[0]));
+				sb.Append(',').Append(Safe(bollingerpctb.Lower[0]));
 				sb.Append(',').Append(Safe(bollingerpctb.PctB[0]));
 				sb.Append(',').Append(Safe(chopindex.Values[0][0]));
 				sb.Append(',').Append(Safe(chopindex.Chop[0]));
@@ -237,8 +243,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 				sb.Append(',').Append(Safe(vrpproxy.Values[0][0]));
 				sb.Append(',').Append(Safe(vrpproxy.VRPProxy[0]));
 				sb.Append(',').Append(Safe(vwapdistance.Values[0][0]));
-				sb.Append(',').Append(Safe(vwapdistance.VwapDistance[0]));
+				sb.Append(',').Append(Safe(vwapdistance.Values[1][0]));
 				sb.Append(',').Append(Safe(vwapdistance.Vwap[0]));
+				sb.Append(',').Append(Safe(vwapdistance.VwapDistance[0]));
 				sb.Append(',').Append(Safe(widerangebar.Values[0][0]));
 				sb.Append(',').Append(Safe(widerangebar.WideRange[0]));
 				writer.WriteLine(sb.ToString());

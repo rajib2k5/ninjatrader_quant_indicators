@@ -70,7 +70,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				ScaleJustification			= ScaleJustification.Right;
 				IsSuspendedWhileInactive	= true;
 
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.DodgerBlue, 2), PlotStyle.Line, "EMA 20");
 				AddPlot(new Stroke(Brushes.OrangeRed,  2), PlotStyle.Line, "EMA 50");

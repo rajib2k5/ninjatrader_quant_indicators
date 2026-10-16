@@ -73,7 +73,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= -1.5;
 				UpperThreshold				= 2.0;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.MediumPurple, 2), PlotStyle.Line, "RV Z-Score");
 				AddLine(Brushes.DodgerBlue, -1.5, "Lower Threshold");

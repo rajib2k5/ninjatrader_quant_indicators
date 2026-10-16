@@ -8,12 +8,14 @@ ensemble "alpha counts" — those were removed on purpose.
 > **Educational and informational use only. Not financial advice.** Nothing in this repository
 > is a recommendation to buy or sell any instrument. Trading futures and other leveraged products
 > carries a substantial risk of loss. Past performance is not indicative of future results.
-> Read [DISCLAIMER.md](DISCLAIMER.md) before using any of this.
+> Read [DISCLAIMER.md](DISCLAIMER.md) before using any of this. Every indicator also carries the
+> disclaimer in its source header and Description, and has a `Show Disclaimer` property that
+> prints it on the chart (off by default to keep charts clean).
 
 ## Install
 
 1. Copy `indicators/*.cs` into
-   `Documents\NinjaTrader 8\bin\Custom\Indicators\QuantIndicators\` (create the folder; any
+   `Documents\NinjaTrader 8\bin\Custom\Indicators\quant_indicator\` (create the folder; any
    folder under `Indicators` works).
 2. In NinjaTrader open **New › NinjaScript Editor** and press **F5** (Compile).
 3. Add indicators from the chart's **Indicators** dialog — they are listed with the `QI_` prefix.
@@ -23,9 +25,12 @@ NinjaTrader 8.1.8.3 (see [validation/env-pin.txt](validation/env-pin.txt)).
 
 ## Indicators
 
-Thresholds that the original indicator used to classify a value are kept as **neutral reference
-lines** (`Lower Threshold` / `Upper Threshold` properties) so the chart shows the same levels
-without labelling them as signals. "Panel" = draws in its own panel; "Overlay" = draws on price.
+Each indicator lives in exactly one place. **Overlay** modules draw on the candle chart and never
+open a sub-panel; any numeric value they compute is a hidden (transparent) plot that shows in the
+DataBox — the same technique the original used. **Panel** modules are the ones whose value has
+its own scale (oscillators, ratios, counts) and genuinely need a sub-panel. For those, the
+thresholds the original used to classify a value are kept as **neutral reference lines**
+(`Lower Threshold` / `Upper Threshold` properties) without labelling them as signals.
 
 ### Mean-reversion statistics
 
@@ -37,11 +42,11 @@ without labelling them as signals. "Panel" = draws in its own panel; "Overlay" =
 | `QI_StochFade` | Fast Stochastic %K (14) and %D (3) | 30 / 70 | Panel |
 | `QI_RVZScore` | Z-score of ATR(14) against its trailing 20-bar mean/std | 2.0 / -1.5 | Panel |
 | `QI_CompositeVol` | 0.40·RV z-score − 0.35·price z-score + 0.25·vol-of-vol z-score | 1.5 / -1.5 | Panel |
-| `QI_TurnOfMonth` | 1 inside the last-4 / first-3 calendar-day window (CST), else 0; shades window bars | – | Panel |
+| `QI_TurnOfMonth` | Shades the bars inside the last-4 / first-3 calendar-day window (CST); DataBox value 1/0 | – | Overlay |
 | `QI_ConsecDays` | Signed count of consecutive higher (+) or lower (−) closes | 3 / -3 | Panel |
 | `QI_OvernightGap` | `(Open − previous Close) / previous Close × 100` | 0.3 / -0.3 | Panel |
-| `QI_BollingerPctB` | Position of the close inside Bollinger(20, 2σ), −100…+100 | 100 / -100 | Panel |
-| `QI_TurnaroundTuesday` | Day of week (CST), 0 = Sunday; shades Mondays | – | Panel |
+| `QI_BollingerPctB` | Bollinger(20, 2σ) upper/middle/lower bands on price; %B (−100…+100) in the DataBox | – | Overlay |
+| `QI_TurnaroundTuesday` | Shades Monday bars (CST); DataBox value = day of week, 0 = Sunday | – | Overlay |
 | `QI_RSI14` | RSI(14) | 40 / 60 | Panel |
 | `QI_VRPProxy` | ATR(5) / ATR(14) | 1.5 / 0.7 | Panel |
 | `QI_WideRangeBar` | Bar range / ATR(14) | 1.2 | Panel |
@@ -50,8 +55,8 @@ without labelling them as signals. "Panel" = draws in its own panel; "Overlay" =
 
 | Indicator | Shows | Reference lines | Panel |
 |-----------|-------|-----------------|-------|
-| `QI_HedgingPressure` | 4-component composite score (−100…+100): basis deviation, slope divergence, volume/price divergence, range compression; plus daily/weekly/monthly HP price lines | ±35, ±15 | Panel + price lines |
-| `QI_VWAPDistance` | `(Close − session VWAP) / ATR(14)` on intraday charts | 0.5 / -0.5 / 0 | Panel |
+| `QI_HedgingPressure` | Daily/weekly/monthly HP price lines and a score panel on the chart; the 4-component composite score (−100…+100: basis deviation, slope divergence, volume/price divergence, range compression) in the DataBox | – | Overlay |
+| `QI_VWAPDistance` | Session VWAP line on price (intraday charts); `(Close − VWAP) / ATR(14)` in the DataBox | – | Overlay |
 | `QI_MACDHistogram` | MACD(12, 26, 9) histogram | 0 | Panel |
 | `QI_EMACross` | EMA(20) and EMA(50) | – | Overlay |
 | `QI_SMA200Trend` | SMA(200) | – | Overlay |
@@ -67,14 +72,32 @@ only (e.g. `Liq Sweep End: SFP + Spring (85%)`), never as buy/sell.
 
 | Indicator | Patterns | Panel |
 |-----------|----------|-------|
-| `QI_LiquiditySweep` | Basic sweep (swing / prior-day / ORB / monthly levels), Swing Failure, Equal-level trap, Consolidation trap, Wyckoff Spring/Upthrust, Turtle Soup, Volume-divergence fakeout | Panel (confidence, structure) + price labels |
-| `QI_OrderFlowPlus` | Delta divergence, Absorption, Exhaustion, Stacked delta, Delta reversal (from close-direction volume delta) | Panel + price labels |
-| `QI_SMC` | Order-block retest, Fair-value-gap entry, Break of structure, Change of character, Displacement | Panel + price labels |
+| `QI_LiquiditySweep` | Basic sweep (swing / prior-day / ORB / monthly levels), Swing Failure, Equal-level trap, Consolidation trap, Wyckoff Spring/Upthrust, Turtle Soup, Volume-divergence fakeout | Overlay labels; confidence and structure (±1) in the DataBox |
+| `QI_OrderFlowPlus` | Delta divergence, Absorption, Exhaustion, Stacked delta, Delta reversal (from close-direction volume delta) | Overlay labels; confidence and structure in the DataBox |
+| `QI_SMC` | Order-block retest, Fair-value-gap entry, Break of structure, Change of character, Displacement | Overlay labels; confidence and structure in the DataBox |
 | `QI_KeyLevels` | Previous-day RTH high/low (8:30–16:00 CST), monthly high/low, 30-min opening range (8:30–9:00 CST), Asian session (17:00–02:00 CST) | Overlay lines |
 
 ## Screenshots
 
-One per indicator, in [screenshots/](screenshots/) (`screenshots/<Indicator>.png`).
+One per indicator (NinjaTrader 8.1.8.3, MES 5-minute chart, default parameters), in
+[screenshots/](screenshots/).
+
+| | |
+|---|---|
+| **QI_IBS** ![QI_IBS](screenshots/QI_IBS.png) | **QI_RSI2** ![QI_RSI2](screenshots/QI_RSI2.png) |
+| **QI_ConnorsRSI** ![QI_ConnorsRSI](screenshots/QI_ConnorsRSI.png) | **QI_StochFade** ![QI_StochFade](screenshots/QI_StochFade.png) |
+| **QI_RVZScore** ![QI_RVZScore](screenshots/QI_RVZScore.png) | **QI_CompositeVol** ![QI_CompositeVol](screenshots/QI_CompositeVol.png) |
+| **QI_TurnOfMonth** ![QI_TurnOfMonth](screenshots/QI_TurnOfMonth.png) | **QI_ConsecDays** ![QI_ConsecDays](screenshots/QI_ConsecDays.png) |
+| **QI_OvernightGap** ![QI_OvernightGap](screenshots/QI_OvernightGap.png) | **QI_BollingerPctB** ![QI_BollingerPctB](screenshots/QI_BollingerPctB.png) |
+| **QI_TurnaroundTuesday** ![QI_TurnaroundTuesday](screenshots/QI_TurnaroundTuesday.png) | **QI_RSI14** ![QI_RSI14](screenshots/QI_RSI14.png) |
+| **QI_VRPProxy** ![QI_VRPProxy](screenshots/QI_VRPProxy.png) | **QI_WideRangeBar** ![QI_WideRangeBar](screenshots/QI_WideRangeBar.png) |
+| **QI_HedgingPressure** ![QI_HedgingPressure](screenshots/QI_HedgingPressure.png) | **QI_VWAPDistance** ![QI_VWAPDistance](screenshots/QI_VWAPDistance.png) |
+| **QI_MACDHistogram** ![QI_MACDHistogram](screenshots/QI_MACDHistogram.png) | **QI_EMACross** ![QI_EMACross](screenshots/QI_EMACross.png) |
+| **QI_SMA200Trend** ![QI_SMA200Trend](screenshots/QI_SMA200Trend.png) | **QI_ATRRegime** ![QI_ATRRegime](screenshots/QI_ATRRegime.png) |
+| **QI_VolumeSpike** ![QI_VolumeSpike](screenshots/QI_VolumeSpike.png) | **QI_VolumeDelta** ![QI_VolumeDelta](screenshots/QI_VolumeDelta.png) |
+| **QI_ChopIndex** ![QI_ChopIndex](screenshots/QI_ChopIndex.png) | **QI_LiquiditySweep** ![QI_LiquiditySweep](screenshots/QI_LiquiditySweep.png) |
+| **QI_OrderFlowPlus** ![QI_OrderFlowPlus](screenshots/QI_OrderFlowPlus.png) | **QI_SMC** ![QI_SMC](screenshots/QI_SMC.png) |
+| **QI_KeyLevels** ![QI_KeyLevels](screenshots/QI_KeyLevels.png) | |
 
 ## What was removed from the original, and why
 

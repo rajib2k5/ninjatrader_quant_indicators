@@ -87,7 +87,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 				LowerThreshold				= -1.5;
 				UpperThreshold				= 1.5;
-				ShowDisclaimer				= true;
+				ShowDisclaimer				= false;
 
 				AddPlot(new Stroke(Brushes.DarkOrange, 2), PlotStyle.Line, "CompositeVol");
 				AddLine(Brushes.DodgerBlue, -1.5, "Lower Threshold");
