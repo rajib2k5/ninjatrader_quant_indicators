@@ -1,0 +1,4 @@
+# file: C:\Users\rajib\OneDrive\Documents\ninjatrader_quant_indicators\validation\pytests\conftest.py
+# hypothesis_version: 6.141.1
+
+[0.0, 1e-09, 5e-05, 100.0, 20000, '%Y-%m-%d %H:%M:%S', '15min', '2026-01-05 09:30:00', 'BarTime', 'Close', 'High', 'Low', 'Open', 'QI_HARNESS_FILE', 'Volume', 'coerce', 'column_shift', 'compile_probe.sh', 'header_len', 'indicators', 'markers', 'path', 'probes', 'qi_dump_*.csv', 'replace', 'runs', 'session', 'utf-8', 'validation']

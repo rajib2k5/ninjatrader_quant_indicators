@@ -10,7 +10,9 @@ Usage: python diff_values.py ORIG_CSV HARNESS_CSV [--tol 0.00005] [--min-bar 50]
 ORIG EveryBar row layout (IBSFade.cs lines 509-511, 2794-2803):
   0 Timestamp,1 BarTime,2 Symbol,3 Timeframe,4 SignalType,5 Direction,6 Description,7 Price,
   8 IBS,9 AlphaCount,10 HpScore,11 Confidence,12 SweptLevel,13 Patterns,14 Open,15 High,16 Low,
-  17 Close,18 Volume,19 ATR14, then 33 databox_* columns (indices 20..52).
+  17 Close,18 Volume,19 ATR14 per the HEADER - but the data rows have one extra empty field
+  (format string "{4},,,,,,,,{5}"), so in the ROWS Open..Volume are 15..19, ATR 20 and the 33
+  databox_* values are 21..53.
 Signal rows (SignalType non-empty) have only 20 columns and are skipped. The ORIG file is
 opened in append mode by the indicator, so repeated chart loads duplicate BarTimes: the LAST
 row per BarTime (most recent run) is used, and the number of duplicates is reported.
@@ -66,13 +68,16 @@ def load_orig(path):
     rows, dups = OrderedDict(), 0
     with open(path, newline="", encoding="utf-8-sig") as f:
         for r in csv.reader(f):
-            if len(r) < 53 or r[0] == "Timestamp" or r[4] != "":
+            # ORIG's EveryBar format string has one comma too many ("{4},,,,,,,,{5}"), so each
+            # row has 54 fields against a 53-field header: OHLCV sit at 15-19, ATR at 20 and the
+            # 33 databox values at 21-53 (found by validation/pytests/test_data_integrity.py).
+            if len(r) < 54 or r[0] == "Timestamp" or r[4] != "":
                 continue
             bt = r[1]
             if bt in rows:
                 dups += 1
-            rows[bt] = {name: r[20 + i] for i, name in enumerate(ORIG_DATABOX)}
-            rows[bt]["Close"] = r[17]
+            rows[bt] = {name: r[21 + i] for i, name in enumerate(ORIG_DATABOX)}
+            rows[bt]["Close"] = r[18]
     return rows, dups
 
 

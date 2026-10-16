@@ -48,3 +48,16 @@ updated). New runtime claim C45 (material): "transparent overlay plots with non-
 price panel's visible range widens to include 0 / ±100 when such a module is added. B probe:
 screenshot of the price panel before/after adding QI_HedgingPressure and QI_BollingerPctB.
 Harness regenerated; all 28 files recompiled with compile_probe.sh after the change.
+
+## ADD-5 (2026-10-16) — harness redesign (hosting refused by NinjaTrader) and diff offset bug
+NinjaTrader's trace (2026-10-16 09:23:46) logged, for every module hosted by QI_EgvDump: "'QI_X' tried to
+load additional data. All data must first be loaded by the hosting NinjaScript in its configure state."
+The hosted harness therefore wrote header-only CSVs (0 rows) and every runtime differential so far is
+PROBE_INVALID, not evidence. Replacement: validation/harness/QIV_<Module>.cs — one subclass per module
+(`QIV_X : QI_X`) running the real compiled code as an ordinary chart indicator and appending its own
+values per bar; validation/probes/merge_runs.py joins the 27 files into qi_dump_<INSTR>_<PERIOD>.csv
+(the shape pytests/test_integration_harness.py and diff_values.py expect). All 54 files compile together
+(compile_probe rc=0). Separately, pytests/test_data_integrity.py found that the ORIGINAL's EveryBar rows
+have 54 fields vs a 53-field header, so diff_values.py's column offsets were one too low; fixed
+(OHLCV 15-19, databox 21-53). Claims C18-C43 and all (b) halves of the algorithm ledger remain
+pending a populated run.

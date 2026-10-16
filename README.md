@@ -132,11 +132,26 @@ lower. The corrected value is the standard −100…+100 %B; it equals the origi
 
 ## Validation
 
-The port was checked with the evidence-gated validation protocol: an environment pin, a
-pre-registered claims ledger, a documentation channel and a runtime channel (external Roslyn
-compile against the installed NinjaTrader assemblies, plus a bar-by-bar diff of every module's
-values against the original indicator's DataBox output). See [validation/](validation/) for the
-ledger, both channels' evidence and the report.
+Two evidence-gated validation passes, each with a pre-registered claims ledger, a documentation
+channel and a runtime channel (see [validation/](validation/)):
+
+1. **Port fidelity** — every module's values against the original indicator, bar by bar
+   (`validation/claims-ledger.md`, `channel-a-*.md`, `channel-b-*.md`).
+2. **Algorithms** — is each formula the published definition (NinjaTrader's shipped source for
+   the built-ins; the original publications for the strategy concepts), and does the compiled
+   code compute it (`validation/algo-claims-ledger.md`, `channel-a-algo-*.md`,
+   `channel-b-algo.md`).
+
+The runtime channel is a local test suite in [validation/pytests/](validation/pytests/) —
+independent Python reference implementations with unit tests, property/invariant tests
+(bounds, scale and shift invariance, no look-ahead, determinism, zero-range and zero-volume
+bars), data-integrity tests on exported bars, repository-invariant tests (no buy/sell
+artifacts, disclaimers present), a compile smoke test, and a differential test against values
+exported from NinjaTrader by the `validation/harness/QIV_*` subclasses. Run it with
+
+```
+python -I -m pytest validation/pytests -q -m "not slow"
+```
 
 ## Lineage
 

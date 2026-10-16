@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""gen_harness.py - generate validation/QI_EgvDump.cs from the indicators/*.cs sources.
+"""gen_harness.py - generate the validation harness from indicators/*.cs.
 
-QI_EgvDump is a NinjaScript indicator used ONLY for validation. It instantiates every QI_*
-module through the wrapper methods NinjaTrader generates on compile (QI_X(p1, p2, ...)), and
-writes one CSV row per bar with every plot value and every exposed Series<double> of every
-module, so the values can be diffed against the original indicator's EveryBar CSV.
+Design (v2): NinjaTrader 8 refuses to run indicators that are instantiated INSIDE another
+indicator at chart time ("tried to load additional data. All data must first be loaded by the
+hosting NinjaScript in its configure state"), so the harness does not host anything. Instead,
+for every QI_<Module> it emits a tiny subclass
 
-The wrapper signature is deterministic: every [NinjaScriptProperty] property, in source order,
-camelCased. Defaults are read from the `Prop = value;` assignments in State.SetDefaults so the
-harness runs each module at the same defaults the original used.
+    public class QIV_<Module> : QI_<Module>
 
-Usage: python gen_harness.py <indicators_dir> <out_cs> [--list]
+that runs the real compiled module as an ordinary chart indicator and, after each primary bar,
+appends the bar's O/H/L/C/V, every plot (Values[i]) and every public Series<double> the module
+exposes to validation/runs/qiv_<Module>_<INSTRUMENT>_<PERIOD>.csv. merge_runs.py then joins the
+27 files by BarTime into one qi_dump_<INSTRUMENT>_<PERIOD>.csv with the column names the pytest
+suite and diff_values.py expect (QI_<Module>.Values[i], QI_<Module>.<Series>).
+
+Usage: python gen_harness.py <indicators_dir> <out_dir> [--list]
+The subclasses are VALIDATION ONLY - never ship them as indicators.
 """
 from __future__ import annotations
 
@@ -18,92 +23,11 @@ import re
 import sys
 from pathlib import Path
 
-PROP_RE = re.compile(
-    r"\[NinjaScriptProperty\](?:\s*\[[^\]]*\])*\s*public\s+([\w<>\.]+)\s+(\w+)\s*\{\s*get;\s*set;\s*\}",
-    re.S,
-)
 SERIES_RE = re.compile(r"public\s+Series<double>\s+(\w+)\s*(?:\{|=>)")
 CLASS_RE = re.compile(r"public\s+class\s+(QI_\w+)\s*:\s*Indicator")
 PLOT_RE = re.compile(r"AddPlot\(")
 
-
-def defaults_block(src: str) -> str:
-    m = re.search(r"State\.SetDefaults\)\s*\{(.*?)\n\t\t\t\}", src, re.S)
-    return m.group(1) if m else ""
-
-
-def default_for(name: str, block: str) -> str | None:
-    m = re.search(rf"\b{name}\s*=\s*([^;]+);", block)
-    return m.group(1).strip() if m else None
-
-
-def camel(name: str) -> str:
-    return name[0].lower() + name[1:]
-
-
-def parse(path: Path):
-    src = path.read_text(encoding="utf-8")
-    cls = CLASS_RE.search(src)
-    if not cls:
-        return None
-    cls = cls.group(1)
-    block = defaults_block(src)
-    props = []
-    for typ, name in PROP_RE.findall(src):
-        d = default_for(name, block)
-        if d is None:
-            raise SystemExit(f"{path.name}: no SetDefaults value for [NinjaScriptProperty] {name}")
-        # Disclaimer text would stack on the harness chart; force it off.
-        if name == "ShowDisclaimer":
-            d = "false"
-        props.append((typ, name, d))
-    series = SERIES_RE.findall(src)
-    nplots = len(PLOT_RE.findall(src))
-    return cls, props, series, nplots
-
-
-def main():
-    if len(sys.argv) < 3:
-        print(__doc__)
-        sys.exit(2)
-    ind_dir, out = Path(sys.argv[1]), Path(sys.argv[2])
-    mods = []
-    for p in sorted(ind_dir.glob("QI_*.cs")):
-        r = parse(p)
-        if r:
-            mods.append(r)
-    if "--list" in sys.argv:
-        for cls, props, series, nplots in mods:
-            sig = ", ".join(f"{t} {camel(n)}={d}" for t, n, d in props)
-            print(f"{cls}({sig})  plots={nplots}  series={series}")
-        return
-
-    fields, ctor, header_cols, row_cols = [], [], [], []
-    for cls, props, series, nplots in mods:
-        var = cls[3:].lower()
-        fields.append(f"\t\tprivate {cls} {var};")
-        fields.append(f"\t\tprivate {cls}[] {var}Cache;")
-        # Same construction NinjaTrader's generated wrapper performs, without depending on it.
-        inits = ", ".join(f"{n} = {d}" for _, n, d in props)
-        ctor.append(f"\t\t\t\t{var} = CacheIndicator<{cls}>(new {cls}() {{ {inits} }}, Input, ref {var}Cache);")
-        for j in range(nplots):
-            header_cols.append(f"{cls}.Values[{j}]")
-            row_cols.append(f"{var}.Values[{j}][0]")
-        for s in series:
-            # Skip series that are just aliases of a plot (declared as `=> Values[i]` or `get { return Values[i]; }`)
-            header_cols.append(f"{cls}.{s}")
-            row_cols.append(f"{var}.{s}[0]")
-
-    cs = f"""// ============================================================================
-//  QI_EgvDump - VALIDATION HARNESS ONLY. Not an indicator for trading use.
-//  Generated by validation/probes/gen_harness.py - do not edit by hand.
-//
-//  Instantiates every QI_* module at its default parameters and writes one CSV row per bar
-//  with every plot value and exposed series, so the values can be diffed bar-by-bar against
-//  the original multi-strategy indicator's EveryBar CSV. Educational use only - not
-//  financial advice.
-// ============================================================================
-#region Using declarations
+USINGS = """#region Using declarations
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -126,44 +50,61 @@ using NinjaTrader.NinjaScript;
 using NinjaTrader.Core.FloatingPoint;
 using NinjaTrader.NinjaScript.DrawingTools;
 #endregion
+"""
 
+
+def parse(path: Path):
+    src = path.read_text(encoding="utf-8")
+    cls = CLASS_RE.search(src)
+    if not cls:
+        return None
+    return cls.group(1), SERIES_RE.findall(src), len(PLOT_RE.findall(src))
+
+
+def emit(cls: str, series: list, nplots: int) -> str:
+    mod = cls[3:]
+    cols = [f"Values[{j}]" for j in range(nplots)] + list(series)
+    header = ",".join(f"{cls}.{c}" for c in cols)
+    appends = "\n".join(f"\t\t\t\tsb.Append(',').Append(Safe({c}[0]));" for c in cols)
+    return f"""// ============================================================================
+//  QIV_{mod} - VALIDATION HARNESS ONLY. Not an indicator for trading use.
+//  Generated by validation/probes/gen_harness.py - do not edit by hand.
+//
+//  Runs the real compiled {cls} as a normal chart indicator (by inheritance, no hosting)
+//  and appends its values per bar to a CSV so they can be checked against the reference
+//  implementations in validation/pytests and the original indicator's EveryBar export.
+//  Educational use only - not financial advice.
+// ============================================================================
+{USINGS}
 namespace NinjaTrader.NinjaScript.Indicators
 {{
-	public class QI_EgvDump : Indicator
+	public class QIV_{mod} : {cls}
 	{{
-{chr(10).join(fields)}
 		private StreamWriter writer;
 
 		protected override void OnStateChange()
 		{{
+			base.OnStateChange();
+
 			if (State == State.SetDefaults)
 			{{
-				Description					= "Validation harness: dumps every QI_* module value per bar to CSV. Not for trading use.";
-				Name						= "QI_EgvDump";
-				Calculate					= Calculate.OnBarClose;
-				IsOverlay					= true;
-				DisplayInDataBox			= false;
-				IsSuspendedWhileInactive	= true;
-				OutputFolder				= @"C:\\Users\\rajib\\OneDrive\\Documents\\ninjatrader_quant_indicators\\validation\\runs";
-			}}
-			else if (State == State.Configure)
-			{{
-				// Hosted QI_IBS adds its own daily series; nothing to do here.
+				Name			= "QIV_{mod}";
+				Description		= "Validation harness for {cls}: writes its values per bar to CSV. Not for trading use.";
+				ShowDisclaimer	= false;
+				OutputFolder	= @"C:\\Users\\rajib\\OneDrive\\Documents\\ninjatrader_quant_indicators\\validation\\runs";
 			}}
 			else if (State == State.DataLoaded)
 			{{
-{chr(10).join(ctor)}
-
 				try
 				{{
 					Directory.CreateDirectory(OutputFolder);
-					string tf = BarsPeriod.BarsPeriodType + "-" + BarsPeriod.Value;
-					string file = Path.Combine(OutputFolder, "qi_dump_" + Instrument.MasterInstrument.Name + "_" + tf + ".csv");
+					string tf   = BarsPeriod.BarsPeriodType + "-" + BarsPeriod.Value;
+					string file = Path.Combine(OutputFolder, "qiv_{mod}_" + Instrument.MasterInstrument.Name + "_" + tf + ".csv");
 					writer = new StreamWriter(file, false);
-					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,{",".join(header_cols)}");
+					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,{header}");
 					writer.AutoFlush = true;
 				}}
-				catch (Exception ex) {{ Print("QI_EgvDump init error: " + ex.Message); writer = null; }}
+				catch (Exception ex) {{ Print("QIV_{mod} init error: " + ex.Message); writer = null; }}
 			}}
 			else if (State == State.Terminated)
 			{{
@@ -173,7 +114,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 		protected override void OnBarUpdate()
 		{{
-			if (BarsInProgress != 0 || writer == null || CurrentBar < 50)
+			base.OnBarUpdate();
+
+			if (BarsInProgress != 0 || writer == null)
 				return;
 			try
 			{{
@@ -182,10 +125,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 				  .Append(',').Append(Open[0].ToString("F4")).Append(',').Append(High[0].ToString("F4"))
 				  .Append(',').Append(Low[0].ToString("F4")).Append(',').Append(Close[0].ToString("F4"))
 				  .Append(',').Append(Volume[0].ToString("F0"));
-{chr(10).join(f"				sb.Append(',').Append(Safe({c}));" for c in row_cols)}
+{appends}
 				writer.WriteLine(sb.ToString());
 			}}
-			catch (Exception ex) {{ Print("QI_EgvDump row error at bar " + CurrentBar + ": " + ex.Message); }}
+			catch (Exception ex) {{ Print("QIV_{mod} row error at bar " + CurrentBar + ": " + ex.Message); }}
 		}}
 
 		private static string Safe(double v)
@@ -193,16 +136,34 @@ namespace NinjaTrader.NinjaScript.Indicators
 			return (double.IsNaN(v) || double.IsInfinity(v)) ? "" : v.ToString("F4");
 		}}
 
-		#region Properties
+		public override string DisplayName
+		{{
+			get {{ return "QIV {mod} (validation)"; }}
+		}}
+
 		[NinjaScriptProperty]
-		[Display(Name = "Output Folder", Order = 1, GroupName = "Parameters")]
+		[Display(Name = "Output Folder", Order = 99, GroupName = "Validation")]
 		public string OutputFolder {{ get; set; }}
-		#endregion
 	}}
 }}
 """
-    out.write_text(cs, encoding="utf-8")
-    print(f"wrote {out} ({len(mods)} modules, {len(row_cols)} columns)")
+
+
+def main():
+    if len(sys.argv) < 3:
+        print(__doc__); sys.exit(2)
+    ind_dir, out_dir = Path(sys.argv[1]), Path(sys.argv[2])
+    mods = [r for r in (parse(p) for p in sorted(ind_dir.glob("QI_*.cs"))) if r]
+    if "--list" in sys.argv:
+        for cls, series, nplots in mods:
+            print(f"{cls}: plots={nplots} series={series}")
+        return
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for old in out_dir.glob("QIV_*.cs"):
+        old.unlink()
+    for cls, series, nplots in mods:
+        (out_dir / f"QIV_{cls[3:]}.cs").write_text(emit(cls, series, nplots), encoding="utf-8")
+    print(f"wrote {len(mods)} QIV_* harness files to {out_dir}")
 
 
 if __name__ == "__main__":

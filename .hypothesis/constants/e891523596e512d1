@@ -1,0 +1,4 @@
+# file: C:\Users\rajib\OneDrive\Documents\ninjatrader_quant_indicators\validation\pytests\qi_ref.py
+# hypothesis_version: 6.141.1
+
+[-100.0, -50.0, -25.0, 0.0, 0.1, 0.15, 0.25, 0.35, 0.4, 0.5, 0.7, 1.0, 2.0, 3.0, 25.0, 50.0, 61.8, 100.0, 100, 200, 'BarTime', 'Close', 'High', 'Low', 'Open', 'Volume', 'adx', 'atr', 'atr_change', 'atr_regime', 'bollinger', 'calendar_day', 'chop', 'chop_state', 'composite', 'composite_vol', 'connors_rsi', 'consec_days', 'day_of_week', 'ema', 'ema_cross', 'gap_pct', 'hp_basis_term', 'hp_clamp_total', 'hp_slope_term', 'ibs_bar', 'ibs_daily', 'ignore', 'macd', 'macd_hist', 'pct_b', 'pct_b_from_bands', 'percent_rank', 'price_z', 'rsi', 'rv_zscore', 'sma', 'sma200_trend', 'stddev', 'stoch_fast', 'streak', 'trading', 'trading_day', 'true_range', 'turn_of_month', 'vol_ratio', 'volume_delta', 'volume_spike', 'vov', 'vrp_proxy', 'vwap', 'vwap_distance', 'wide_range', 'wilder', 'z_rv']
