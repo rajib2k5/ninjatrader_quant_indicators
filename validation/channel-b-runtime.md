@@ -116,3 +116,15 @@ that a same-second group is truncated at the start of the shorter load, k would 
 that group — the O/H/L/C/V sanity check catches it; the remedy is to load the same range. On
 Minute charts k is always 0 and the key degenerates to BarTime.
 
+
+## C45 — transparent overlay plots do not stretch the price auto-scale (ADD-4)
+Probe: screenshot of the live MES DEC26 60-minute chart, 2026-10-16 12:29 local, after the overlay
+recompile (`validation/runs/captures/capture_20261016_1229_MES60.jpg`). On the price panel:
+QI_EMACross, QI_LiquiditySweep, QI_OrderFlowPlus, QI_SMC (their Confidence 0..1 and Structure ±1
+plots are transparent). Observed price axis 7720–7880 for candles ranging ~7715–7885; no 0 or ±1
+level pulled into view; labels render on the bars; no sub-panel for those modules. Panels present:
+QI_ATRRegime (1.5 line), QI_ChopIndex (CAUTION 1/3 text), QI_IBS (0.2/0.8 lines, daily-series step).
+Verdict: **CONFIRMED** for the four modules on screen. Not yet observed: QI_HedgingPressure (score
+−100..100), QI_BollingerPctB (%B ±100), QI_VWAPDistance, QI_TurnOfMonth, QI_TurnaroundTuesday — those
+remain pending a chart that includes them. Falsifier: a panel module's plot made overlay+visible
+would widen the axis; not executed (would require a code change on the live chart).

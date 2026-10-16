@@ -79,25 +79,26 @@ only (e.g. `Liq Sweep End: SFP + Spring (85%)`), never as buy/sell.
 
 ## Screenshots
 
-One per indicator (NinjaTrader 8.1.8.3, MES 5-minute chart, default parameters), in
-[screenshots/](screenshots/).
+NinjaTrader 8.1.8.3, MES DEC26, default parameters, in [screenshots/](screenshots/). Captured so
+far (the rest are added as they are captured):
 
-| | |
+**Overlay modules on one price chart** — `QI_EMACross` (EMA 20 blue / EMA 50 orange),
+`QI_LiquiditySweep` (gold/orchid "Liq Sweep" labels), `QI_OrderFlowPlus` (cyan/magenta "OF+"
+labels), `QI_SMC` (sky-blue/orange "SMC" labels); no sub-panels, nothing but pattern names and
+confidence on the bars:
+
+![Overlay modules](screenshots/QI_overlays_EMACross_LiquiditySweep_OrderFlowPlus_SMC.png)
+
+| Panel module | |
 |---|---|
-| **QI_IBS** ![QI_IBS](screenshots/QI_IBS.png) | **QI_RSI2** ![QI_RSI2](screenshots/QI_RSI2.png) |
-| **QI_ConnorsRSI** ![QI_ConnorsRSI](screenshots/QI_ConnorsRSI.png) | **QI_StochFade** ![QI_StochFade](screenshots/QI_StochFade.png) |
-| **QI_RVZScore** ![QI_RVZScore](screenshots/QI_RVZScore.png) | **QI_CompositeVol** ![QI_CompositeVol](screenshots/QI_CompositeVol.png) |
-| **QI_TurnOfMonth** ![QI_TurnOfMonth](screenshots/QI_TurnOfMonth.png) | **QI_ConsecDays** ![QI_ConsecDays](screenshots/QI_ConsecDays.png) |
-| **QI_OvernightGap** ![QI_OvernightGap](screenshots/QI_OvernightGap.png) | **QI_BollingerPctB** ![QI_BollingerPctB](screenshots/QI_BollingerPctB.png) |
-| **QI_TurnaroundTuesday** ![QI_TurnaroundTuesday](screenshots/QI_TurnaroundTuesday.png) | **QI_RSI14** ![QI_RSI14](screenshots/QI_RSI14.png) |
-| **QI_VRPProxy** ![QI_VRPProxy](screenshots/QI_VRPProxy.png) | **QI_WideRangeBar** ![QI_WideRangeBar](screenshots/QI_WideRangeBar.png) |
-| **QI_HedgingPressure** ![QI_HedgingPressure](screenshots/QI_HedgingPressure.png) | **QI_VWAPDistance** ![QI_VWAPDistance](screenshots/QI_VWAPDistance.png) |
-| **QI_MACDHistogram** ![QI_MACDHistogram](screenshots/QI_MACDHistogram.png) | **QI_EMACross** ![QI_EMACross](screenshots/QI_EMACross.png) |
-| **QI_SMA200Trend** ![QI_SMA200Trend](screenshots/QI_SMA200Trend.png) | **QI_ATRRegime** ![QI_ATRRegime](screenshots/QI_ATRRegime.png) |
-| **QI_VolumeSpike** ![QI_VolumeSpike](screenshots/QI_VolumeSpike.png) | **QI_VolumeDelta** ![QI_VolumeDelta](screenshots/QI_VolumeDelta.png) |
-| **QI_ChopIndex** ![QI_ChopIndex](screenshots/QI_ChopIndex.png) | **QI_LiquiditySweep** ![QI_LiquiditySweep](screenshots/QI_LiquiditySweep.png) |
-| **QI_OrderFlowPlus** ![QI_OrderFlowPlus](screenshots/QI_OrderFlowPlus.png) | **QI_SMC** ![QI_SMC](screenshots/QI_SMC.png) |
-| **QI_KeyLevels** ![QI_KeyLevels](screenshots/QI_KeyLevels.png) | |
+| **QI_ATRRegime** — ATR(14) / SMA50(ATR14) with the 1.5 reference line | ![QI_ATRRegime](screenshots/QI_ATRRegime.png) |
+| **QI_ChopIndex** — Choppiness Index with 38.2 / 61.8 lines and the CHOP / ADX / volume state text | ![QI_ChopIndex](screenshots/QI_ChopIndex.png) |
+| **QI_IBS** — daily-bar Internal Bar Strength (step shape on an intraday chart) with 0.2 / 0.8 lines | ![QI_IBS](screenshots/QI_IBS.png) |
+
+Pending capture: QI_RSI2, QI_ConnorsRSI, QI_StochFade, QI_RVZScore, QI_CompositeVol,
+QI_TurnOfMonth, QI_ConsecDays, QI_OvernightGap, QI_BollingerPctB, QI_TurnaroundTuesday, QI_RSI14,
+QI_VRPProxy, QI_WideRangeBar, QI_HedgingPressure, QI_VWAPDistance, QI_MACDHistogram,
+QI_SMA200Trend, QI_VolumeSpike, QI_VolumeDelta, QI_KeyLevels.
 
 ## What was removed from the original, and why
 
