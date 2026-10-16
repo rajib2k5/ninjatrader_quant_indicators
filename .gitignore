@@ -1,0 +1,6 @@
+# compiler probe output and NinjaTrader run artifacts
+validation/probes/_probe_out/
+validation/runs/*.csv
+*.dll
+*.pdb
+Thumbs.db

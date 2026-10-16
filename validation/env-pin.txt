@@ -1,0 +1,29 @@
+# env-pin.txt — Evidence-Gated Validation, Step 1 (environment freeze)
+# Recorded: 2026-10-15
+# Code under validation: per-strategy NinjaScript indicators split from
+#   C:\Users\rajib\Documents\NinjaTrader 8\bin\Custom\Indicators\IBSFade.cs (3,230 lines, "Multi-Alpha")
+
+## Platform
+OS: Windows 11 Home 10.0.26200 (win32, x64)
+
+## NinjaTrader 8 (the runtime/API the code targets)
+NinjaTrader.exe       : C:\Program Files\NinjaTrader 8\bin\  (running during this session, PID 3436)
+NinjaTrader.Core.dll  : FileVersion 8.1.8.3
+NinjaTrader.Gui.dll   : FileVersion 8.1.8.3
+User data folder      : C:\Users\rajib\Documents\NinjaTrader 8   (Windows MyDocuments known folder — NOT OneDrive)
+NinjaTrader.Custom.dll: C:\Users\rajib\Documents\NinjaTrader 8\bin\Custom\NinjaTrader.Custom.dll, last built 2026-10-11 13:52:10
+NinjaTrader.Custom.csproj: SDK-style (Microsoft.NET.Sdk), <TargetFramework>net48</TargetFramework>,
+                          <LangVersion>13.0</LangVersion>, <PlatformTarget>x64</PlatformTarget>, OutputType Library
+Third-party refs      : SharpDX 2.6.3.0, SharpDX.Direct2D1 2.6.3.0 (..\NinjaTrader\DirectX\), System.Net.Http, System.Web.Extensions
+System indicator srcs : 122 "@*.cs" files in bin\Custom\Indicators (NinjaTrader-shipped)
+Help guide (Channel A primary source): https://ninjatrader.com/support/helpGuides/nt8/  (match to 8.1.x)
+
+## C# compilers available for Channel B probes
+dotnet SDK            : 8.0.100  (C:\Program Files\dotnet\sdk\8.0.100)
+Roslyn csc            : C:\Program Files\dotnet\sdk\8.0.100\Roslyn\bincore\csc.dll  (run via `dotnet exec`)
+.NET Framework csc    : C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe  (C# 5 only — NOT sufficient for LangVersion 13)
+Authoritative compile : NinjaTrader's own NinjaScript Editor (F5) compiling NinjaTrader.Custom.csproj — Tier 0 gate
+
+## Tooling
+git                   : 2.45.2.windows.1
+gh (portable)         : C:\Users\rajib\tools\gh\bin\gh.exe  v2.98.0, authenticated as rajib2k5
