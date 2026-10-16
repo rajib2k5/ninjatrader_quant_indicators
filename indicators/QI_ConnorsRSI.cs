@@ -13,6 +13,9 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #3
 //            (ORIG lines 342, 410-411, 1552-1568, 1277-1296).
+//  Provenance: Deviates from Connors Research's published CRSI, which uses RSI(3) of price and resets the
+//            streak to 0 on an unchanged close; this file keeps the original indicator's RSI(2) and
+//            streak-carrying rule by the user's decision (validation/channel-a-algo-1.md M3).
 //  Concept : ConnorsRSI, Connors Research (2012).
 //  Formula : CRSI = ( RSI(Close,2,1) + RSI(streak,2,1) + PercentRank(ROC1, 100) ) / 3
 //            streak  : signed run of up/down closes (+n up, -n down); an unchanged

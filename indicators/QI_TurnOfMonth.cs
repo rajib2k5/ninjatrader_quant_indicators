@@ -13,6 +13,9 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #7
 //            (ORIG 370 for the CST zone, ORIG 1332-1340 for the window test).
+//  Provenance: The literature window (Lakonishok & Smidt 1988; Hensel & Ziemba 1996) is in TRADING days
+//            (last day through the first three); this file uses the original's CALENDAR-day window
+//            (last 4 / first 3) - an approximation, kept by the user's decision.
 //  Concept : Turn-of-the-Month seasonality, Hensel & Ziemba.
 //  Formula : Bar time is converted from the platform time zone to US Central
 //            (TimeZoneInfo "Central Standard Time", exactly as ORIG). With

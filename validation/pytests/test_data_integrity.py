@@ -132,9 +132,10 @@ def test_minute_bar_spacing_within_session(source):
 
 
 def test_old_export_row_layout_matches_docstring(source, request):
-    """diff_values.py documents Open..Volume at columns 14..18; the bar rows actually carry one
-    surplus field (54 vs 53 header fields). Recorded as a strict xfail data finding so the suite
-    notices if the file is ever re-exported with an aligned layout."""
+    """The ORIG export's HEADER names Open..Volume at columns 14..18; the bar rows actually carry
+    one surplus field (54 vs 53 header fields). Recorded as a strict xfail data finding so the
+    suite notices if the file is ever re-exported with an aligned layout. (diff_values.py and
+    conftest.load_old_export both align per row by len(row) - len(header).)"""
     kind, path, df = source
     if kind != "old_export":
         pytest.skip("old-export-only check")

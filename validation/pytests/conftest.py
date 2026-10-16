@@ -22,9 +22,11 @@ PROBES_DIR = REPO / "validation" / "probes"
 COMPILE_PROBE = PROBES_DIR / "compile_probe.sh"
 LEDGER = REPO / "validation" / "algo-claims-ledger.md"
 
-# Original (pre-split) indicator EveryBar export. Layout per validation/probes/diff_values.py:
+# Original (pre-split) indicator EveryBar export. HEADER layout (see validation/probes/diff_values.py):
 #   0 Timestamp, 1 BarTime, 2 Symbol, 3 Timeframe, 4 SignalType, ..., 14 Open, 15 High, 16 Low,
-#   17 Close, 18 Volume, 19 ATR14, ...  Signal rows (column 4 non-empty) are skipped.
+#   17 Close, 18 Volume, 19 ATR14, ...  Bar rows carry one surplus field (Open..Volume at 15..19),
+#   so load_old_export aligns each row by len(row) - len(header). Signal rows (column 4 non-empty)
+#   are skipped.
 OLD_EXPORT = Path(r"C:\Users\rajib\OneDrive\Docs\futures_data\ninja_trader_signal_data"
                   r"\MES_150tick_20250202_20260224.csv")
 OLD_EXPORT_ROWS = 20_000

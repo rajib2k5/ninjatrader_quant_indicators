@@ -12,6 +12,9 @@
 //  DISCLAIMER.md in the repository root.
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #24.
+//  Provenance: Practitioner pattern rules; only Turtle Soup has a published rule set (Connors & Raschke,
+//            Street Smarts 1995) and this implementation omits its prior-extreme age condition.
+//            Confidence values are heuristic constants.
 //  Concept : Liquidity sweeps (stop hunts) of swing / key levels, Swing Failure
 //            Pattern, equal-high/low traps, consolidation breakout traps, Wyckoff
 //            Spring / Upthrust, Turtle Soup (Connors & Raschke 1995) and

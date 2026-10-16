@@ -493,14 +493,25 @@ def hp_clamp_total(*terms):
 
 
 # ============================================================================================
-# M16 VWAP = sum(typical*vol)/sum(vol), typical = (H+L+C)/3, reset on day-of-year change;
+# M16 VWAP = sum(typical*vol)/sum(vol), typical = (H+L+C)/3, reset at each trading session
+#     (ADD-6: the module resets on Bars.IsFirstBarOfSession and exports that flag as
+#     QI_VWAPDistance.SessionStart; when the flag column is absent the calendar day of BarTime
+#     is used as the session key, which is the original indicator's day-of-year behaviour);
 #     dist = (C - VWAP)/ATR14
 # ============================================================================================
+SESSION_FLAG_COL = "QI_VWAPDistance.SessionStart"
+
+
 def vwap(df):
-    """Ledger M16. Reset key = calendar day of BarTime ('day-of-year change').
-    ASSUMPTION: VWAP = typical price while the day's cumulative volume is 0."""
+    """Ledger M16 (ADD-6). Reset key = cumulative count of session-start flags when the
+    SessionStart column is present, else the calendar day of BarTime.
+    ASSUMPTION: VWAP = typical price while the session's cumulative volume is 0."""
     typ = (df["High"] + df["Low"] + df["Close"]) / 3.0
-    key = calendar_day(df["BarTime"]).to_numpy()
+    if SESSION_FLAG_COL in df.columns:
+        flag = pd.to_numeric(df[SESSION_FLAG_COL], errors="coerce").fillna(0).to_numpy()
+        key = np.cumsum(flag > 0.5)
+    else:
+        key = calendar_day(df["BarTime"]).to_numpy()
     pv = (typ * df["Volume"]).groupby(key).cumsum()
     vv = df["Volume"].groupby(key).cumsum()
     v = (pv / vv.where(vv != 0, np.nan)).where(vv != 0, typ)

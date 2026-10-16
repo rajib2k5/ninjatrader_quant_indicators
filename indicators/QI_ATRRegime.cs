@@ -13,6 +13,7 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #19
 //            (ORIG lines 1416-1420; atr14 = ATR(14) at 347, atrSma50 = SMA(atr14, 50) at 409).
+//  Provenance: Practitioner heuristic (ATR vs its 50-bar average); no authoritative source.
 //  Concept : ATR regime filter (current realized vol vs. its medium-term average).
 //  Formula : ATRRegime = ATR14[0] / SMA(ATR14, 50)[0] when CurrentBar >= 50 && the SMA > 0,
 //            else 1.0.

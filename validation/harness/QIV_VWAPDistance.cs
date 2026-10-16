@@ -56,7 +56,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 					string tf   = BarsPeriod.BarsPeriodType + "-" + BarsPeriod.Value;
 					string file = Path.Combine(OutputFolder, "qiv_VWAPDistance_" + Instrument.MasterInstrument.Name + "_" + tf + ".csv");
 					writer = new StreamWriter(file, false);
-					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,QI_VWAPDistance.Values[0],QI_VWAPDistance.Values[1],QI_VWAPDistance.Vwap,QI_VWAPDistance.VwapDistance");
+					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,QI_VWAPDistance.Values[0],QI_VWAPDistance.Values[1],QI_VWAPDistance.Vwap,QI_VWAPDistance.VwapDistance,QI_VWAPDistance.SessionStart");
 					writer.AutoFlush = true;
 				}
 				catch (Exception ex) { Print("QIV_VWAPDistance init error: " + ex.Message); writer = null; }
@@ -84,6 +84,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				sb.Append(',').Append(Safe(Values[1][0]));
 				sb.Append(',').Append(Safe(Vwap[0]));
 				sb.Append(',').Append(Safe(VwapDistance[0]));
+				sb.Append(',').Append(Safe(SessionStart[0]));
 				writer.WriteLine(sb.ToString());
 			}
 			catch (Exception ex) { Print("QIV_VWAPDistance row error at bar " + CurrentBar + ": " + ex.Message); }

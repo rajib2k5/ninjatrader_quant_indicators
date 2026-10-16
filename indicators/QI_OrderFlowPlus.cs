@@ -12,6 +12,8 @@
 //  DISCLAIMER.md in the repository root.
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plots #27-28.
+//  Provenance: Practitioner heuristics on close-direction volume; no authoritative definition exists.
+//            Confidence values are heuristic constants.
 //  Concept : Order-flow proxies from a close-to-close signed volume delta:
 //            Delta Divergence (0.78), Absorption (0.65), Exhaustion (0.60),
 //            Stacked Delta / Volume Imbalance (0.55), Delta Reversal (0.70).

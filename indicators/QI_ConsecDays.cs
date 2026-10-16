@@ -13,6 +13,8 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #8
 //            (streak update ORIG 1552-1568, value ORIG 1342-1346).
+//  Provenance: Streak counting per Connors' consecutive-day setups; the only Connors rule found resets the
+//            streak on an unchanged close, this file keeps counts (original's rule).
 //  Concept : Consecutive-day streaks, Connors.
 //  Formula : Close[0] > Close[1] -> consecUp++, consecDown = 0
 //            Close[0] < Close[1] -> consecDown++, consecUp = 0

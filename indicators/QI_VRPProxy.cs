@@ -13,6 +13,8 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #13
 //            (ORIG lines 1373-1377; atr14 = ATR(14) at 347, atr5 = ATR(5) at 414).
+//  Provenance: ATR5/ATR14 is a practitioner proxy; the variance risk premium proper is implied minus
+//            realized variance. No authoritative source for this proxy.
 //  Concept : Short-vs-long realized volatility ratio ("DeltaInvariantVol" concept).
 //  Formula : VRP = ATR5[0] / ATR14[0] when CurrentBar >= 20 && ATR14[0] > 0, else 1.0.
 //  Quirks  : ORIG additionally gated its entire OnBarUpdate on CurrentBar >= 50 (so its

@@ -14,6 +14,9 @@
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plots
 //            #25 (CHOP) and #26 (is_market_choppy); ORIG 358-359 for the
 //            SMA(Volume, 20) / ADX(14) instances, ORIG 1453-1524 for the math.
+//  Provenance: CHOP formula matches NinjaTrader's shipped ChoppinessIndex; the 61.8/38.2 lines are a
+//            convention (NinjaTrader ships 62.8/38.2); the 2-of-3 'choppy' state is a heuristic
+//            with no published definition.
 //  Concept : Choppiness Index, Dreiss (1993).
 //  Formula : CHOP = 100 * LOG10( SUM(TrueRange, 14) / (HH(14) - LL(14)) ) / LOG10(14)
 //            clamped to 0..100; 50 while CurrentBar < 14 or when HH == LL.

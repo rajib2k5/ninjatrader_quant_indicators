@@ -61,3 +61,32 @@ values per bar; validation/probes/merge_runs.py joins the 27 files into qi_dump_
 have 54 fields vs a 53-field header, so diff_values.py's column offsets were one too low; fixed
 (OHLCV 15-19, databox 21-53). Claims C18-C43 and all (b) halves of the algorithm ledger remain
 pending a populated run.
+
+## ADD-6 (2026-10-16) — diff_values.py probe defect: ORIG column shift and tick-chart join key
+Channel B (channel-b-algo.md §5 items 2–3) found that the ORIG EveryBar bar rows carry one surplus
+field against the 53-field header, so `diff_values.py`'s fixed-position read `r[20 + i]` compared every
+C18–C43 harness column against the ORIG column one to the LEFT, and that 150-tick bars share 1-second
+BarTimes, so its "LAST row per BarTime" join dropped real bars. No recorded verdict was affected
+(C18–C43 were never run: no populated harness CSV exists). Fix: per-row alignment by
+`len(row) - len(header)` with two independent per-row checks and a loud layout report/abort;
+`(BarTime, k)` positional join inside same-second groups in `diff_values.py` and `merge_runs.py`,
+with Bar monotonicity and O/H/L/C/V equality as pairing proof. Self-tests and the whole-file layout
+report are in channel-b-runtime.md (2026-10-16 addendum). Fresh claim P1 (supersedes the ADD-5 note on the diff offset): "diff_values.py on a
+populated 150-tick qi_dump reports 0 O/H/L/C/V mismatches and joins every harness bar ≥ 50 that
+ORIG logged". A: static re-read of the loader. B: the sanity line and the joined count printed by
+the first real run.
+
+
+## ADD-6 (2026-10-16) — algorithm-definition decisions (user) after channel-a-algo-1/2
+- M3 ConnorsRSI: keep the original's RSI(2)/streak-carry (not Connors' published RSI(3)/reset) — documented.
+- M16 VWAP: CHANGED to reset on Bars.IsFirstBarOfSession (official session semantics); the module now
+  exports a SessionStart series (1 on the first bar of a session) so qi_ref.vwap can replay the reset;
+  test_integration_harness compares VWAP from the first session start after the bar-50 gate. New API
+  claim C46 (material): "Bars.IsFirstBarOfSession is a readable bool in OnBarUpdate on NT 8.1.8.3" —
+  A: help guide; B: compile + the exported flag has exactly one 1 per session on the 5-min chart.
+  The port-fidelity claim C33 is now expected to show mismatches on the first bars after each
+  midnight/session (deliberate); the ORIG differential for C33 is re-scoped to "equal except in
+  bars between a calendar-midnight and the next session start".
+- M15 Hedging Pressure: name kept; header states it is a price/volume composite, not Basu & Miffre's COT measure.
+- M7 Turn-of-Month: calendar-day window kept; header states the literature uses trading days.
+- All other definition findings documented as "Provenance" header lines (17 files) and in README.

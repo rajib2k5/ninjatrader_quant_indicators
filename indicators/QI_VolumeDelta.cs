@@ -14,6 +14,8 @@
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plots #21 and #22
 //            (ORIG lines 1428-1443; volDelta series and volDeltaSma = SMA(volDelta, 10) at
 //            357-360; per-bar delta in UpdateVolumeDelta, lines 1623-1634).
+//  Provenance: Close-vs-prior-close signed volume is a proxy; true volume delta needs bid/ask (or at
+//            least close-vs-open) classification. No authoritative definition for this form.
 //  Concept : Close-direction volume delta as an order-flow proxy.
 //  Formula : VolDelta[0]  = +Volume[0] if Close[0] > Close[1], -Volume[0] if Close[0] < Close[1],
 //                           0 if unchanged; 0 on bar 0.

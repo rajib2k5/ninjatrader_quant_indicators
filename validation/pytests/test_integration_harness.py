@@ -220,8 +220,15 @@ def test_M15_hedging_pressure_formula_unverifiable(harness):
 
 def test_M16_vwap(harness):
     h = harness
-    check(h, R.vwap(h), _col(h, "QI_VWAPDistance.Vwap"), 1e-4, 0, "M16/VWAP")
-    check(h, R.vwap_distance(h), _col(h, "QI_VWAPDistance.VwapDistance", "QI_VWAPDistance.Values[0]"), 1e-3, RECURSIVE_WARMUP, "M16/dist")
+    # The module's accumulators only start at its bar-50 gate, so the first session in the export
+    # is partial by construction; compare from the first session start after bar 50 (ADD-6).
+    w = 0
+    if R.SESSION_FLAG_COL in h.columns:
+        flags = pd.to_numeric(h[R.SESSION_FLAG_COL], errors="coerce").fillna(0).to_numpy()
+        starts = np.flatnonzero((flags > 0.5) & (np.arange(len(flags)) > 50))
+        w = int(starts[0]) if len(starts) else len(h)
+    check(h, R.vwap(h), _col(h, "QI_VWAPDistance.Vwap"), 1e-4, w, "M16/VWAP")
+    check(h, R.vwap_distance(h), _col(h, "QI_VWAPDistance.VwapDistance", "QI_VWAPDistance.Values[1]"), 1e-3, max(w, RECURSIVE_WARMUP), "M16/dist")
 
 
 def test_M17_macd_histogram(harness):

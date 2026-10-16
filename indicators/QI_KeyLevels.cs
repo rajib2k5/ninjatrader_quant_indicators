@@ -15,6 +15,9 @@
 //  Lineage : split out of the "IBSFade" multi-strategy indicator (UpdateKeyLevels,
 //            UpdatePrevDayHighLow, UpdateMonthlyHighLow, UpdateOrb,
 //            UpdateAsianSession, the IsIn*Window helpers and DrawKeyLevelLines).
+//  Provenance: RTH 08:30-16:00 CT equals NinjaTrader's 'CME US Index Futures RTH' session template, not a
+//            CME definition (CME publishes Globex 17:00-16:00 CT only); the 30-minute opening range
+//            and the 17:00-02:00 CT 'Asian session' are conventions without an official source.
 //  Concept : Previous business day RTH high/low (8:30-16:00 CST), current calendar
 //            month high/low, 30-minute opening range (8:30-9:00 CST; Crabel-style
 //            opening range), and Asian session high/low (17:00-02:00 CST).

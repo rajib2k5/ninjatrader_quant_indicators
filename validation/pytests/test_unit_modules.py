@@ -319,6 +319,21 @@ def test_M16_vwap_hand_values_and_reset_at_day_change():
     assert v[2] == pytest.approx(typ[2])  # new calendar day -> only this bar
 
 
+def test_M16_vwap_resets_on_session_flag_not_calendar_day():
+    # ADD-6: with the SessionStart flag present, a session that spans midnight must NOT reset at
+    # midnight, and must reset where the flag is 1 (17:00 CT open of a futures session).
+    times = pd.to_datetime(["2026-01-06 17:00", "2026-01-06 23:55", "2026-01-07 00:05", "2026-01-07 17:00"])
+    df = make_df([10, 10, 10, 20], [12, 14, 16, 22], [8, 10, 12, 18], [10, 12, 14, 20], volume=[100, 300, 100, 50])
+    df["BarTime"] = times
+    df[R.SESSION_FLAG_COL] = [1, 0, 0, 1]
+    v = R.vwap(df).to_numpy()
+    assert v[1] == pytest.approx((10 * 100 + 12 * 300) / 400)
+    assert v[2] == pytest.approx((10 * 100 + 12 * 300 + 14 * 100) / 500)   # crossed midnight, no reset
+    assert v[3] == pytest.approx(20.0)                                       # session flag -> reset
+    # falsifier: the calendar-day rule would have reset at bar 2
+    assert R.vwap(df.drop(columns=[R.SESSION_FLAG_COL])).to_numpy()[2] == pytest.approx(14.0)
+
+
 def test_M16_vwap_distance_in_atr_units():
     df = df_from_close(PRICES[:60], wick=1.0, volume=VOLS[:60])
     dist = R.vwap_distance(df)

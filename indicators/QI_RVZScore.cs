@@ -13,6 +13,8 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #5
 //            (ORIG UpdateNewAlphas lines 1573-1593; atr14 = ATR(14) at line 347).
+//  Provenance: Z-score arithmetic is standard; the 'realized-vol z-score of ATR' setup itself has no
+//            published source (practitioner attribution).
 //  Concept : Realized-volatility spike z-score ("DthetaSpike" concept).
 //  Formula : lookback = Math.Min(20, CurrentBar)
 //            mean     = average of ATR14[0..lookback-1]

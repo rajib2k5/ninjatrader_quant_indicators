@@ -14,6 +14,7 @@
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #6
 //            (ORIG lines 1308-1330; dependencies at 347 ATR(14), 416-418 SMA(Close,20)
 //            and StdDev(Close,20); rvZ at 1573-1593; atrChangeSeries at 1596).
+//  Provenance: Unpublished composite ('v5_zscore'); weights and constants have no authoritative source.
 //  Concept : "v5_zscore" composite volatility score.
 //  Formula : rvZ   = (ATR14 - mean) / population std of ATR14 over the last
 //                    Math.Min(20, CurrentBar) bars, 0 until CurrentBar >= 25 (see QI_RVZScore)

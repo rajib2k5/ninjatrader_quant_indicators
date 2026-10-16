@@ -124,11 +124,29 @@ The split reproduces the original math exactly, including a few things you may w
   values differ from the original for roughly the oldest session of loaded history, then
   converge. Daily charts match exactly.
 
-## The one deliberate formula change
+## Deliberate changes from the original
 
-`QI_BollingerPctB` uses the Bollinger **middle** band. The original's "mid" variable actually read
-the *upper* band (`Bollinger.Values[0]`), so its "%B" was 0 at the upper band and −200 at the
-lower. The corrected value is the standard −100…+100 %B; it equals the original's value + 100.
+- `QI_BollingerPctB` uses the Bollinger **middle** band. The original's "mid" variable actually read
+  the *upper* band (`Bollinger.Values[0]`), so its "%B" was 0 at the upper band and −200 at the
+  lower. The corrected value is the standard −100…+100 scale; it equals the original's value + 100.
+- `QI_VWAPDistance` resets at the **trading session** (`Bars.IsFirstBarOfSession`), as VWAP is
+  officially defined, instead of the original's calendar-day (midnight) reset.
+
+## Algorithm provenance
+
+What the definition audit (`validation/channel-a-algo-*.md`) found for each module, checked against
+primary sources only (NinjaTrader's shipped indicator source for the built-ins; the original
+publications for strategy concepts). "Published" means the formula is the source's definition;
+"deviates" means a published definition exists and this code differs from it on purpose (kept
+faithful to the original indicator); "heuristic" means no authoritative definition exists.
+
+| Status | Modules |
+|--------|---------|
+| Published | RSI(2), RSI(14), Stochastic %K/%D, MACD histogram, EMA 20/50, SMA 200, Choppiness Index formula, Bollinger bands, overnight gap, relative volume; all built-ins (RSI, EMA, SMA, ATR, StdDev, MACD, Bollinger, Stochastics, ADX) match NinjaTrader's source |
+| Deviates (documented in the file header) | `QI_ConnorsRSI` (RSI(2) of price and streak carry-over vs Connors' RSI(3) and reset), `QI_TurnOfMonth` (calendar-day vs trading-day window), `QI_BollingerPctB` (%b rescaled to −100…+100), `QI_ConsecDays` (tie rule), `QI_HedgingPressure` (a price/volume composite, **not** the COT-based measure of Basu & Miffre 2013) |
+| Heuristic / no authoritative definition | `QI_IBS` (practitioner definition; primary post unreachable), `QI_RVZScore`, `QI_CompositeVol`, `QI_VRPProxy`, `QI_ATRRegime`, `QI_VolumeDelta` (close-direction proxy), `QI_ChopIndex` "choppy" state, `QI_LiquiditySweep`, `QI_OrderFlowPlus`, `QI_SMC`, `QI_KeyLevels` session windows (RTH 08:30–16:00 CT is NinjaTrader's template; CME publishes Globex hours only) |
+
+None of this is a statement about whether any of these measures is useful for trading.
 
 ## Validation
 

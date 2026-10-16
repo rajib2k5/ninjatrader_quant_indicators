@@ -13,6 +13,9 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #0
 //            (ComputeHedgingPressure, Clamp, HP zone names, DrawHpTimeframeLines).
+//  Provenance: NOT the hedging pressure of Basu & Miffre (2013), which is built from CFTC Commitments-of-
+//            Traders positioning; this is a price/ATR/volume composite that borrows the name
+//            (validation/channel-a-algo-2.md M15). Name kept by the user's decision.
 //  Concept : A four-component proxy for hedger positioning built only from price
 //            and volume: basis deviation from SMA20 in ATR units, short-vs-long
 //            SMA slope divergence, volume/price divergence and range compression.

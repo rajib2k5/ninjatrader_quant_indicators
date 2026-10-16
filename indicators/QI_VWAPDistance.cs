@@ -20,10 +20,12 @@
 //                      falling back to Close while sum(Volume) == 0
 //            value   = (Close - vwap) / ATR14 on INTRADAY charts when
 //                      ATR14 > 0 and vwap > 0, otherwise 0.
-//  Quirks  : The original resets the VWAP accumulators when Time[0].DayOfYear
-//            changes (bar time in the chart's time zone, not a session template),
-//            so the "session" is the calendar day of the bar timestamp and a
-//            year boundary where DayOfYear repeats would not reset. Preserved.
+//  Deviation: The original reset its accumulators when Time[0].DayOfYear changed
+//            (calendar midnight in the chart's time zone). The official VWAP (CME,
+//            NinjaTrader) is per trading session, so this file resets on
+//            Bars.IsFirstBarOfSession (the chart's session template) instead. The
+//            SessionStart series (1 on the first bar of a session) is exposed so a
+//            reference implementation can mirror the reset exactly.
 //            The original only ran the VWAP update on intraday charts, inside the
 //            BarsInProgress == 0 path, after its CurrentBar < 50 guard: on
 //            non-intraday charts the Vwap series stays 0 and the plot is 0, and
@@ -66,7 +68,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		private double	cumTypicalPriceVol;
 		private double	cumVol;
 		private double	manualVwap;
-		private int		vwapSessionDayOfYear;
+		private Series<double> sessionStartSeries;
 
 		private bool	disclaimerDrawn;
 
@@ -76,7 +78,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			{
 				Description					= "Session VWAP drawn on price (intraday charts only), with the distance "
 											+ "(Close - VWAP) / ATR(14) as a hidden DataBox value (0 on non-intraday charts). "
-											+ "VWAP is accumulated manually and resets when the bar's day-of-year changes. "
+											+ "VWAP is accumulated from bar typical prices and resets on the first bar of each trading session. "
 											+ "Educational use only - not financial advice.";
 				Name						= "QI_VWAPDistance";
 				Calculate					= Calculate.OnBarClose;
@@ -104,7 +106,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 				cumTypicalPriceVol	= 0;
 				cumVol				= 0;
 				manualVwap			= 0;
-				vwapSessionDayOfYear = -1;
+				sessionStartSeries	= new Series<double>(this);
 
 				disclaimerDrawn		= false;
 			}
@@ -112,6 +114,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 		protected override void OnBarUpdate()
 		{
+			// Recorded for every bar (before the warm-up gate) so references can replay the reset.
+			sessionStartSeries[0] = Bars.IsFirstBarOfSession ? 1 : 0;
+
 			if (CurrentBar < 50)
 				return;
 
@@ -136,12 +141,11 @@ namespace NinjaTrader.NinjaScript.Indicators
 		// ─────────────────────────────────────────────────────────
 		private void UpdateManualVwap()
 		{
-			int today = Time[0].DayOfYear;
-			if (today != vwapSessionDayOfYear)
+			// Session reset (official VWAP semantics) instead of the original's DayOfYear reset.
+			if (Bars.IsFirstBarOfSession)
 			{
 				cumTypicalPriceVol   = 0;
 				cumVol               = 0;
-				vwapSessionDayOfYear = today;
 			}
 
 			double typicalPrice = (High[0] + Low[0] + Close[0]) / 3.0;
@@ -186,6 +190,13 @@ namespace NinjaTrader.NinjaScript.Indicators
 		public Series<double> VwapDistance
 		{
 			get { return Values[1]; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> SessionStart
+		{
+			get { return sessionStartSeries; }
 		}
 
 		#endregion

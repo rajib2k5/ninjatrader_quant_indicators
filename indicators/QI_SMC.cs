@@ -12,6 +12,8 @@
 //  DISCLAIMER.md in the repository root.
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plots #29-30.
+//  Provenance: 'Smart money concepts' rules are course material, not published research; no authoritative
+//            definition exists. Confidence values are heuristic constants.
 //  Concept : Smart Money Concepts / ICT: Order Block retest (0.72), Fair Value Gap
 //            entry (0.68), Break of Structure (0.60), Change of Character (0.75),
 //            Displacement (0.58). Trend direction from HH+HL / LH+LL swing structure.

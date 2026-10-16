@@ -13,6 +13,8 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #10
 //            (ORIG lines 349, 1353-1360).
+//  Provenance: Bollinger's %b is (Close - Lower)/(Upper - Lower) in 0..1; this value is 200*%b - 100
+//            (same information, -100..+100 scale).
 //  Concept : Bollinger Bands %B (Bollinger 2001), centred at 0 and scaled so that
 //            the upper band = +100 and the lower band = -100.
 //  Formula : boll = Bollinger(Close, 2, 20)   (numStdDev = 2, period = 20)

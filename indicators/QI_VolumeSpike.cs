@@ -13,6 +13,7 @@
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #20
 //            (ORIG lines 1422-1426; volSma20 = SMA(Volume, 20) at 358).
+//  Provenance: Standard relative-volume ratio; the 1.5x threshold is a convention.
 //  Concept : Volume spike confirmation.
 //  Formula : Vol/SMA20 = Volume[0] / SMA(Volume, 20)[0] when the SMA > 0, else 1.0.
 //  Quirks  : No CurrentBar guard in ORIG (only the SMA > 0 check); kept as-is.

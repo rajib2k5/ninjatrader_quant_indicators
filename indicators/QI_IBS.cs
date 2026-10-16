@@ -12,6 +12,8 @@
 //  DISCLAIMER.md in the repository root.
 //
 //  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plot #1.
+//  Provenance: IBS = (C-L)/(H-L) per the practitioner literature (Pagonidis 2013); the primary post was
+//            unreachable during the audit, so the definition is cited as secondary.
 //  Concept : Internal Bar Strength, Pagonidis (2013).
 //  Formula : IBS = (Close - Low) / (High - Low) of the DAILY bar, 0.5 when range = 0.
 //            On intraday charts a 1-day data series is added and IBS is read from
