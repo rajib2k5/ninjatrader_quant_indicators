@@ -102,6 +102,14 @@ is missing, or H = L, the Close is the close of the 1-minute bar ending at 15:00
 index settlement window ends at 15:00 CT); if that bar is missing too, the last close. Open, High,
 Low and Volume are unchanged. The 15m frame is unchanged.
 
+**A1.1 (2026-10-17) — grid tolerance.** "More than 0.01 points from the 0.25 grid" is replaced by
+"farther from the grid than 0.00005 × (H − L) + 1e-9 points" — the largest error that the
+4-decimal rounding of `databox_IBS` can produce. The fixed 0.01 rejected genuine settlement
+closes on wide-range days (2020-03-12, 2020-03-16, 2022-09-13, 2024-08-05) and accepted closes
+that rounding cannot explain on narrow days (2020-05-26, 2020-10-23, 2025-03-31). Disclosure: made
+after seeing that it changes 3 window dates and swaps ranks 2 and 3 (RSI14 / RSI2); the constant
+is derived from the export precision, not from results.
+
 **Reporting.** v1 (16:00 last trade) is kept in `results/v1_last_trade/`. The ranking (§8) uses A1.
 The README shows v1, A1 and a 15:00-close variant side by side, with the block-bootstrap rank
 probabilities. A later exact NinjaTrader Day-bar export, when available, is a cross-check of the

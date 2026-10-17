@@ -1,0 +1,4 @@
+csc: /c/Program Files/dotnet/sdk/8.0.100/Roslyn/bincore/csc.dll
+out: /c/Users/rajib/AppData/Local/Temp/claude/C--Users-rajib-OneDrive-Documents/533a663d-5efe-42d6-aafd-bb6df2ee5fa2/scratchpad/chanB_bt/compile/probe.dll
+refs: 17  sources: 52
+rc=0

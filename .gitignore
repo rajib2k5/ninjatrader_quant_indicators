@@ -12,3 +12,7 @@ backtest/data/
 *.feather
 .hypothesis/
 __pycache__/
+*.egg-info/
+
+# daily P&L series embed daily price changes from the NinjaTrader feed (licence) - keep local
+results/**/daily_pnl_*.csv

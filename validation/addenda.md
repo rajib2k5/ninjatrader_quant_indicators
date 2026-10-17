@@ -103,3 +103,14 @@ the first real run.
 - Robustness downloads R1/R3 (Stooq) are blocked by a bot-verification page; not bypassed.
 - Side effect to disclose: the engine agent ran `python -s -m pip install -e backtest`
   (package `qibt`, editable; undo with `python -m pip uninstall qibt`).
+
+## ADD-8 (2026-10-17) — Channel B backtest findings acted on
+- metrics: Φ via 0.5·(1+erf) underflowed to 0 for z < −8.26, so all DSRs printed 0 and the §8 tie
+  rule fell back to A→Z; fixed to erfc/log-tail. On v1 the corrected tie rule puts IBS 3rd,
+  ConsecDays 4th (DSR 3.3e-58 vs 1.7e-59). This is a bug fix, not a protocol change.
+- engine: the change executed at the last bar's open was not charged; fixed per §5.
+- BT17 REFUTED (data): no rows 2023-04-05 13:03 → 2023-04-16 17:01 (7 weekdays), 3 more missing
+  weekdays and six one-bar sessions at the file seams. Kept as is (§3: no synthetic bars) and disclosed.
+- BT4 note: P1 shows CME's former 15:15–15:30 CT pause until ~June 2021 (real market structure).
+- BT6 note: the pre-registered 3×-median-range threshold would miss a 14-point roll jump; the
+  tick-grid check (0 of 8.57M OHLC values off grid) is the stronger evidence for additive adjustment.
