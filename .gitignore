@@ -4,3 +4,11 @@ validation/runs/*.csv
 *.dll
 *.pdb
 Thumbs.db
+
+# backtest: raw market data is vendor data (personal use) - never commit it
+backtest/data/
+*.pkl
+*.parquet
+*.feather
+.hypothesis/
+__pycache__/

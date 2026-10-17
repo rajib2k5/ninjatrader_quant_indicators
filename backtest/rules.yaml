@@ -1,0 +1,45 @@
+# Pre-registered backtest rules - FROZEN 2026-10-17 before any backtest was run.
+# Do not edit thresholds, frames or value definitions. A change requires a dated amendment in
+# backtest/PROTOCOL.md section 9 and a re-run of everything, with the old results kept.
+#
+# Source of every threshold: the original indicator's own Buy/Neutral/Sell classification in
+# UpdateDataBoxValues (ORIG = C:\Users\rajib\Documents\NinjaTrader 8\bin\Custom\Indicators\IBSFade.cs,
+# lines cited per rule). Nothing here was chosen or tuned by looking at results.
+#
+# frame: home timeframe = first timeframe the ORIG DataBox label lists for that signal; "D" (daily
+#        session bar) when the list contains 1d, else "15m".
+# value: name of the reference function (validation/pytests/qi_ref.py or backtest/qibt/patterns.py)
+#        whose output is classified. Conditions use x for that value.
+# long / short: position +1 / -1 while the condition holds at a bar close; otherwise 0.
+#        "never" = the ORIG classification has no such class (long-only rule).
+version: 1
+frozen: "2026-10-17"
+rules:
+  - {module: HedgingPressure, frame: D,   value: hp_score,           long: "x <= -35", short: "x >= 35",  orig: "1263-1265"}
+  - {module: IBS,             frame: D,   value: ibs_daily,          long: "x < 0.20", short: "x > 0.80", orig: "1268-1270"}
+  - {module: RSI2,            frame: D,   value: rsi2,               long: "x < 25",   short: "x > 75",   orig: "1273-1275"}
+  - {module: ConnorsRSI,      frame: D,   value: connors_rsi,        long: "x < 15",   short: "x > 85",   orig: "1278-1296"}
+  - {module: StochFade,       frame: D,   value: stoch_k,            long: "x < 30",   short: "x > 70",   orig: "1299-1301"}
+  - {module: RVZScore,        frame: D,   value: rv_zscore,          long: "x > 2.0",  short: "x < -1.5", orig: "1304-1306"}
+  - {module: CompositeVol,    frame: D,   value: composite_vol,      long: "x > 1.5",  short: "x < -1.5", orig: "1309-1330"}
+  - {module: TurnOfMonth,     frame: D,   value: turn_of_month,      long: "x == 1",   short: "never",    orig: "1333-1340"}
+  - {module: ConsecDays,      frame: D,   value: consec_streak,      long: "x <= -3",  short: "x >= 3",   orig: "1343-1346"}
+  - {module: OvernightGap,    frame: D,   value: overnight_gap_pct,  long: "x < -0.3", short: "x > 0.3",  orig: "1349-1351"}
+  - {module: BollingerPctB,   frame: 15m, value: bollinger_touch,    long: "x == -1",  short: "x == 1",   orig: "1354-1360", note: "x = -1 if Close <= Lower + 0.001*ATR14, +1 if Close >= Upper - 0.001*ATR14, else 0 (ORIG band-touch test)"}
+  - {module: TurnaroundTuesday, frame: D, value: day_of_week,        long: "x == 1",   short: "never",    orig: "1363-1366", note: "1 = Monday (US Central trading date)"}
+  - {module: RSI14,           frame: D,   value: rsi14,              long: "x < 40",   short: "x > 60",   orig: "1369-1371"}
+  - {module: VRPProxy,        frame: D,   value: vrp_proxy,          long: "x > 1.5",  short: "x < 0.7",  orig: "1374-1377"}
+  - {module: WideRangeBar,    frame: D,   value: wide_range,         long: "x > 1.2",  short: "never",    orig: "1380-1383"}
+  - {module: VWAPDistance,    frame: 15m, value: vwap_distance,      long: "-0.5 < x < 0", short: "0 < x < 0.5", orig: "1386-1397", note: "session-reset VWAP (ADD-6)"}
+  - {module: MACDHistogram,   frame: D,   value: macd_hist,          long: "x > 0",    short: "x < 0",    orig: "1400-1402"}
+  - {module: EMACross,        frame: D,   value: ema_spread,         long: "x > 0",    short: "x < 0",    orig: "1405-1408"}
+  - {module: SMA200Trend,     frame: D,   value: sma200_distance,    long: "x > 0",    short: "x < 0",    orig: "1411-1414", note: "0 before bar 200 -> flat"}
+  - {module: ATRRegime,       frame: D,   value: atr_regime,         long: "x < 1.5",  short: "never",    orig: "1417-1420"}
+  - {module: VolumeSpike,     frame: 15m, value: volume_spike,       long: "x > 1.5",  short: "never",    orig: "1423-1426"}
+  - {module: VolumeDelta,     frame: 15m, value: cum_delta20,        long: "x > 0",    short: "x < 0",    orig: "1429-1437", note: "plot #21 CumDelta20 is the module's classified value"}
+  - {module: LiquiditySweep,  frame: 15m, value: sweep_structure,    long: "x == 1",   short: "x == -1",  orig: "2340-2404", note: "End events only (ORIG DataBox wrote End events)"}
+  - {module: OrderFlowPlus,   frame: 15m, value: ofp_structure,      long: "x == 1",   short: "x == -1",  orig: "2420-2541"}
+  - {module: SMC,             frame: 15m, value: smc_structure,      long: "x == 1",   short: "x == -1",  orig: "2548-2739"}
+not_backtestable:
+  - {module: ChopIndex, reason: "ORIG gives no Buy/Sell class (state only: CHOPPY/CAUTION/TRENDING)"}
+  - {module: KeyLevels, reason: "price levels only; ORIG gives no class"}
