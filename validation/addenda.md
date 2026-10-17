@@ -90,3 +90,16 @@ the first real run.
 - M15 Hedging Pressure: name kept; header states it is a price/volume composite, not Basu & Miffre's COT measure.
 - M7 Turn-of-Month: calendar-day window kept; header states the literature uses trading days.
 - All other definition findings documented as "Provenance" header lines (17 files) and in README.
+
+## ADD-7 (2026-10-17) — backtest wave findings
+- DuplicateBarWindow: the pattern ports reproduce ORIG exactly only at window 6 — the user's
+  original charts ran with 6, while the code default (ORIG and QI) is 5. The ranking uses the
+  shipped QI default 5 (it ranks the indicators as shipped); PT2-PT4 are confirmed at 6, which
+  validates the port's logic, the window being a parameter. Recorded, no protocol change.
+- BT17 data fact: P1 has no bars for 2023-04-06 -> 2023-04-14 (7 weekdays incl. Good Friday).
+  No synthetic bars; a position held across the gap is marked open-to-open across it, as §4 says.
+- DSR = 0.000 for all 25 rules: V[SR] (per §7, across the 25 trials) is dominated by the 15m
+  rules' large negative SRs, so SR0 ≈ 0.469/day (≈ 7.4 annualised). Reported as is.
+- Robustness downloads R1/R3 (Stooq) are blocked by a bot-verification page; not bypassed.
+- Side effect to disclose: the engine agent ran `python -s -m pip install -e backtest`
+  (package `qibt`, editable; undo with `python -m pip uninstall qibt`).

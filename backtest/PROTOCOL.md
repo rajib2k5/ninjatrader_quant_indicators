@@ -82,4 +82,27 @@ Per contract per side, charged at every change of position by |p_t − p_{t−1}
 
 ## 9. Amendments
 
-(none)
+### A1 (2026-10-17) — D-frame close = NinjaTrader's daily settlement close
+
+**Why.** §1 measures the original indicator's own classification. The original reads NinjaTrader's
+daily bars, and the adversarial validation (`validation/adversarial-ranking.md` §5) showed that those
+bars close at the CME **settlement** price, not at the 16:00 CT last trade that §3 used: the close
+implied by the original's own IBS values lies on the 0.25 tick grid on 98.9% of dates (chance 2.8%),
+a median 0.75 points from the 15:00 CT one-minute close. §3 therefore contradicted §1.
+
+**Disclosure.** This amendment was made after the v1 results and the validator's preview of the
+amended results had been seen, and the user chose it among four options (keep v1; 15:00 proxy;
+inferred settlement; wait for an exact NinjaTrader Day-bar export).
+
+**Change.** For each trading date, the D-frame Close is
+`snap_0.25(L + IBS_ORIG × (H − L))`, where H and L are the D-frame high and low (full 17:00–16:00
+session, unchanged) and IBS_ORIG is the original indicator's `databox_IBS` on that date's last
+1-minute bar in P1. If the unsnapped value is more than 0.01 points from the 0.25 grid, or IBS_ORIG
+is missing, or H = L, the Close is the close of the 1-minute bar ending at 15:00 CT (CME's equity
+index settlement window ends at 15:00 CT); if that bar is missing too, the last close. Open, High,
+Low and Volume are unchanged. The 15m frame is unchanged.
+
+**Reporting.** v1 (16:00 last trade) is kept in `results/v1_last_trade/`. The ranking (§8) uses A1.
+The README shows v1, A1 and a 15:00-close variant side by side, with the block-bootstrap rank
+probabilities. A later exact NinjaTrader Day-bar export, when available, is a cross-check of the
+inferred closes (expected: equal on every on-grid date).
