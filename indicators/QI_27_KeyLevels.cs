@@ -102,6 +102,16 @@ namespace NinjaTrader.NinjaScript.Indicators
 
 		private bool		disclaimerDrawn;
 
+		// ── Exposed levels (read-only, not plots; NaN while a level is not yet known) ──
+		private Series<double>	prevDayHighSeries;
+		private Series<double>	prevDayLowSeries;
+		private Series<double>	monthlyHighSeries;
+		private Series<double>	monthlyLowSeries;
+		private Series<double>	orbHighSeries;
+		private Series<double>	orbLowSeries;
+		private Series<double>	asianHighSeries;
+		private Series<double>	asianLowSeries;
+
 		protected override void OnStateChange()
 		{
 			if (State == State.SetDefaults)
@@ -178,18 +188,47 @@ namespace NinjaTrader.NinjaScript.Indicators
 				lastAsianLowLine		= double.NaN;
 
 				disclaimerDrawn			= false;
+
+				prevDayHighSeries		= new Series<double>(this);
+				prevDayLowSeries		= new Series<double>(this);
+				monthlyHighSeries		= new Series<double>(this);
+				monthlyLowSeries		= new Series<double>(this);
+				orbHighSeries			= new Series<double>(this);
+				orbLowSeries			= new Series<double>(this);
+				asianHighSeries			= new Series<double>(this);
+				asianLowSeries			= new Series<double>(this);
 			}
 		}
 
 		protected override void OnBarUpdate()
 		{
 			if (CurrentBar < 50)
+			{
+				WriteLevelSeries();		// all levels still at their sentinels -> NaN
 				return;
+			}
 
 			// ── Key Levels: update prev day / monthly / ORB / Asian lines ──
 			UpdateKeyLevels();
+			WriteLevelSeries();
 
 			DrawDisclaimerOnce();
+		}
+
+		// ─────────────────────────────────────────────────────────
+		//  Exposed series: the tracked levels after this bar's update;
+		//  the double.MinValue / double.MaxValue sentinels become NaN
+		// ─────────────────────────────────────────────────────────
+		private void WriteLevelSeries()
+		{
+			prevDayHighSeries[0]	= prevDayHigh   > double.MinValue ? prevDayHigh   : double.NaN;
+			prevDayLowSeries[0]		= prevDayLow    < double.MaxValue ? prevDayLow    : double.NaN;
+			monthlyHighSeries[0]	= klMonthlyHigh > double.MinValue ? klMonthlyHigh : double.NaN;
+			monthlyLowSeries[0]		= klMonthlyLow  < double.MaxValue ? klMonthlyLow  : double.NaN;
+			orbHighSeries[0]		= orbHigh       > double.MinValue ? orbHigh       : double.NaN;
+			orbLowSeries[0]			= orbLow        < double.MaxValue ? orbLow        : double.NaN;
+			asianHighSeries[0]		= asianHigh     > double.MinValue ? asianHigh     : double.NaN;
+			asianLowSeries[0]		= asianLow      < double.MaxValue ? asianLow      : double.NaN;
 		}
 
 		// ─────────────────────────────────────────────────────────
@@ -661,6 +700,63 @@ namespace NinjaTrader.NinjaScript.Indicators
 		[Browsable(false)]
 		public string AsianLowBrushSerialize
 		{ get { return Serialize.BrushToString(AsianLowBrush); } set { AsianLowBrush = Serialize.StringToBrush(value); } }
+
+		// Read-only level series (not plots): the value after each bar's update, NaN while unknown.
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> PrevDayHigh
+		{
+			get { return prevDayHighSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> PrevDayLow
+		{
+			get { return prevDayLowSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> MonthlyHigh
+		{
+			get { return monthlyHighSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> MonthlyLow
+		{
+			get { return monthlyLowSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> OrbHigh
+		{
+			get { return orbHighSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> OrbLow
+		{
+			get { return orbLowSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> AsianHigh
+		{
+			get { return asianHighSeries; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> AsianLow
+		{
+			get { return asianLowSeries; }
+		}
 
 		#endregion
 	}

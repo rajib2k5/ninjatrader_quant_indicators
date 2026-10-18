@@ -56,7 +56,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 					string tf   = BarsPeriod.BarsPeriodType + "-" + BarsPeriod.Value;
 					string file = Path.Combine(OutputFolder, "qiv_27_KeyLevels_" + Instrument.MasterInstrument.Name + "_" + tf + ".csv");
 					writer = new StreamWriter(file, false);
-					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,");
+					writer.WriteLine("BarTime,Bar,Open,High,Low,Close,Volume,QI_27_KeyLevels.PrevDayHigh,QI_27_KeyLevels.PrevDayLow,QI_27_KeyLevels.MonthlyHigh,QI_27_KeyLevels.MonthlyLow,QI_27_KeyLevels.OrbHigh,QI_27_KeyLevels.OrbLow,QI_27_KeyLevels.AsianHigh,QI_27_KeyLevels.AsianLow");
 					writer.AutoFlush = true;
 				}
 				catch (Exception ex) { Print("QIV_27_KeyLevels init error: " + ex.Message); writer = null; }
@@ -80,7 +80,14 @@ namespace NinjaTrader.NinjaScript.Indicators
 				  .Append(',').Append(Open[0].ToString("F4")).Append(',').Append(High[0].ToString("F4"))
 				  .Append(',').Append(Low[0].ToString("F4")).Append(',').Append(Close[0].ToString("F4"))
 				  .Append(',').Append(Volume[0].ToString("F0"));
-
+				sb.Append(',').Append(Safe(PrevDayHigh[0]));
+				sb.Append(',').Append(Safe(PrevDayLow[0]));
+				sb.Append(',').Append(Safe(MonthlyHigh[0]));
+				sb.Append(',').Append(Safe(MonthlyLow[0]));
+				sb.Append(',').Append(Safe(OrbHigh[0]));
+				sb.Append(',').Append(Safe(OrbLow[0]));
+				sb.Append(',').Append(Safe(AsianHigh[0]));
+				sb.Append(',').Append(Safe(AsianLow[0]));
 				writer.WriteLine(sb.ToString());
 			}
 			catch (Exception ex) { Print("QIV_27_KeyLevels row error at bar " + CurrentBar + ": " + ex.Message); }

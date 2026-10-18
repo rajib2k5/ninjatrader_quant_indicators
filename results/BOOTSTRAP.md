@@ -9,22 +9,22 @@ Stationary block bootstrap (Politis & Romano 1994): mean block 10 days, 1000 res
 | Published rank | Module | Published SR | P(rank 1) | P(rank <= 4) | Median bootstrap rank |
 |---:|---|---:|---:|---:|---:|
 | 1 | ConsecDays | 0.883 | 0.450 | 0.855 | 2 |
-| 2 | RSI14 | 0.656 | 0.185 | 0.664 | 3 |
-| 3 | RSI2 | 0.632 | 0.105 | 0.620 | 3 |
+| 2 | RSI14 | 0.656 | 0.185 | 0.665 | 3 |
+| 3 | RSI2 | 0.632 | 0.105 | 0.619 | 3.5 |
 | 4 | WideRangeBar | 0.409 | 0.052 | 0.356 | 6 |
-| 5 | ATRRegime | 0.392 | 0.099 | 0.358 | 6 |
+| 5 | ATRRegime | 0.392 | 0.099 | 0.357 | 6 |
 | 6 | VRPProxy | 0.288 | 0.004 | 0.162 | 7 |
 | 7 | SMA200Trend | 0.274 | 0.051 | 0.256 | 8 |
 | 8 | CompositeVol | 0.266 | 0.003 | 0.202 | 8 |
 | 9 | RVZScore | 0.128 | 0.019 | 0.114 | 10 |
-| 10 | IBS | 0.122 | 0.008 | 0.127 | 10 |
-| 11 | StochFade | 0.046 | 0.000 | 0.044 | 11 |
+| 10 | IBS | 0.122 | 0.008 | 0.125 | 10 |
+| 11 | StochFade | 0.046 | 0.000 | 0.045 | 11 |
 | 12 | HedgingPressure | 0.031 | 0.015 | 0.104 | 11 |
-| 13 | ConnorsRSI | 0.003 | 0.000 | 0.032 | 11 |
+| 13 | ConnorsRSI | 0.029 | 0.000 | 0.034 | 11 |
 | 14 | EMACross | -0.160 | 0.003 | 0.044 | 14 |
 | 15 | TurnOfMonth | -0.266 | 0.002 | 0.031 | 14 |
 | 16 | MACDHistogram | -0.338 | 0.002 | 0.025 | 15 |
-| 17 | TurnaroundTuesday | -0.449 | 0.001 | 0.004 | 15.5 |
+| 17 | TurnaroundTuesday | -0.449 | 0.001 | 0.004 | 16 |
 | 18 | OvernightGap | -0.938 | 0.001 | 0.002 | 18 |
 | 19 | VolumeDelta | -2.255 | 0.000 | 0.000 | 19 |
 | 20 | VolumeSpike | -3.117 | 0.000 | 0.000 | 20 |

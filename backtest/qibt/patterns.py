@@ -964,3 +964,133 @@ def smc_structure(df, **params):
     s = smc(df, **params)["structure"]
     s.name = "smc_structure"
     return s
+
+
+# ============================================================================================
+# QI_KeyLevels (QI_27_KeyLevels.cs: OnBarUpdate, UpdateKeyLevels, UpdatePrevDayHighLow,
+# UpdateMonthlyHighLow, UpdateOrb, UpdateAsianSession, IsIn*Window, WriteLevelSeries)
+# ============================================================================================
+_T_0200 = 2 * 3600 * _NS
+_T_1700 = 17 * 3600 * _NS
+KEY_LEVEL_COLUMNS = ("PrevDayHigh", "PrevDayLow", "MonthlyHigh", "MonthlyLow",
+                     "OrbHigh", "OrbLow", "AsianHigh", "AsianLow")
+__all__ += ["key_levels"]
+
+
+def key_levels(df, show_prev_day_levels=True, show_monthly_levels=True, show_orb_levels=True,
+               show_asian_session_levels=True):
+    """QI_27_KeyLevels exposed series (PrevDayHigh/Low, MonthlyHigh/Low, OrbHigh/Low, AsianHigh/Low):
+    the tracked level after each bar's update, NaN while the C# still holds its double.MinValue /
+    double.MaxValue sentinel. Bars < 50 are NaN (`if (CurrentBar < 50)` returns before any update).
+    cstTime == BarTime (see the module notes); windows are on the bar CLOSE time t = TimeOfDay:
+
+    * Prev day (Sat/Sun skipped): a new CST date rolls the finished RTH [08:30, 16:00) high/low into
+      PrevDay* when that date had an RTH bar, then restarts today's tracking. The roll happens at
+      the first weekday bar of the new calendar date, so Fri RTH becomes PrevDay* on Monday and
+      the 17:00-24:00 evening bars still show the day-before's RTH levels.
+    * Month: reset when the Month number changes; every bar (weekends included) raises the high
+      and lowers the low, so the current bar is always inside the range.
+    * ORB (Sat/Sun skipped): reset at each new CST date (NaN until the first window bar); bars in
+      [08:30, 09:00) while not complete set it; complete at the first bar with t >= 09:00 once
+      known. The current day's (live) values are exposed; prevOrbHigh/Low are not.
+    * Asian (Sat/Sun skipped, so Sunday-evening bars never count): trading date = date + 1 for
+      t >= 17:00, else date; a new trading date resets; bars with t >= 17:00 or t < 02:00 while not
+      complete set it; complete at the first bar with 02:00 <= t < 17:00 once known.
+    The Show* toggles skip the corresponding update (the series then stays NaN)."""
+    _check(df)
+    _, H, L, _, _ = _ohlcv(df)
+    n = len(H)
+    day, wday, month, tod = _time_parts(df)
+    Hl, Ll = H.tolist(), L.tolist()
+
+    nan = float("nan")
+    out = {k: [nan] * n for k in KEY_LEVEL_COLUMNS}
+
+    # State.DataLoaded initialisation (DateTime.MinValue -> None, klCurrentMonth = 0)
+    prev_day_high, prev_day_low = DBL_MIN, DBL_MAX
+    today_high, today_low = DBL_MIN, DBL_MAX
+    today_date = None
+    today_started = False
+    mo_high, mo_low = DBL_MIN, DBL_MAX
+    cur_month = 0
+    orb_high, orb_low = DBL_MIN, DBL_MAX
+    orb_complete = False
+    orb_date = None
+    asian_high, asian_low = DBL_MIN, DBL_MAX
+    asian_complete = False
+    asian_date = None
+
+    for t in range(50, n):
+        h = Hl[t]
+        l = Ll[t]
+        weekend = wday[t] >= 5                      # DayOfWeek.Saturday / Sunday
+
+        # ---- UpdatePrevDayHighLow ----
+        if show_prev_day_levels and not weekend:
+            if day[t] != today_date:
+                if today_started and today_high > DBL_MIN and today_low < DBL_MAX:
+                    prev_day_high = today_high
+                    prev_day_low = today_low
+                today_high, today_low = DBL_MIN, DBL_MAX
+                today_date = day[t]
+                today_started = False
+            if _T_0830 <= tod[t] < _T_1600:          # IsInRthWindow
+                today_started = True
+                if h > today_high:
+                    today_high = h
+                if l < today_low:
+                    today_low = l
+
+        # ---- UpdateMonthlyHighLow ----
+        if show_monthly_levels:
+            if month[t] != cur_month:
+                mo_high, mo_low = DBL_MIN, DBL_MAX
+                cur_month = month[t]
+            if h > mo_high:
+                mo_high = h
+            if l < mo_low:
+                mo_low = l
+
+        # ---- UpdateOrb ----
+        if show_orb_levels and not weekend:
+            if day[t] != orb_date:
+                # (archives a completed ORB into prevOrbHigh/Low: tracked, never exposed)
+                orb_high, orb_low = DBL_MIN, DBL_MAX
+                orb_complete = False
+                orb_date = day[t]
+            if _T_0830 <= tod[t] < _T_0900 and not orb_complete:     # IsInOrbWindow
+                if h > orb_high:
+                    orb_high = h
+                if l < orb_low:
+                    orb_low = l
+            if not orb_complete and day[t] == orb_date:
+                if tod[t] >= _T_0900 and orb_high > DBL_MIN:
+                    orb_complete = True
+
+        # ---- UpdateAsianSession ----
+        if show_asian_session_levels and not weekend:
+            trading_date = day[t] + 1 if tod[t] >= _T_1700 else day[t]
+            if trading_date != asian_date:
+                asian_high, asian_low = DBL_MIN, DBL_MAX
+                asian_complete = False
+                asian_date = trading_date
+            if (tod[t] >= _T_1700 or tod[t] < _T_0200) and not asian_complete:   # IsInAsianWindow
+                if h > asian_high:
+                    asian_high = h
+                if l < asian_low:
+                    asian_low = l
+            if not asian_complete and asian_date == trading_date:
+                if _T_0200 <= tod[t] < _T_1700 and asian_high > DBL_MIN:
+                    asian_complete = True
+
+        # ---- WriteLevelSeries: sentinels -> NaN ----
+        out["PrevDayHigh"][t] = prev_day_high if prev_day_high > DBL_MIN else nan
+        out["PrevDayLow"][t] = prev_day_low if prev_day_low < DBL_MAX else nan
+        out["MonthlyHigh"][t] = mo_high if mo_high > DBL_MIN else nan
+        out["MonthlyLow"][t] = mo_low if mo_low < DBL_MAX else nan
+        out["OrbHigh"][t] = orb_high if orb_high > DBL_MIN else nan
+        out["OrbLow"][t] = orb_low if orb_low < DBL_MAX else nan
+        out["AsianHigh"][t] = asian_high if asian_high > DBL_MIN else nan
+        out["AsianLow"][t] = asian_low if asian_low < DBL_MAX else nan
+
+    return pd.DataFrame({k: out[k] for k in KEY_LEVEL_COLUMNS}, index=df.index, dtype=float)

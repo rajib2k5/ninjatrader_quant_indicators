@@ -39,7 +39,7 @@ def test_qi_ref_is_the_validated_module():
 PASS_THROUGH = {
     "rsi2": lambda f: qi_ref.rsi(f["Close"], 2),
     "rsi14": lambda f: qi_ref.rsi(f["Close"], 14),
-    "connors_rsi": lambda f: qi_ref.connors_rsi(f["Close"]),
+    # connors_rsi is NOT a pass-through since ADD-10 (point-change rank, as the C#); see below
     "stoch_k": lambda f: qi_ref.stoch_fast(f, 3, 14)[0],
     "rv_zscore": lambda f: qi_ref.rv_zscore(f),
     "composite_vol": lambda f: qi_ref.composite_vol(f)["composite"],
@@ -217,3 +217,37 @@ def test_falsifier_touch_without_atr_tolerance_is_detected():
         v[np.isnan(mid)] = np.nan
         return v
     assert check_touch(no_tol) != []
+
+
+# ---- ADD-10: ConnorsRSI ranks POINT changes, as the shipped C# does ------------------------
+def test_connors_rsi_ranks_point_changes_not_percent():
+    """Two series with the same percent changes but different point changes must rank
+    differently: close 100 -> 101 (+1 pt, +1%) vs 200 -> 202 (+2 pt, +1%). With point ranking,
+    a +2 pt move outranks earlier +1 pt moves; with percent ranking it ties them."""
+    import numpy as np
+    import pandas as pd
+    from qibt.signals import v_connors_rsi
+    c = np.concatenate([np.full(1, 100.0), 100.0 + np.cumsum(np.tile([1.0, -1.0], 60))])
+    c = np.append(c, c[-1] + 2.0)          # last move +2 points, larger than every earlier move
+    f = pd.DataFrame({"Close": c})
+    v = v_connors_rsi(f).to_numpy()
+    # previous 100 changes are +-1 point; +2 is strictly greater than all -> PercentRank 100
+    rsi_p = __import__("qi_ref").rsi(c, 2).to_numpy()[-1]
+    rsi_s = __import__("qi_ref").rsi(__import__("qi_ref").streak(c).to_numpy(), 2).to_numpy()[-1]
+    assert v[-1] == pytest.approx((rsi_p + rsi_s + 100.0) / 3.0)
+
+
+def test_falsifier_percent_rank_variant_differs_on_rising_prices():
+    """Point and percent ranking disagree when the price level changes: +-2 point moves at ~100
+    (2%) then +-5 point moves at ~1000 (0.5%). A final +5 move outranks the earlier +-2 moves by
+    points but is below them by percent, so the two ConnorsRSI values differ by several points."""
+    import numpy as np
+    import pandas as pd
+    import qi_ref
+    from qibt.signals import v_connors_rsi
+    low = 100.0 + np.cumsum(np.tile([2.0, -2.0], 40))
+    high = 1000.0 + np.cumsum(np.tile([5.0, -5.0], 30))
+    c = np.concatenate([low, high, [high[-1] + 5.0]])
+    a = v_connors_rsi(pd.DataFrame({"Close": c})).to_numpy()[-1]
+    b = qi_ref.connors_rsi(c).to_numpy()[-1]
+    assert abs(a - b) > 3.0, (a, b)

@@ -130,3 +130,17 @@ the first real run.
   Rithmic/CQG routing adds 0.25 -> Free 1.19 / Monthly 1.09 (> 1.00): covered by the 2x-cost
   sensitivity, disclosed in the README.
 - A2: rules.yaml header wording (frame rule) corrected; holiday trade-date limitation documented.
+
+## ADD-10 (2026-10-18) — backtest ConnorsRSI now matches the shipped indicator
+The per-indicator tests (tests/indicators/test_ConnorsRSI.py) found that qi_ref.connors_rsi ranks
+PERCENT one-bar changes (Connors' published form) while QI_13_ConnorsRSI.cs (as ORIG 1283-1292)
+ranks POINT changes Close[0] - Close[1]. The backtest evaluates indicators as shipped, so
+qibt.signals now uses v_connors_rsi (point-change rank; price/streak legs and warm-up unchanged).
+qi_ref keeps the published form. Effect on P1 (A1.1): ConnorsRSI SR 0.003 -> 0.029, rank 13
+unchanged (HedgingPressure 0.031 is within the 0.005 tie band; DSR decides as before); no rank
+changed anywhere; bootstrap identical. All result variants regenerated. Tests:
+backtest/tests/test_signals.py (point-rank hand case + falsifier on a level-shift series).
+Other per-indicator findings recorded as strict xfails (no backtest effect in the window):
+VWAP zero-volume session-start fallback (C#: Close; qi_ref: typical price), OvernightGap bar 0
+(C#: 0; qi_ref: NaN), SMA200Trend distance before bar 200 (C#: 0; qi_ref: NaN), ChopIndex state
+(qi_ref count 0-3 vs C# flag 0/0.5/1, mapped in the export test).

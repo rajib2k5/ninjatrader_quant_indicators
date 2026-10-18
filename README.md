@@ -69,9 +69,9 @@ existed. Every amendment is dated and disclosed in the protocol, §9.
 | 09 | `QI_09_RVZScore` | D | 0.13 | 0.19 / 0.08 | 0.16 / 0.09 | 1,572 | 3,314 | 29% | 187 | 10 / 10 | 0.62 |
 | 10 | `QI_10_IBS` | D | 0.12 | -0.07 / 0.32 | 0.27 / -0.03 | 1,722 | 4,477 | 49% | 817 | 3 / 6 | 0.61 |
 | 11 | `QI_11_StochFade` | D | 0.05 | 0.17 / -0.05 | 0.09 / -0.00 | 758 | 7,194 | 72% | 330 | 11 / 11 | 0.54 |
-| 12 | `QI_12_HedgingPressure` | D | 0.03 | -0.02 / 0.06 | 0.09 / -0.03 | 355 | 3,651 | 24% | 300 | 13 / 12 | 0.53 |
-| 13 | `QI_13_ConnorsRSI` | D | 0.00 | -0.41 / 0.26 | 0.08 / -0.07 | 37 | 5,232 | 20% | 361 | 14 / 13 | 0.50 |
-| 14 | `QI_14_EMACross` | D | -0.16 | -0.32 / -0.02 | -0.15 / -0.16 | -3,336 | 12,160 | 100% | 23 | 12 / 14 | 0.36 |
+| 12 | `QI_12_HedgingPressure` | D | 0.03 | -0.02 / 0.06 | 0.09 / -0.03 | 355 | 3,651 | 24% | 300 | 14 / 12 | 0.53 |
+| 13 | `QI_13_ConnorsRSI` | D | 0.03 | -0.35 / 0.26 | 0.10 / -0.04 | 329 | 4,994 | 20% | 363 | 12 / 13 | 0.53 |
+| 14 | `QI_14_EMACross` | D | -0.16 | -0.32 / -0.02 | -0.15 / -0.16 | -3,336 | 12,160 | 100% | 23 | 13 / 14 | 0.36 |
 | 15 | `QI_15_TurnOfMonth` | D | -0.27 | 0.42 / -0.81 | -0.24 / -0.29 | -2,728 | 5,759 | 23% | 123 | 15 / 15 | 0.27 |
 | 16 | `QI_16_MACDHistogram` | D | -0.34 | -0.12 / -0.53 | -0.31 / -0.36 | -7,053 | 10,144 | 100% | 124 | 16 / 16 | 0.22 |
 | 17 | `QI_17_TurnaroundTuesday` | D | -0.45 | -0.33 / -0.58 | -0.30 / -0.60 | -3,637 | 3,893 | 20% | 527 | 17 / 17 | 0.15 |
@@ -209,6 +209,11 @@ win-rate figures are **not** reproduced, because nobody has verified them.
 
 - Session windows (RTH, ORB, Asian) and calendar modules are hard-coded to **US Central time**.
 - `QI_19_VolumeDelta` classifies a bar's whole volume by close-to-close direction (no bid/ask data).
+- `QI_27_KeyLevels` tests its windows against each bar's **close** time (on 5-minute bars the
+  30-minute opening range uses the bars closing 08:30–08:55; on 60-minute bars it never forms).
+  The previous-day levels roll at the calendar date, not the session end. Weekend skipping uses
+  the calendar day, so Monday's Asian range covers only 00:00–02:00 CT. Its eight levels are
+  exposed as read-only series (e.g. `OrbHigh`) for strategies and tests.
 - Most modules return a neutral fallback (0, 1.0 or 50) until their warm-up bar count is reached.
   Nothing is computed before bar 50 (the original's global warm-up).
 - On **intraday** charts the original waited one extra session before it started. The stateful
@@ -255,9 +260,16 @@ is accepted only when both channels agree. Four passes:
 The Python ports of the four pattern modules reproduce the original indicator exactly on
 2,134,141 one-minute bars, with 0 mismatches (`validation/channel-b-patterns.md`).
 
+**Where the unit tests for each indicator are:** `tests/indicators/test_<Name>.py` — one file per
+indicator (e.g. `tests/indicators/test_ConsecDays.py` for `QI_01_ConsecDays`) with hand-computed
+formula cases, the C# interface contract, a single-file compile, a comparison with values exported
+from NinjaTrader, and at least one falsifier. A coverage gate fails if any indicator lacks its
+file. How to run everything, including the NinjaTrader export comparison: [TESTING.md](TESTING.md).
+
 Test suites (Python 3.9; `pip install -r backtest/requirements.txt`):
 
 ```
+python -I -m pytest tests/indicators -q -m "not slow"
 python -I -m pytest validation/pytests -q -m "not slow"
 python -I -m pytest backtest/tests -q -m "not slow"
 python -I -m pytest backtest/tests -q -m slow        # P1 data needed (not in the repo)

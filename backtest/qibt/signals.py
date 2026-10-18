@@ -207,10 +207,26 @@ def v_turn_of_month(f):
     return qi_ref.turn_of_month(pd.Series(pd.to_datetime(f["TradingDate"])).reset_index(drop=True))
 
 
+def v_connors_rsi(f, warmup=100):
+    """ConnorsRSI as the shipped indicator computes it (QI_13_ConnorsRSI.cs, ORIG 1283-1292): the
+    PercentRank leg ranks POINT one-bar changes Close[0] - Close[1] over the previous 100 bars.
+    qi_ref.connors_rsi ranks PERCENT changes (Connors' published form); the backtest evaluates the
+    indicator as shipped (validation/addenda.md ADD-10). Price and streak legs and the 50-until-
+    bar-100 warm-up are qi_ref's."""
+    c = np.asarray(_close(f), dtype=float)
+    d = np.zeros(len(c))
+    d[1:] = c[1:] - c[:-1]
+    r_price = qi_ref.rsi(c, 2).to_numpy()
+    r_streak = qi_ref.rsi(qi_ref.streak(c).to_numpy(), 2).to_numpy()
+    out = (r_price + r_streak + qi_ref.percent_rank(d, 100).to_numpy()) / 3.0
+    out[:warmup] = 50.0
+    return pd.Series(out)
+
+
 VALUE_FUNCTIONS = {
     "ibs_daily": v_ibs_daily,
     "rsi2": lambda f: qi_ref.rsi(_close(f), 2),
-    "connors_rsi": lambda f: qi_ref.connors_rsi(_close(f)),
+    "connors_rsi": v_connors_rsi,
     "stoch_k": lambda f: qi_ref.stoch_fast(_ohlcv(f), 3, 14)[0],
     "rv_zscore": lambda f: qi_ref.rv_zscore(_ohlcv(f)),
     "composite_vol": lambda f: qi_ref.composite_vol(_ohlcv(f))["composite"],
