@@ -407,7 +407,18 @@ def main(argv=None):
     b.add_argument("--label", default="P1, A1 settlement close, 1x costs", help="title of the report")
     s = sub.add_parser("sensitivity", help="v1 / A1 / 15:00 side by side -> SENSITIVITY.md")
     s.add_argument("--results", default="results", help="A1 folder; v1_last_trade/ and close_1500/ inside it")
+    rb = sub.add_parser("robustness", help="A3: R1 (Stooq SPY) and R3 (Stooq ES.F) daily datasets -> results/robustness/")
+    rb.add_argument("--data-dir", default=None, help="folder with spy_us_d.csv and es_f_d.csv (default: the ninjatrader_quant_data stooq folder)")
+    rb.add_argument("--p1-metrics", default="results/metrics_P1.csv", help="P1 A1.1 metrics for the Spearman reference")
+    rb.add_argument("--out", default="results/robustness")
+    rb.add_argument("--rules", default=str(signals.RULES_PATH))
+    rb.add_argument("--costs", type=float, default=1.0)
     args = ap.parse_args(argv)
+    if args.cmd == "robustness":
+        from . import robustness
+        if args.data_dir is None:
+            args.data_dir = str(robustness.STOOQ_DIR)
+        return robustness.main(args)
     if args.cmd == "bootstrap":
         return bootstrap.main(args)
     if args.cmd == "sensitivity":
