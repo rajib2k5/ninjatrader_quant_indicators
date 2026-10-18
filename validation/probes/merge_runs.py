@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pandas as pd
 
-NAME_RE = re.compile(r"^qiv_(?P<mod>[A-Za-z0-9]+)_(?P<instr>[A-Za-z0-9]+)_(?P<period>[A-Za-z]+-\d+)\.csv$")
+NAME_RE = re.compile(r"^qiv_(?P<mod>(?:\d\d_)?[A-Za-z0-9]+)_(?P<instr>[A-Za-z0-9]+)_(?P<period>[A-Za-z]+-\d+)\.csv$")
 BAR_COLS = ["BarTime", "Bar", "Open", "High", "Low", "Close", "Volume"]
 
 

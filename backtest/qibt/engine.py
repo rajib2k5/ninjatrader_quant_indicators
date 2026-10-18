@@ -89,9 +89,17 @@ class DailyResult:
         return pd.Series(self.net(cost_mult), index=self.dates)
 
 
-def run_positions(frame, pos, calendar, point_value=POINT_VALUE):
-    """Aggregate one position series on its frame to the window calendar."""
+def run_positions(frame, pos, calendar, point_value=POINT_VALUE, gross_mask=None):
+    """Aggregate one position series on its frame to the window calendar.
+
+    gross_mask: optional bool array per bar; True sets that bar's gross P&L to 0 (costs of an
+    execution on that bar are still charged) - used by the A3 roll-gap filter."""
     held, gross, sides = bar_ledger(frame["Open"].to_numpy(), pos, point_value)
+    if gross_mask is not None:
+        gm = np.asarray(gross_mask, dtype=bool)
+        if gm.shape != gross.shape:
+            raise ValueError("gross_mask has %s entries for %s bars" % (gm.shape, gross.shape))
+        gross = np.where(gm, 0.0, gross)
     codes = calendar.get_indexer(pd.DatetimeIndex(pd.to_datetime(frame["TradingDate"])))
     ok = codes >= 0
     c = codes[ok]

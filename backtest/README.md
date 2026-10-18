@@ -66,6 +66,39 @@ Outputs are tagged with the file stem (`metrics_<stem>.csv`, `ranking_<stem>.csv
 
 Without installing: `cd backtest` and `python -m qibt.cli run ... --out ../results` (not isolated).
 
+## Robustness datasets R1 / R3 (PROTOCOL A3)
+
+Reported next to the ranking; they never change it. Needs `spy_us_d.csv` (R1, Stooq SPY.US daily)
+and `es_f_d.csv` (R3, Stooq ES.F daily), downloaded in a browser (Stooq serves an HTML bot-check
+page to scripts; the loader rejects such a file with a clear error). From the repository root:
+
+```
+python -I -m qibt.cli robustness --data-dir "C:\Users\rajib\OneDrive\Documents\ninjatrader_quant_data\stooq" --p1-metrics results/metrics_P1.csv --out results/robustness
+```
+
+(`--data-dir` defaults to that folder.) Writes `results/robustness/{R1,R3,R3_unfiltered}_{full,p1window}_metrics.csv`
+(the metrics columns plus `rank_sr`) and `results/robustness/ROBUSTNESS.md`: a MANIFEST (file,
+SHA-256, data rows, first/last date) and, per dataset and window, each rule's SR and rank among the
+18 D-frame rules and the Spearman rank correlation with P1's A1.1 SRs of the same rules.
+
+Readings of A3 used by `qibt/robustness.py` (where A3 is silent):
+- Stooq columns are read by header name; extra columns are ignored, rows with an empty OHLC value
+  are dropped, duplicate dates keep the first row. R1 = OHLC x 10, Volume as delivered; R3 starts
+  1997-09-09. Trading date = the row's Date (no 17:00 roll, no settlement inference).
+- Warm-up: values are computed from the first bar; the full window starts at the date of bar 300
+  (the 301st bar), so the first counted execution is the one decided at bar 299. The P1 window is
+  2021-01-04 -> 2026-02-24 (clipped to the data).
+- Roll window: +-5 trading days around the third Friday of Mar/Jun/Sep/Dec, anchored on the first
+  trading date on or after that Friday (a holiday Friday anchors on the next trading date).
+- Roll gap: |Open_t - Close_{t-1}| > 3 x the median of the previous 60 gaps (t-60 .. t-1; all 60 needed).
+- "Open-to-open interval contains the roll date r": bar r-1 (Open_{r-1} -> Open_r, which carries
+  the Close_{r-1} -> Open_r jump) and bar r (Open_r -> Open_{r+1}) get gross P&L 0 for every rule and
+  for buy-and-hold; costs of executions on those bars are still charged.
+- HedgingPressure on R3: status `not_available`, reason `n/a (no volume)`; left out of the R3 ranks
+  and Spearman (17 rules). Rank = SR order (exact ties A->Z), no DSR tie-break; Spearman uses
+  average ranks of the SRs; a rule that never trades (no SR) is left out of both.
+- DSR on these datasets uses N = 18 and that run's V[SR]; H1/H2 SRs only for the P1 window.
+
 ## Data
 
 P1 = the six `MES_1min_*.csv` NinjaTrader EveryBar exports (path in `qibt/data.py`). The first load
@@ -94,4 +127,5 @@ tests that show a deliberately wrong variant is caught.
 | `qibt/metrics.py` | 7 | Sharpe, PSR, DSR, max drawdown, moments |
 | `qibt/rank.py` | 8 | ranking with the tie rule, non-backtestable modules last |
 | `qibt/bootstrap.py` | 9 A1 | stationary block bootstrap of the rank order |
-| `qibt/cli.py` | - | pipeline, outputs, `run` / `bootstrap` / `sensitivity` subcommands |
+| `qibt/robustness.py` | 9 A3 | Stooq loaders, R3 roll-gap filter, robustness runs, Spearman, ROBUSTNESS.md |
+| `qibt/cli.py` | - | pipeline, outputs, `run` / `bootstrap` / `sensitivity` / `robustness` subcommands |

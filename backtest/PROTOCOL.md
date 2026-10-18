@@ -129,3 +129,23 @@ through Friday 12:15 CT is Friday's trade date), and NinjaTrader ends its tradin
 trading-hours template's end of session. §3's fixed 17:00 CT roll splits such sessions into two
 dates (validation/channel-a-backtest.md). This affects a few dates per year; it is disclosed in the
 README and not amended.
+
+### A3 (2026-10-18) — robustness datasets R1 and R3 (pre-registered before the files were downloaded)
+
+Robustness results are reported next to the ranking and **never change it** (§2).
+- **Rules:** the 18 D-frame rules only (no intraday data). The daily bars are used as delivered;
+  there is no settlement inference (A1 applies to P1 only). The execution, costs (USD 2.25 per MES
+  per side), metrics and 300-bar warm-up follow §4–7.
+- **R1 = Stooq SPY.US daily.** Open/High/Low/Close × 10 as an S&P 500 proxy at MES scale (Volume
+  as delivered). Stooq's adjustment for splits and dividends is taken as is and disclosed.
+- **R3 = Stooq ES.F daily.** Rows before 1997-09-09 (E-mini launch) are dropped. Volume is reported
+  as 0, so HedgingPressure (volume terms) is reported as "n/a (no volume)". Roll gaps: the P&L of a
+  bar is set to 0 for every rule when its open-to-open interval contains a quarterly roll. A roll is
+  a trading date within ±5 trading days of the third Friday of Mar/Jun/Sep/Dec where
+  |Open_t − Close_{t−1}| > 3 × the median of that quantity over the previous 60 bars. Results
+  without this filter are reported too.
+- **Windows:** (a) full history after warm-up; (b) the P1 window 2021-01-04 → 2026-02-24.
+- **Agreement measure:** Spearman rank correlation between each dataset's SR order of the 18 rules
+  and P1's, plus each rule's SR and rank per dataset (results/robustness/).
+- **Raw files:** committed only to the private repo rajib2k5/ninjatrader_quant_data. This repo
+  records file name, SHA-256, row count, first/last date and download date.
