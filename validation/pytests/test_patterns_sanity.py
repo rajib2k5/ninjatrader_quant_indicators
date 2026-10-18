@@ -11,7 +11,7 @@ import pytest
 
 CONFIDENCES = {0, 0.35, 0.50, 0.55, 0.58, 0.60, 0.65, 0.68, 0.70, 0.72, 0.75, 0.78, 0.85}
 STRUCTURES = {-1, 0, 1}
-MODULES = {"M24": "QI_LiquiditySweep", "M25": "QI_OrderFlowPlus", "M26": "QI_SMC"}
+MODULES = {"M24": "QI_22_LiquiditySweep", "M25": "QI_24_OrderFlowPlus", "M26": "QI_25_SMC"}
 
 
 def _cols(h, mod, name):
@@ -55,9 +55,9 @@ def test_plot_values_mirror_series(harness, claim, mod):
 
 
 def test_M26_smc_trend_dir_in_minus1_0_plus1(harness):
-    t = _cols(harness, "QI_SMC", "TrendDir").fillna(0.0)
+    t = _cols(harness, "QI_25_SMC", "TrendDir").fillna(0.0)
     bad = sorted(set(t.unique()) - STRUCTURES)
-    assert not bad, "M26/QI_SMC: TrendDir values outside {-1,0,1}: %s" % bad
+    assert not bad, "M26/QI_25_SMC: TrendDir values outside {-1,0,1}: %s" % bad
 
 
 @pytest.mark.parametrize("claim", ["M24", "M25", "M26", "M27"])

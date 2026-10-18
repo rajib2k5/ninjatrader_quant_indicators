@@ -90,3 +90,43 @@ the first real run.
 - M15 Hedging Pressure: name kept; header states it is a price/volume composite, not Basu & Miffre's COT measure.
 - M7 Turn-of-Month: calendar-day window kept; header states the literature uses trading days.
 - All other definition findings documented as "Provenance" header lines (17 files) and in README.
+
+## ADD-7 (2026-10-17) — backtest wave findings
+- DuplicateBarWindow: the pattern ports reproduce ORIG exactly only at window 6 — the user's
+  original charts ran with 6, while the code default (ORIG and QI) is 5. The ranking uses the
+  shipped QI default 5 (it ranks the indicators as shipped); PT2-PT4 are confirmed at 6, which
+  validates the port's logic, the window being a parameter. Recorded, no protocol change.
+- BT17 data fact: P1 has no bars for 2023-04-06 -> 2023-04-14 (7 weekdays incl. Good Friday).
+  No synthetic bars; a position held across the gap is marked open-to-open across it, as §4 says.
+- DSR = 0.000 for all 25 rules: V[SR] (per §7, across the 25 trials) is dominated by the 15m
+  rules' large negative SRs, so SR0 ≈ 0.469/day (≈ 7.4 annualised). Reported as is.
+- Robustness downloads R1/R3 (Stooq) are blocked by a bot-verification page; not bypassed.
+- Side effect to disclose: the engine agent ran `python -s -m pip install -e backtest`
+  (package `qibt`, editable; undo with `python -m pip uninstall qibt`).
+
+## ADD-8 (2026-10-17) — Channel B backtest findings acted on
+- metrics: Φ via 0.5·(1+erf) underflowed to 0 for z < −8.26, so all DSRs printed 0 and the §8 tie
+  rule fell back to A→Z; fixed to erfc/log-tail. On v1 the corrected tie rule puts IBS 3rd,
+  ConsecDays 4th (DSR 3.3e-58 vs 1.7e-59). This is a bug fix, not a protocol change.
+- engine: the change executed at the last bar's open was not charged; fixed per §5.
+- BT17 REFUTED (data): no rows 2023-04-05 13:03 → 2023-04-16 17:01 (7 weekdays), 3 more missing
+  weekdays and six one-bar sessions at the file seams. Kept as is (§3: no synthetic bars) and disclosed.
+- BT4 note: P1 shows CME's former 15:15–15:30 CT pause until ~June 2021 (real market structure).
+- BT6 note: the pre-registered 3×-median-range threshold would miss a 14-point roll jump; the
+  tick-grid check (0 of 8.57M OHLC values off grid) is the stronger evidence for additive adjustment.
+
+## ADD-9 (2026-10-17) — Channel A backtest findings acted on
+- A1.1: settlement-close grid tolerance = 4-decimal IBS rounding bound 0.00005·(H−L) (PROTOCOL §9);
+  verified by main on all 1,578 dates: 7 dates change vs the fixed 0.01, 3 in the window; final A1.1
+  ranking reproduces the validator's NinjaTrader-daily numbers (ConsecDays 0.883, RSI14 0.656, RSI2 0.632).
+- BT10/BT11: the papers' numeric examples (Channel A) added as backtest/tests/test_paper_examples.py;
+  engine reproduces DSR 0.9004 / 0.9505 and PSR 0.982 / 0.913 / 0.953 (7 passed).
+- BT16: Channel A showed a realtime-only guard is insufficient (orders on the last historical bar carry
+  into real time; account-sync start behaviours). Generator now emits OrdersAllowed(): historical only,
+  Backtest/Sim*/Playback* accounts only, not on the last two historical bars of a non-Backtest
+  account; Configure forces StartBehavior.WaitUntilFlat when BacktestOnly. Static tests 180 passed;
+  falsifier (account check removed) fails; compile rc=0.
+- BT3: default routing all-in per side Free 0.94 / Monthly 0.84 / Lifetime 0.64 (<= 1.00 assumed);
+  Rithmic/CQG routing adds 0.25 -> Free 1.19 / Monthly 1.09 (> 1.00): covered by the 2x-cost
+  sensitivity, disclosed in the README.
+- A2: rules.yaml header wording (frame rule) corrected; holiday trade-date limitation documented.

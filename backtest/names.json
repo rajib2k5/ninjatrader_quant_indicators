@@ -1,0 +1,191 @@
+{
+  "ConsecDays": {
+    "rank": 1,
+    "qi": "QI_01_ConsecDays",
+    "qs": "QS_01_ConsecDays",
+    "qiv": "QIV_01_ConsecDays",
+    "display": "QI 01 ConsecDays"
+  },
+  "RSI14": {
+    "rank": 2,
+    "qi": "QI_02_RSI14",
+    "qs": "QS_02_RSI14",
+    "qiv": "QIV_02_RSI14",
+    "display": "QI 02 RSI14"
+  },
+  "RSI2": {
+    "rank": 3,
+    "qi": "QI_03_RSI2",
+    "qs": "QS_03_RSI2",
+    "qiv": "QIV_03_RSI2",
+    "display": "QI 03 RSI2"
+  },
+  "WideRangeBar": {
+    "rank": 4,
+    "qi": "QI_04_WideRangeBar",
+    "qs": "QS_04_WideRangeBar",
+    "qiv": "QIV_04_WideRangeBar",
+    "display": "QI 04 WideRangeBar"
+  },
+  "ATRRegime": {
+    "rank": 5,
+    "qi": "QI_05_ATRRegime",
+    "qs": "QS_05_ATRRegime",
+    "qiv": "QIV_05_ATRRegime",
+    "display": "QI 05 ATRRegime"
+  },
+  "VRPProxy": {
+    "rank": 6,
+    "qi": "QI_06_VRPProxy",
+    "qs": "QS_06_VRPProxy",
+    "qiv": "QIV_06_VRPProxy",
+    "display": "QI 06 VRPProxy"
+  },
+  "SMA200Trend": {
+    "rank": 7,
+    "qi": "QI_07_SMA200Trend",
+    "qs": "QS_07_SMA200Trend",
+    "qiv": "QIV_07_SMA200Trend",
+    "display": "QI 07 SMA200Trend"
+  },
+  "CompositeVol": {
+    "rank": 8,
+    "qi": "QI_08_CompositeVol",
+    "qs": "QS_08_CompositeVol",
+    "qiv": "QIV_08_CompositeVol",
+    "display": "QI 08 CompositeVol"
+  },
+  "RVZScore": {
+    "rank": 9,
+    "qi": "QI_09_RVZScore",
+    "qs": "QS_09_RVZScore",
+    "qiv": "QIV_09_RVZScore",
+    "display": "QI 09 RVZScore"
+  },
+  "IBS": {
+    "rank": 10,
+    "qi": "QI_10_IBS",
+    "qs": "QS_10_IBS",
+    "qiv": "QIV_10_IBS",
+    "display": "QI 10 IBS"
+  },
+  "StochFade": {
+    "rank": 11,
+    "qi": "QI_11_StochFade",
+    "qs": "QS_11_StochFade",
+    "qiv": "QIV_11_StochFade",
+    "display": "QI 11 StochFade"
+  },
+  "HedgingPressure": {
+    "rank": 12,
+    "qi": "QI_12_HedgingPressure",
+    "qs": "QS_12_HedgingPressure",
+    "qiv": "QIV_12_HedgingPressure",
+    "display": "QI 12 HedgingPressure"
+  },
+  "ConnorsRSI": {
+    "rank": 13,
+    "qi": "QI_13_ConnorsRSI",
+    "qs": "QS_13_ConnorsRSI",
+    "qiv": "QIV_13_ConnorsRSI",
+    "display": "QI 13 ConnorsRSI"
+  },
+  "EMACross": {
+    "rank": 14,
+    "qi": "QI_14_EMACross",
+    "qs": "QS_14_EMACross",
+    "qiv": "QIV_14_EMACross",
+    "display": "QI 14 EMACross"
+  },
+  "TurnOfMonth": {
+    "rank": 15,
+    "qi": "QI_15_TurnOfMonth",
+    "qs": "QS_15_TurnOfMonth",
+    "qiv": "QIV_15_TurnOfMonth",
+    "display": "QI 15 TurnOfMonth"
+  },
+  "MACDHistogram": {
+    "rank": 16,
+    "qi": "QI_16_MACDHistogram",
+    "qs": "QS_16_MACDHistogram",
+    "qiv": "QIV_16_MACDHistogram",
+    "display": "QI 16 MACDHistogram"
+  },
+  "TurnaroundTuesday": {
+    "rank": 17,
+    "qi": "QI_17_TurnaroundTuesday",
+    "qs": "QS_17_TurnaroundTuesday",
+    "qiv": "QIV_17_TurnaroundTuesday",
+    "display": "QI 17 TurnaroundTuesday"
+  },
+  "OvernightGap": {
+    "rank": 18,
+    "qi": "QI_18_OvernightGap",
+    "qs": "QS_18_OvernightGap",
+    "qiv": "QIV_18_OvernightGap",
+    "display": "QI 18 OvernightGap"
+  },
+  "VolumeDelta": {
+    "rank": 19,
+    "qi": "QI_19_VolumeDelta",
+    "qs": "QS_19_VolumeDelta",
+    "qiv": "QIV_19_VolumeDelta",
+    "display": "QI 19 VolumeDelta"
+  },
+  "VolumeSpike": {
+    "rank": 20,
+    "qi": "QI_20_VolumeSpike",
+    "qs": "QS_20_VolumeSpike",
+    "qiv": "QIV_20_VolumeSpike",
+    "display": "QI 20 VolumeSpike"
+  },
+  "BollingerPctB": {
+    "rank": 21,
+    "qi": "QI_21_BollingerPctB",
+    "qs": "QS_21_BollingerPctB",
+    "qiv": "QIV_21_BollingerPctB",
+    "display": "QI 21 BollingerPctB"
+  },
+  "LiquiditySweep": {
+    "rank": 22,
+    "qi": "QI_22_LiquiditySweep",
+    "qs": "QS_22_LiquiditySweep",
+    "qiv": "QIV_22_LiquiditySweep",
+    "display": "QI 22 LiquiditySweep"
+  },
+  "VWAPDistance": {
+    "rank": 23,
+    "qi": "QI_23_VWAPDistance",
+    "qs": "QS_23_VWAPDistance",
+    "qiv": "QIV_23_VWAPDistance",
+    "display": "QI 23 VWAPDistance"
+  },
+  "OrderFlowPlus": {
+    "rank": 24,
+    "qi": "QI_24_OrderFlowPlus",
+    "qs": "QS_24_OrderFlowPlus",
+    "qiv": "QIV_24_OrderFlowPlus",
+    "display": "QI 24 OrderFlowPlus"
+  },
+  "SMC": {
+    "rank": 25,
+    "qi": "QI_25_SMC",
+    "qs": "QS_25_SMC",
+    "qiv": "QIV_25_SMC",
+    "display": "QI 25 SMC"
+  },
+  "ChopIndex": {
+    "rank": 26,
+    "qi": "QI_26_ChopIndex",
+    "qs": "QS_26_ChopIndex",
+    "qiv": "QIV_26_ChopIndex",
+    "display": "QI 26 ChopIndex"
+  },
+  "KeyLevels": {
+    "rank": 27,
+    "qi": "QI_27_KeyLevels",
+    "qs": "QS_27_KeyLevels",
+    "qiv": "QIV_27_KeyLevels",
+    "display": "QI 27 KeyLevels"
+  }
+}

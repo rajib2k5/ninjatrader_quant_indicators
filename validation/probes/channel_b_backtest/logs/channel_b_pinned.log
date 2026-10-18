@@ -1,0 +1,459 @@
+date: Sat Oct 17 17:56:51 CDT 2026
+################ PINNED BT4 probe
+$ python -I -B validation/probes/channel_b_backtest/bt04_session_halt.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+=== BT4 P1 session / halt property ===
+[PASS] session builder (qibt.data.build_frames) runs on P1 | 1m 2142391 bars, D 1578 dates, 15m 143136 bars
+[PASS] no bar closes in (16:00, 17:00] CT | bars in halt=0
+[PASS] no bar on Saturday | Saturday bars=0
+[PASS] no Sunday bar closing at or before 17:00 | count=0
+[PASS] no Friday bar closing after 16:00 | count=0
+[PASS] builder TradingDate == own PROTOCOL-3 rule on every bar | mismatches=0
+OBSERVATION: distinct close minutes-of-day present: 1380 of 1440; minutes 16:01..17:00 present: 0
+OBSERVATION bars per close minute, years 2020..2026:
+  15:14 [246, 249, 249, 239, 247, 245, 35]
+  15:15 [246, 249, 249, 239, 247, 245, 35]
+  15:16 [8, 131, 249, 239, 247, 245, 35]
+  15:17 [4, 130, 249, 239, 247, 245, 35]
+  15:18 [4, 130, 249, 239, 247, 245, 35]
+  15:19 [4, 130, 249, 239, 246, 245, 35]
+  15:20 [4, 129, 249, 239, 246, 245, 35]
+  15:21 [4, 130, 249, 239, 246, 245, 35]
+  15:22 [6, 130, 249, 239, 246, 245, 35]
+  15:23 [6, 130, 249, 239, 246, 245, 35]
+  15:24 [6, 130, 249, 239, 246, 245, 35]
+  15:25 [6, 130, 249, 239, 246, 245, 35]
+  15:26 [6, 130, 249, 239, 246, 245, 35]
+  15:27 [6, 130, 249, 239, 246, 245, 35]
+  15:28 [6, 130, 249, 239, 247, 245, 35]
+  15:29 [6, 130, 249, 239, 247, 245, 35]
+  15:30 [6, 130, 249, 239, 247, 245, 35]
+  15:31 [248, 249, 249, 239, 247, 245, 35]
+OBSERVATION monthly share of weekdays with >= 15 bars closing 15:16..15:30 CT:
+  2020-01:0.00 2020-02:0.00 2020-03:0.00 2020-04:0.00 2020-05:0.00 2020-06:0.00 2020-07:0.00 2020-08:0.00 2020-09:0.00 2020-10:0.18 2020-11:0.00 2020-12:0.00 2021-01:0.00 2021-02:0.00 2021-03:0.00 2021-04:0.00 2021-05:0.00 2021-06:0.14 2021-07:0.95 2021-08:1.00 2021-09:0.95 2021-10:1.00 2021-11:0.91 2021-12:0.95 2022-01:0.95 2022-02:0.95 2022-03:1.00 2022-04:1.00 2022-05:0.95 2022-06:0.95 2022-07:0.95 2022-08:1.00 2022-09:0.95 2022-10:1.00 2022-11:0.91 2022-12:1.00 2023-01:0.95 2023-02:0.94 2023-03:1.00 2023-04:0.92 2023-05:0.96 2023-06:0.95 2023-07:0.90 2023-08:1.00 2023-09:0.95 2023-10:1.00 2023-11:0.91 2023-12:1.00 2024-01:0.95 2024-02:0.90 2024-03:1.00 2024-04:1.00 2024-05:0.96 2024-06:0.95 2024-07:0.91 2024-08:1.00 2024-09:0.95 2024-10:1.00 2024-11:0.90 2024-12:0.95 2025-01:0.91 2025-02:0.95 2025-03:1.00 2025-04:1.00 2025-05:0.95 2025-06:0.95 2025-07:0.91 2025-08:1.00 2025-09:0.95 2025-10:1.00 2025-11:0.90 2025-12:0.95 2026-01:0.95 2026-02:0.88
+--- BT4 P1 session / halt property: 6 checks, 0 failed
+rc=0
+################ PINNED BT4 falsifier A (bar at 16:30)
+$ python -I -B validation/probes/channel_b_backtest/bt04_session_halt.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl --inject halt
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+INJECTED: bar at 2021-06-14 16:30:00
+=== BT4 P1 session / halt property ===
+[FAIL] session builder (qibt.data.build_frames) runs on P1 | SessionError: 1 bar(s) close inside the halt (16:00, 17:00], first: ['2021-06-14 16:30:00']
+[FAIL] no bar closes in (16:00, 17:00] CT | bars in halt=1
+[PASS] no bar on Saturday | Saturday bars=0
+[PASS] no Sunday bar closing at or before 17:00 | count=0
+[PASS] no Friday bar closing after 16:00 | count=0
+OBSERVATION: distinct close minutes-of-day present: 1381 of 1440; minutes 16:01..17:00 present: 1
+OBSERVATION bars per close minute, years 2020..2026:
+  15:14 [246, 249, 249, 239, 247, 245, 35]
+  15:15 [246, 249, 249, 239, 247, 245, 35]
+  15:16 [8, 131, 249, 239, 247, 245, 35]
+  15:17 [4, 130, 249, 239, 247, 245, 35]
+  15:18 [4, 130, 249, 239, 247, 245, 35]
+  15:19 [4, 130, 249, 239, 246, 245, 35]
+  15:20 [4, 129, 249, 239, 246, 245, 35]
+  15:21 [4, 130, 249, 239, 246, 245, 35]
+  15:22 [6, 130, 249, 239, 246, 245, 35]
+  15:23 [6, 130, 249, 239, 246, 245, 35]
+  15:24 [6, 130, 249, 239, 246, 245, 35]
+  15:25 [6, 130, 249, 239, 246, 245, 35]
+  15:26 [6, 130, 249, 239, 246, 245, 35]
+  15:27 [6, 130, 249, 239, 246, 245, 35]
+  15:28 [6, 130, 249, 239, 247, 245, 35]
+  15:29 [6, 130, 249, 239, 247, 245, 35]
+  15:30 [6, 130, 249, 239, 247, 245, 35]
+  15:31 [248, 249, 249, 239, 247, 245, 35]
+OBSERVATION monthly share of weekdays with >= 15 bars closing 15:16..15:30 CT:
+  2020-01:0.00 2020-02:0.00 2020-03:0.00 2020-04:0.00 2020-05:0.00 2020-06:0.00 2020-07:0.00 2020-08:0.00 2020-09:0.00 2020-10:0.18 2020-11:0.00 2020-12:0.00 2021-01:0.00 2021-02:0.00 2021-03:0.00 2021-04:0.00 2021-05:0.00 2021-06:0.14 2021-07:0.95 2021-08:1.00 2021-09:0.95 2021-10:1.00 2021-11:0.91 2021-12:0.95 2022-01:0.95 2022-02:0.95 2022-03:1.00 2022-04:1.00 2022-05:0.95 2022-06:0.95 2022-07:0.95 2022-08:1.00 2022-09:0.95 2022-10:1.00 2022-11:0.91 2022-12:1.00 2023-01:0.95 2023-02:0.94 2023-03:1.00 2023-04:0.92 2023-05:0.96 2023-06:0.95 2023-07:0.90 2023-08:1.00 2023-09:0.95 2023-10:1.00 2023-11:0.91 2023-12:1.00 2024-01:0.95 2024-02:0.90 2024-03:1.00 2024-04:1.00 2024-05:0.96 2024-06:0.95 2024-07:0.91 2024-08:1.00 2024-09:0.95 2024-10:1.00 2024-11:0.90 2024-12:0.95 2025-01:0.91 2025-02:0.95 2025-03:1.00 2025-04:1.00 2025-05:0.95 2025-06:0.95 2025-07:0.91 2025-08:1.00 2025-09:0.95 2025-10:1.00 2025-11:0.90 2025-12:0.95 2026-01:0.95 2026-02:0.88
+--- BT4 P1 session / halt property: 5 checks, 2 failed: session builder (qibt.data.build_frames) runs on P1; no bar closes in (16:00, 17:00] CT
+rc=1
+################ PINNED BT4 falsifier B (Saturday bar)
+$ python -I -B validation/probes/channel_b_backtest/bt04_session_halt.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl --inject saturday
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+INJECTED: bar at 2021-06-19 10:00:00
+=== BT4 P1 session / halt property ===
+[PASS] session builder (qibt.data.build_frames) runs on P1 | 1m 2142392 bars, D 1579 dates, 15m 143137 bars
+[PASS] no bar closes in (16:00, 17:00] CT | bars in halt=0
+[FAIL] no bar on Saturday | Saturday bars=1
+[PASS] no Sunday bar closing at or before 17:00 | count=0
+[PASS] no Friday bar closing after 16:00 | count=0
+[PASS] builder TradingDate == own PROTOCOL-3 rule on every bar | mismatches=0
+OBSERVATION: distinct close minutes-of-day present: 1380 of 1440; minutes 16:01..17:00 present: 0
+OBSERVATION bars per close minute, years 2020..2026:
+  15:14 [246, 249, 249, 239, 247, 245, 35]
+  15:15 [246, 249, 249, 239, 247, 245, 35]
+  15:16 [8, 131, 249, 239, 247, 245, 35]
+  15:17 [4, 130, 249, 239, 247, 245, 35]
+  15:18 [4, 130, 249, 239, 247, 245, 35]
+  15:19 [4, 130, 249, 239, 246, 245, 35]
+  15:20 [4, 129, 249, 239, 246, 245, 35]
+  15:21 [4, 130, 249, 239, 246, 245, 35]
+  15:22 [6, 130, 249, 239, 246, 245, 35]
+  15:23 [6, 130, 249, 239, 246, 245, 35]
+  15:24 [6, 130, 249, 239, 246, 245, 35]
+  15:25 [6, 130, 249, 239, 246, 245, 35]
+  15:26 [6, 130, 249, 239, 246, 245, 35]
+  15:27 [6, 130, 249, 239, 246, 245, 35]
+  15:28 [6, 130, 249, 239, 247, 245, 35]
+  15:29 [6, 130, 249, 239, 247, 245, 35]
+  15:30 [6, 130, 249, 239, 247, 245, 35]
+  15:31 [248, 249, 249, 239, 247, 245, 35]
+OBSERVATION monthly share of weekdays with >= 15 bars closing 15:16..15:30 CT:
+  2020-01:0.00 2020-02:0.00 2020-03:0.00 2020-04:0.00 2020-05:0.00 2020-06:0.00 2020-07:0.00 2020-08:0.00 2020-09:0.00 2020-10:0.18 2020-11:0.00 2020-12:0.00 2021-01:0.00 2021-02:0.00 2021-03:0.00 2021-04:0.00 2021-05:0.00 2021-06:0.14 2021-07:0.95 2021-08:1.00 2021-09:0.95 2021-10:1.00 2021-11:0.91 2021-12:0.95 2022-01:0.95 2022-02:0.95 2022-03:1.00 2022-04:1.00 2022-05:0.95 2022-06:0.95 2022-07:0.95 2022-08:1.00 2022-09:0.95 2022-10:1.00 2022-11:0.91 2022-12:1.00 2023-01:0.95 2023-02:0.94 2023-03:1.00 2023-04:0.92 2023-05:0.96 2023-06:0.95 2023-07:0.90 2023-08:1.00 2023-09:0.95 2023-10:1.00 2023-11:0.91 2023-12:1.00 2024-01:0.95 2024-02:0.90 2024-03:1.00 2024-04:1.00 2024-05:0.96 2024-06:0.95 2024-07:0.91 2024-08:1.00 2024-09:0.95 2024-10:1.00 2024-11:0.90 2024-12:0.95 2025-01:0.91 2025-02:0.95 2025-03:1.00 2025-04:1.00 2025-05:0.95 2025-06:0.95 2025-07:0.91 2025-08:1.00 2025-09:0.95 2025-10:1.00 2025-11:0.90 2025-12:0.95 2026-01:0.95 2026-02:0.88
+--- BT4 P1 session / halt property: 6 checks, 1 failed: no bar on Saturday
+rc=1
+################ PINNED BT6 probe
+$ python -I -B validation/probes/channel_b_backtest/bt06_roll_jumps.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+D bars 1578; median daily range 59.12 pts; threshold 3x = 177.38 pts
+=== BT6 roll-date jumps ===
+  roll 2020-03-12: window dates ['2020-03-09', '2020-03-10', '2020-03-11', '2020-03-12', '2020-03-13']; max session-open gap 47.25 (on 2020-03-09, percentile 99.0 of all gaps); max 1-min step 47.25
+  roll 2020-06-11: window dates ['2020-06-08', '2020-06-09', '2020-06-10', '2020-06-11', '2020-06-12']; max session-open gap 6.75 (on 2020-06-08, percentile 90.0 of all gaps); max 1-min step 6.75
+  roll 2020-09-10: window dates ['2020-09-07', '2020-09-08', '2020-09-09', '2020-09-10', '2020-09-11']; max session-open gap 16.00 (on 2020-09-09, percentile 96.3 of all gaps); max 1-min step 16.00
+  roll 2020-12-10: window dates ['2020-12-07', '2020-12-08', '2020-12-09', '2020-12-10', '2020-12-11']; max session-open gap 5.25 (on 2020-12-11, percentile 86.6 of all gaps); max 1-min step 5.25
+  roll 2021-03-11: window dates ['2021-03-08', '2021-03-09', '2021-03-10', '2021-03-11', '2021-03-12']; max session-open gap 13.25 (on 2021-03-08, percentile 95.4 of all gaps); max 1-min step 13.25
+  roll 2021-06-10: window dates ['2021-06-07', '2021-06-08', '2021-06-09', '2021-06-10', '2021-06-11']; max session-open gap 4.00 (on 2021-06-07, percentile 83.8 of all gaps); max 1-min step 4.00
+  roll 2021-09-09: window dates ['2021-09-06', '2021-09-07', '2021-09-08', '2021-09-09', '2021-09-10']; max session-open gap 1.00 (on 2021-09-09, percentile 58.1 of all gaps); max 1-min step 1.75
+  roll 2021-12-09: window dates ['2021-12-06', '2021-12-07', '2021-12-08', '2021-12-09', '2021-12-10']; max session-open gap 9.75 (on 2021-12-06, percentile 93.1 of all gaps); max 1-min step 9.75
+  roll 2022-03-10: window dates ['2022-03-07', '2022-03-08', '2022-03-09', '2022-03-10', '2022-03-11']; max session-open gap 9.75 (on 2022-03-07, percentile 93.1 of all gaps); max 1-min step 9.75
+  roll 2022-06-09: window dates ['2022-06-06', '2022-06-07', '2022-06-08', '2022-06-09', '2022-06-10']; max session-open gap 2.75 (on 2022-06-06, percentile 77.6 of all gaps); max 1-min step 2.75
+  roll 2022-09-08: window dates ['2022-09-05', '2022-09-06', '2022-09-07', '2022-09-08', '2022-09-09']; max session-open gap 2.50 (on 2022-09-05, percentile 75.8 of all gaps); max 1-min step 2.50
+  roll 2022-12-08: window dates ['2022-12-05', '2022-12-06', '2022-12-07', '2022-12-08', '2022-12-09']; max session-open gap 6.50 (on 2022-12-05, percentile 89.6 of all gaps); max 1-min step 9.75
+  roll 2023-03-09: window dates ['2023-03-06', '2023-03-07', '2023-03-08', '2023-03-09', '2023-03-10']; max session-open gap 3.25 (on 2023-03-06, percentile 81.4 of all gaps); max 1-min step 7.25
+  roll 2023-06-08: window dates ['2023-06-05', '2023-06-06', '2023-06-07', '2023-06-08', '2023-06-09']; max session-open gap 1.75 (on 2023-06-09, percentile 70.5 of all gaps); max 1-min step 1.75
+  roll 2023-09-07: window dates ['2023-09-04', '2023-09-05', '2023-09-06', '2023-09-07', '2023-09-08']; max session-open gap 1.50 (on 2023-09-04, percentile 67.0 of all gaps); max 1-min step 1.50
+  roll 2023-12-07: window dates ['2023-12-04', '2023-12-05', '2023-12-06', '2023-12-07', '2023-12-08']; max session-open gap 0.50 (on 2023-12-08, percentile 42.1 of all gaps); max 1-min step 0.75
+  roll 2024-03-07: window dates ['2024-03-04', '2024-03-05', '2024-03-06', '2024-03-07', '2024-03-08']; max session-open gap 34.50 (on 2024-03-04, percentile 98.7 of all gaps); max 1-min step 34.50
+  roll 2024-06-13: window dates ['2024-06-10', '2024-06-11', '2024-06-12', '2024-06-13', '2024-06-14']; max session-open gap 2.00 (on 2024-06-10, percentile 73.1 of all gaps); max 1-min step 2.00
+  roll 2024-09-12: window dates ['2024-09-09', '2024-09-10', '2024-09-11', '2024-09-12', '2024-09-13']; max session-open gap 5.25 (on 2024-09-09, percentile 86.6 of all gaps); max 1-min step 5.25
+  roll 2024-12-12: window dates ['2024-12-09', '2024-12-10', '2024-12-11', '2024-12-12', '2024-12-13']; max session-open gap 5.50 (on 2024-12-13, percentile 87.4 of all gaps); max 1-min step 5.50
+  roll 2025-03-13: window dates ['2025-03-10', '2025-03-11', '2025-03-12', '2025-03-13', '2025-03-14']; max session-open gap 18.75 (on 2025-03-10, percentile 97.1 of all gaps); max 1-min step 18.75
+  roll 2025-06-12: window dates ['2025-06-09', '2025-06-10', '2025-06-11', '2025-06-12', '2025-06-13']; max session-open gap 1.25 (on 2025-06-10, percentile 62.6 of all gaps); max 1-min step 1.75
+  roll 2025-09-11: window dates ['2025-09-08', '2025-09-09', '2025-09-10', '2025-09-11', '2025-09-12']; max session-open gap 4.75 (on 2025-09-08, percentile 85.5 of all gaps); max 1-min step 4.75
+  roll 2025-12-11: window dates ['2025-12-08', '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12']; max session-open gap 9.50 (on 2025-12-12, percentile 92.7 of all gaps); max 1-min step 9.50
+[PASS] no roll-window jump > 3 x median daily range (177.38) | largest 47.25 (gap, roll 2020-03-12)
+OBSERVATION top-8 session-open gaps in all of P1: [('2025-04-07', 90.0), ('2020-03-02', 84.75), ('2023-02-02', 82.5), ('2025-10-13', 80.75), ('2025-04-02', 66.25), ('2021-02-02', 61.5), ('2023-04-17', 61.0), ('2025-06-23', 60.75)]
+OBSERVATION session-open gaps: median 0.75, p95 12.30, p99 45.54, max 90.00; roll-window maxima percentiles: median 86.6, max 99.0
+OBSERVATION session-open gap on the roll date R (Thu) and R+1 (Fri) [date, points, percentile among all Tue-Fri gaps]: [('2020-03-12', 1.25, 71.6), ('2020-03-13', 8.75, 97.2), ('2020-06-11', 1.25, 71.6), ('2020-06-12', 2.75, 87.0), ('2020-09-10', 2.0, 83.0), ('2020-09-11', 6.25, 95.6), ('2020-12-10', 1.25, 71.6), ('2020-12-11', 5.25, 94.3), ('2021-03-11', 1.0, 66.9), ('2021-03-12', 0.5, 48.6), ('2021-06-10', 0.0, 15.4), ('2021-06-11', 0.75, 59.5), ('2021-09-09', 1.0, 66.9), ('2021-09-10', 0.5, 48.6), ('2021-12-09', 1.0, 66.9), ('2021-12-10', 0.25, 35.2), ('2022-03-10', 0.5, 48.6), ('2022-03-11', 1.5, 76.8), ('2022-06-09', 1.75, 80.1), ('2022-06-10', 1.0, 66.9), ('2022-09-08', 0.5, 48.6), ('2022-09-09', 0.25, 35.2), ('2022-12-08', 0.25, 35.2), ('2022-12-09', 0.25, 35.2), ('2023-03-09', 0.25, 35.2), ('2023-03-10', 0.25, 35.2), ('2023-06-08', 0.25, 35.2), ('2023-06-09', 1.75, 80.1), ('2023-09-07', 0.5, 48.6), ('2023-09-08', 0.5, 48.6), ('2023-12-07', 0.25, 35.2), ('2023-12-08', 0.5, 48.6), ('2024-03-07', 1.5, 76.8), ('2024-03-08', 0.75, 59.5), ('2024-06-13', 1.75, 80.1), ('2024-06-14', 0.0, 15.4), ('2024-09-12', 0.25, 35.2), ('2024-09-13', 0.25, 35.2), ('2024-12-12', 0.75, 59.5), ('2024-12-13', 5.5, 94.8), ('2025-03-13', 0.25, 35.2), ('2025-03-14', 1.5, 76.8), ('2025-06-12', 0.0, 15.4), ('2025-06-13', 1.25, 71.6), ('2025-09-11', 0.5, 48.6), ('2025-09-12', 3.0, 89.0), ('2025-12-11', 5.25, 94.3), ('2025-12-12', 9.5, 97.6)]
+OBSERVATION Tue-Fri session-open gaps: median 0.75, p90 3.25, p99 16.35; share of Tue-Fri gaps >= 10 points: 2.30%
+[PASS] supplementary: every OHLC price on the 0.25 tick grid | off-grid prices=0 of 8569564
+--- BT6 roll-date jumps: 2 checks, 0 failed
+rc=0
+################ PINNED BT6 falsifier A (unadjusted jump 4x median range)
+$ python -I -B validation/probes/channel_b_backtest/bt06_roll_jumps.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl --inject jump
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+INJECTED: +236.50 points on every price before 2023-06-08 (1189244 bars)
+D bars 1578; median daily range 59.12 pts; threshold 3x = 177.38 pts
+=== BT6 roll-date jumps ===
+  roll 2020-03-12: window dates ['2020-03-09', '2020-03-10', '2020-03-11', '2020-03-12', '2020-03-13']; max session-open gap 47.25 (on 2020-03-09, percentile 99.0 of all gaps); max 1-min step 47.25
+  roll 2020-06-11: window dates ['2020-06-08', '2020-06-09', '2020-06-10', '2020-06-11', '2020-06-12']; max session-open gap 6.75 (on 2020-06-08, percentile 90.0 of all gaps); max 1-min step 6.75
+  roll 2020-09-10: window dates ['2020-09-07', '2020-09-08', '2020-09-09', '2020-09-10', '2020-09-11']; max session-open gap 16.00 (on 2020-09-09, percentile 96.3 of all gaps); max 1-min step 16.00
+  roll 2020-12-10: window dates ['2020-12-07', '2020-12-08', '2020-12-09', '2020-12-10', '2020-12-11']; max session-open gap 5.25 (on 2020-12-11, percentile 86.6 of all gaps); max 1-min step 5.25
+  roll 2021-03-11: window dates ['2021-03-08', '2021-03-09', '2021-03-10', '2021-03-11', '2021-03-12']; max session-open gap 13.25 (on 2021-03-08, percentile 95.4 of all gaps); max 1-min step 13.25
+  roll 2021-06-10: window dates ['2021-06-07', '2021-06-08', '2021-06-09', '2021-06-10', '2021-06-11']; max session-open gap 4.00 (on 2021-06-07, percentile 83.8 of all gaps); max 1-min step 4.00
+  roll 2021-09-09: window dates ['2021-09-06', '2021-09-07', '2021-09-08', '2021-09-09', '2021-09-10']; max session-open gap 1.00 (on 2021-09-09, percentile 58.1 of all gaps); max 1-min step 1.75
+  roll 2021-12-09: window dates ['2021-12-06', '2021-12-07', '2021-12-08', '2021-12-09', '2021-12-10']; max session-open gap 9.75 (on 2021-12-06, percentile 93.0 of all gaps); max 1-min step 9.75
+  roll 2022-03-10: window dates ['2022-03-07', '2022-03-08', '2022-03-09', '2022-03-10', '2022-03-11']; max session-open gap 9.75 (on 2022-03-07, percentile 93.0 of all gaps); max 1-min step 9.75
+  roll 2022-06-09: window dates ['2022-06-06', '2022-06-07', '2022-06-08', '2022-06-09', '2022-06-10']; max session-open gap 2.75 (on 2022-06-06, percentile 77.5 of all gaps); max 1-min step 2.75
+  roll 2022-09-08: window dates ['2022-09-05', '2022-09-06', '2022-09-07', '2022-09-08', '2022-09-09']; max session-open gap 2.50 (on 2022-09-05, percentile 75.8 of all gaps); max 1-min step 2.50
+  roll 2022-12-08: window dates ['2022-12-05', '2022-12-06', '2022-12-07', '2022-12-08', '2022-12-09']; max session-open gap 6.50 (on 2022-12-05, percentile 89.5 of all gaps); max 1-min step 9.75
+  roll 2023-03-09: window dates ['2023-03-06', '2023-03-07', '2023-03-08', '2023-03-09', '2023-03-10']; max session-open gap 3.25 (on 2023-03-06, percentile 81.4 of all gaps); max 1-min step 7.25
+  roll 2023-06-08: window dates ['2023-06-05', '2023-06-06', '2023-06-07', '2023-06-08', '2023-06-09']; max session-open gap 236.25 (on 2023-06-08, percentile 100.0 of all gaps); max 1-min step 236.25
+  roll 2023-09-07: window dates ['2023-09-04', '2023-09-05', '2023-09-06', '2023-09-07', '2023-09-08']; max session-open gap 1.50 (on 2023-09-04, percentile 66.9 of all gaps); max 1-min step 1.50
+  roll 2023-12-07: window dates ['2023-12-04', '2023-12-05', '2023-12-06', '2023-12-07', '2023-12-08']; max session-open gap 0.50 (on 2023-12-08, percentile 42.0 of all gaps); max 1-min step 0.75
+  roll 2024-03-07: window dates ['2024-03-04', '2024-03-05', '2024-03-06', '2024-03-07', '2024-03-08']; max session-open gap 34.50 (on 2024-03-04, percentile 98.7 of all gaps); max 1-min step 34.50
+  roll 2024-06-13: window dates ['2024-06-10', '2024-06-11', '2024-06-12', '2024-06-13', '2024-06-14']; max session-open gap 2.00 (on 2024-06-10, percentile 73.0 of all gaps); max 1-min step 2.00
+  roll 2024-09-12: window dates ['2024-09-09', '2024-09-10', '2024-09-11', '2024-09-12', '2024-09-13']; max session-open gap 5.25 (on 2024-09-09, percentile 86.6 of all gaps); max 1-min step 5.25
+  roll 2024-12-12: window dates ['2024-12-09', '2024-12-10', '2024-12-11', '2024-12-12', '2024-12-13']; max session-open gap 5.50 (on 2024-12-13, percentile 87.4 of all gaps); max 1-min step 5.50
+  roll 2025-03-13: window dates ['2025-03-10', '2025-03-11', '2025-03-12', '2025-03-13', '2025-03-14']; max session-open gap 18.75 (on 2025-03-10, percentile 97.0 of all gaps); max 1-min step 18.75
+  roll 2025-06-12: window dates ['2025-06-09', '2025-06-10', '2025-06-11', '2025-06-12', '2025-06-13']; max session-open gap 1.25 (on 2025-06-10, percentile 62.5 of all gaps); max 1-min step 1.75
+  roll 2025-09-11: window dates ['2025-09-08', '2025-09-09', '2025-09-10', '2025-09-11', '2025-09-12']; max session-open gap 4.75 (on 2025-09-08, percentile 85.4 of all gaps); max 1-min step 4.75
+  roll 2025-12-11: window dates ['2025-12-08', '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12']; max session-open gap 9.50 (on 2025-12-12, percentile 92.6 of all gaps); max 1-min step 9.50
+[FAIL] no roll-window jump > 3 x median daily range (177.38) | largest 236.25 (gap, roll 2023-06-08)
+OBSERVATION top-8 session-open gaps in all of P1: [('2023-06-08', 236.25), ('2025-04-07', 90.0), ('2020-03-02', 84.75), ('2023-02-02', 82.5), ('2025-10-13', 80.75), ('2025-04-02', 66.25), ('2021-02-02', 61.5), ('2023-04-17', 61.0)]
+OBSERVATION session-open gaps: median 0.75, p95 12.50, p99 47.85, max 236.25; roll-window maxima percentiles: median 87.0, max 100.0
+OBSERVATION session-open gap on the roll date R (Thu) and R+1 (Fri) [date, points, percentile among all Tue-Fri gaps]: [('2020-03-12', 1.25, 71.5), ('2020-03-13', 8.75, 97.1), ('2020-06-11', 1.25, 71.5), ('2020-06-12', 2.75, 86.9), ('2020-09-10', 2.0, 82.9), ('2020-09-11', 6.25, 95.5), ('2020-12-10', 1.25, 71.5), ('2020-12-11', 5.25, 94.2), ('2021-03-11', 1.0, 66.8), ('2021-03-12', 0.5, 48.5), ('2021-06-10', 0.0, 15.4), ('2021-06-11', 0.75, 59.4), ('2021-09-09', 1.0, 66.8), ('2021-09-10', 0.5, 48.5), ('2021-12-09', 1.0, 66.8), ('2021-12-10', 0.25, 35.1), ('2022-03-10', 0.5, 48.5), ('2022-03-11', 1.5, 76.7), ('2022-06-09', 1.75, 80.0), ('2022-06-10', 1.0, 66.8), ('2022-09-08', 0.5, 48.5), ('2022-09-09', 0.25, 35.1), ('2022-12-08', 0.25, 35.1), ('2022-12-09', 0.25, 35.1), ('2023-03-09', 0.25, 35.1), ('2023-03-10', 0.25, 35.1), ('2023-06-08', 236.25, 100.0), ('2023-06-09', 1.75, 80.0), ('2023-09-07', 0.5, 48.5), ('2023-09-08', 0.5, 48.5), ('2023-12-07', 0.25, 35.1), ('2023-12-08', 0.5, 48.5), ('2024-03-07', 1.5, 76.7), ('2024-03-08', 0.75, 59.4), ('2024-06-13', 1.75, 80.0), ('2024-06-14', 0.0, 15.4), ('2024-09-12', 0.25, 35.1), ('2024-09-13', 0.25, 35.1), ('2024-12-12', 0.75, 59.4), ('2024-12-13', 5.5, 94.7), ('2025-03-13', 0.25, 35.1), ('2025-03-14', 1.5, 76.7), ('2025-06-12', 0.0, 15.4), ('2025-06-13', 1.25, 71.5), ('2025-09-11', 0.5, 48.5), ('2025-09-12', 3.0, 88.9), ('2025-12-11', 5.25, 94.2), ('2025-12-12', 9.5, 97.5)]
+OBSERVATION Tue-Fri session-open gaps: median 0.75, p90 3.25, p99 16.90; share of Tue-Fri gaps >= 10 points: 2.38%
+[PASS] supplementary: every OHLC price on the 0.25 tick grid | off-grid prices=0 of 8569564
+--- BT6 roll-date jumps: 2 checks, 1 failed: no roll-window jump > 3 x median daily range (177.38)
+rc=1
+################ PINNED BT6 falsifier B (ratio adjustment x1.003)
+$ python -I -B validation/probes/channel_b_backtest/bt06_roll_jumps.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl --inject ratio
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+INJECTED: prices before 2023-06-08 x 1.003 (1189244 bars)
+D bars 1578; median daily range 59.12 pts; threshold 3x = 177.38 pts
+=== BT6 roll-date jumps ===
+  roll 2020-03-12: window dates ['2020-03-09', '2020-03-10', '2020-03-11', '2020-03-12', '2020-03-13']; max session-open gap 47.39 (on 2020-03-09, percentile 99.0 of all gaps); max 1-min step 47.39
+  roll 2020-06-11: window dates ['2020-06-08', '2020-06-09', '2020-06-10', '2020-06-11', '2020-06-12']; max session-open gap 6.77 (on 2020-06-08, percentile 89.9 of all gaps); max 1-min step 6.77
+  roll 2020-09-10: window dates ['2020-09-07', '2020-09-08', '2020-09-09', '2020-09-10', '2020-09-11']; max session-open gap 16.05 (on 2020-09-09, percentile 96.3 of all gaps); max 1-min step 16.05
+  roll 2020-12-10: window dates ['2020-12-07', '2020-12-08', '2020-12-09', '2020-12-10', '2020-12-11']; max session-open gap 5.27 (on 2020-12-11, percentile 86.4 of all gaps); max 1-min step 5.27
+  roll 2021-03-11: window dates ['2021-03-08', '2021-03-09', '2021-03-10', '2021-03-11', '2021-03-12']; max session-open gap 13.29 (on 2021-03-08, percentile 95.4 of all gaps); max 1-min step 13.29
+  roll 2021-06-10: window dates ['2021-06-07', '2021-06-08', '2021-06-09', '2021-06-10', '2021-06-11']; max session-open gap 4.01 (on 2021-06-07, percentile 83.6 of all gaps); max 1-min step 4.01
+  roll 2021-09-09: window dates ['2021-09-06', '2021-09-07', '2021-09-08', '2021-09-09', '2021-09-10']; max session-open gap 1.00 (on 2021-09-09, percentile 57.0 of all gaps); max 1-min step 1.76
+  roll 2021-12-09: window dates ['2021-12-06', '2021-12-07', '2021-12-08', '2021-12-09', '2021-12-10']; max session-open gap 9.78 (on 2021-12-06, percentile 93.0 of all gaps); max 1-min step 9.78
+  roll 2022-03-10: window dates ['2022-03-07', '2022-03-08', '2022-03-09', '2022-03-10', '2022-03-11']; max session-open gap 9.78 (on 2022-03-07, percentile 93.0 of all gaps); max 1-min step 9.78
+  roll 2022-06-09: window dates ['2022-06-06', '2022-06-07', '2022-06-08', '2022-06-09', '2022-06-10']; max session-open gap 2.76 (on 2022-06-06, percentile 77.2 of all gaps); max 1-min step 2.76
+  roll 2022-09-08: window dates ['2022-09-05', '2022-09-06', '2022-09-07', '2022-09-08', '2022-09-09']; max session-open gap 2.51 (on 2022-09-05, percentile 75.4 of all gaps); max 1-min step 2.51
+  roll 2022-12-08: window dates ['2022-12-05', '2022-12-06', '2022-12-07', '2022-12-08', '2022-12-09']; max session-open gap 6.52 (on 2022-12-05, percentile 89.5 of all gaps); max 1-min step 9.78
+  roll 2023-03-09: window dates ['2023-03-06', '2023-03-07', '2023-03-08', '2023-03-09', '2023-03-10']; max session-open gap 3.26 (on 2023-03-06, percentile 81.4 of all gaps); max 1-min step 7.27
+  roll 2023-06-08: window dates ['2023-06-05', '2023-06-06', '2023-06-07', '2023-06-08', '2023-06-09']; max session-open gap 14.45 (on 2023-06-08, percentile 95.8 of all gaps); max 1-min step 14.45
+  roll 2023-09-07: window dates ['2023-09-04', '2023-09-05', '2023-09-06', '2023-09-07', '2023-09-08']; max session-open gap 1.50 (on 2023-09-04, percentile 64.0 of all gaps); max 1-min step 1.50
+  roll 2023-12-07: window dates ['2023-12-04', '2023-12-05', '2023-12-06', '2023-12-07', '2023-12-08']; max session-open gap 0.50 (on 2023-12-08, percentile 35.4 of all gaps); max 1-min step 0.75
+  roll 2024-03-07: window dates ['2024-03-04', '2024-03-05', '2024-03-06', '2024-03-07', '2024-03-08']; max session-open gap 34.50 (on 2024-03-04, percentile 98.7 of all gaps); max 1-min step 34.50
+  roll 2024-06-13: window dates ['2024-06-10', '2024-06-11', '2024-06-12', '2024-06-13', '2024-06-14']; max session-open gap 2.00 (on 2024-06-10, percentile 71.0 of all gaps); max 1-min step 2.00
+  roll 2024-09-12: window dates ['2024-09-09', '2024-09-10', '2024-09-11', '2024-09-12', '2024-09-13']; max session-open gap 5.25 (on 2024-09-09, percentile 86.4 of all gaps); max 1-min step 5.25
+  roll 2024-12-12: window dates ['2024-12-09', '2024-12-10', '2024-12-11', '2024-12-12', '2024-12-13']; max session-open gap 5.50 (on 2024-12-13, percentile 87.1 of all gaps); max 1-min step 5.50
+  roll 2025-03-13: window dates ['2025-03-10', '2025-03-11', '2025-03-12', '2025-03-13', '2025-03-14']; max session-open gap 18.75 (on 2025-03-10, percentile 97.0 of all gaps); max 1-min step 18.75
+  roll 2025-06-12: window dates ['2025-06-09', '2025-06-10', '2025-06-11', '2025-06-12', '2025-06-13']; max session-open gap 1.25 (on 2025-06-10, percentile 60.0 of all gaps); max 1-min step 1.75
+  roll 2025-09-11: window dates ['2025-09-08', '2025-09-09', '2025-09-10', '2025-09-11', '2025-09-12']; max session-open gap 4.75 (on 2025-09-08, percentile 85.2 of all gaps); max 1-min step 4.75
+  roll 2025-12-11: window dates ['2025-12-08', '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12']; max session-open gap 9.50 (on 2025-12-12, percentile 92.4 of all gaps); max 1-min step 9.50
+[PASS] no roll-window jump > 3 x median daily range (177.38) | largest 47.39 (gap, roll 2020-03-12)
+OBSERVATION top-8 session-open gaps in all of P1: [('2025-04-07', 90.0), ('2020-03-02', 85.0), ('2023-02-02', 82.75), ('2025-10-13', 80.75), ('2025-04-02', 66.25), ('2021-02-02', 61.68), ('2023-04-17', 61.18), ('2025-06-23', 60.75)]
+OBSERVATION session-open gaps: median 0.75, p95 12.51, p99 45.68, max 90.00; roll-window maxima percentiles: median 86.8, max 99.0
+OBSERVATION session-open gap on the roll date R (Thu) and R+1 (Fri) [date, points, percentile among all Tue-Fri gaps]: [('2020-03-12', 1.25, 71.2), ('2020-03-13', 8.78, 97.1), ('2020-06-11', 1.25, 71.2), ('2020-06-12', 2.76, 86.7), ('2020-09-10', 2.01, 81.6), ('2020-09-11', 6.27, 95.5), ('2020-12-10', 1.25, 71.2), ('2020-12-11', 5.27, 94.1), ('2021-03-11', 1.0, 65.7), ('2021-03-12', 0.5, 43.4), ('2021-06-10', 0.0, 15.4), ('2021-06-11', 0.75, 59.4), ('2021-09-09', 1.0, 65.7), ('2021-09-10', 0.5, 48.5), ('2021-12-09', 1.0, 65.7), ('2021-12-10', 0.25, 35.1), ('2022-03-10', 0.5, 43.4), ('2022-03-11', 1.5, 76.7), ('2022-06-09', 1.76, 80.0), ('2022-06-10', 1.0, 65.7), ('2022-09-08', 0.5, 48.5), ('2022-09-09', 0.25, 35.1), ('2022-12-08', 0.25, 35.1), ('2022-12-09', 0.25, 25.5), ('2023-03-09', 0.25, 35.1), ('2023-03-10', 0.25, 35.1), ('2023-06-08', 14.45, 98.7), ('2023-06-09', 1.75, 78.4), ('2023-09-07', 0.5, 41.0), ('2023-09-08', 0.5, 41.0), ('2023-12-07', 0.25, 24.0), ('2023-12-08', 0.5, 41.0), ('2024-03-07', 1.5, 73.2), ('2024-03-08', 0.75, 53.4), ('2024-06-13', 1.75, 78.4), ('2024-06-14', 0.0, 15.4), ('2024-09-12', 0.25, 24.0), ('2024-09-13', 0.25, 24.0), ('2024-12-12', 0.75, 53.4), ('2024-12-13', 5.5, 94.6), ('2025-03-13', 0.25, 24.0), ('2025-03-14', 1.5, 73.2), ('2025-06-12', 0.0, 15.4), ('2025-06-13', 1.25, 68.9), ('2025-09-11', 0.5, 41.0), ('2025-09-12', 3.0, 87.9), ('2025-12-11', 5.25, 94.1), ('2025-12-12', 9.5, 97.4)]
+OBSERVATION Tue-Fri session-open gaps: median 0.75, p90 3.26, p99 16.38; share of Tue-Fri gaps >= 10 points: 2.38%
+[FAIL] supplementary: every OHLC price on the 0.25 tick grid | off-grid prices=4752247 of 8569564
+--- BT6 roll-date jumps: 2 checks, 1 failed: supplementary: every OHLC price on the 0.25 tick grid
+rc=1
+################ PINNED BT17 probe
+$ python -I -B validation/probes/channel_b_backtest/bt17_integrity.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+=== BT17 P1 data integrity ===
+bars 2142391, first bar 2020-01-03T16:00:00.000000000, last bar 2026-02-24T14:53:00.000000000, trading dates 1578 (2020-01-03 -> 2026-02-24)
+[PASS] first trading date == 2020-01-03 | 2020-01-03
+[PASS] last trading date == 2026-02-24 | 2026-02-24
+[PASS] no duplicated BarTime | duplicates=0
+[PASS] BarTime strictly increasing | non-increasing steps=0
+trading dates on Sat/Sun: 0 []
+gaps with >= 1 missing weekday (19):
+  2020-04-09 (last bar 2020-04-09 16:00:00) -> 2020-04-13 (first bar 2020-04-12 17:01:00): 1 missing weekday(s)
+  2020-12-24 (last bar 2020-12-24 12:15:00) -> 2020-12-28 (first bar 2020-12-27 17:01:00): 1 missing weekday(s)
+  2020-12-31 (last bar 2020-12-31 16:00:00) -> 2021-01-04 (first bar 2021-01-03 17:01:00): 1 missing weekday(s)
+  2021-12-23 (last bar 2021-12-23 16:00:00) -> 2021-12-27 (first bar 2021-12-26 17:01:00): 1 missing weekday(s)
+  2022-04-14 (last bar 2022-04-14 16:00:00) -> 2022-04-18 (first bar 2022-04-17 17:01:00): 1 missing weekday(s)
+  2022-12-23 (last bar 2022-12-23 16:00:00) -> 2022-12-27 (first bar 2022-12-26 17:01:00): 1 missing weekday(s)
+  2022-12-30 (last bar 2022-12-30 16:00:00) -> 2023-01-03 (first bar 2023-01-02 17:01:00): 1 missing weekday(s)
+  2023-01-31 (last bar 2023-01-31 15:59:00) -> 2023-02-02 (first bar 2023-02-02 16:00:00): 1 missing weekday(s)
+  2023-04-05 (last bar 2023-04-05 13:03:00) -> 2023-04-17 (first bar 2023-04-16 17:01:00): 7 missing weekday(s)  <-- > 3
+  2023-12-22 (last bar 2023-12-22 16:00:00) -> 2023-12-26 (first bar 2023-12-25 17:01:00): 1 missing weekday(s)
+  2023-12-29 (last bar 2023-12-29 16:00:00) -> 2024-01-02 (first bar 2024-01-01 17:01:00): 1 missing weekday(s)
+  2024-02-29 (last bar 2024-02-29 15:59:00) -> 2024-03-04 (first bar 2024-03-04 16:00:00): 1 missing weekday(s)
+  2024-03-28 (last bar 2024-03-28 16:00:00) -> 2024-04-01 (first bar 2024-03-31 17:01:00): 1 missing weekday(s)
+  2024-12-24 (last bar 2024-12-24 12:15:00) -> 2024-12-26 (first bar 2024-12-25 17:01:00): 1 missing weekday(s)
+  2024-12-31 (last bar 2024-12-31 16:00:00) -> 2025-01-02 (first bar 2025-01-01 17:01:00): 1 missing weekday(s)
+  2025-03-31 (last bar 2025-03-31 15:59:00) -> 2025-04-02 (first bar 2025-04-02 16:00:00): 1 missing weekday(s)
+  2025-04-17 (last bar 2025-04-17 16:00:00) -> 2025-04-21 (first bar 2025-04-20 17:01:00): 1 missing weekday(s)
+  2025-12-24 (last bar 2025-12-24 12:15:00) -> 2025-12-26 (first bar 2025-12-25 17:01:00): 1 missing weekday(s)
+  2025-12-31 (last bar 2025-12-31 16:00:00) -> 2026-01-02 (first bar 2026-01-01 17:01:00): 1 missing weekday(s)
+[FAIL] no gap > 3 trading dates | gaps > 3: [('2023-04-05 -> 2023-04-17', 7)]
+OBSERVATION sessions with < 300 one-minute bars (6):
+  2020-01-03: 1 bars (2020-01-03 16:00:00 -> 2020-01-03 16:00:00)
+  2021-02-02: 1 bars (2021-02-02 16:00:00 -> 2021-02-02 16:00:00)
+  2022-02-01: 1 bars (2022-02-01 16:00:00 -> 2022-02-01 16:00:00)
+  2023-02-02: 1 bars (2023-02-02 16:00:00 -> 2023-02-02 16:00:00)
+  2024-03-04: 1 bars (2024-03-04 16:00:00 -> 2024-03-04 16:00:00)
+  2025-04-02: 1 bars (2025-04-02 16:00:00 -> 2025-04-02 16:00:00)
+--- BT17 P1 data integrity: 5 checks, 1 failed: no gap > 3 trading dates
+rc=1
+################ PINNED BT17 falsifier (duplicated bar)
+$ python -I -B validation/probes/channel_b_backtest/bt17_integrity.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl --inject dup
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl, 2142391 bars
+INJECTED: duplicated bar 2020-01-06 09:45:00
+=== BT17 P1 data integrity ===
+bars 2142392, first bar 2020-01-03T16:00:00.000000000, last bar 2026-02-24T14:53:00.000000000, trading dates 1578 (2020-01-03 -> 2026-02-24)
+[PASS] first trading date == 2020-01-03 | 2020-01-03
+[PASS] last trading date == 2026-02-24 | 2026-02-24
+[FAIL] no duplicated BarTime | duplicates=1
+[FAIL] BarTime strictly increasing | non-increasing steps=1
+trading dates on Sat/Sun: 0 []
+gaps with >= 1 missing weekday (19):
+  2020-04-09 (last bar 2020-04-09 16:00:00) -> 2020-04-13 (first bar 2020-04-12 17:01:00): 1 missing weekday(s)
+  2020-12-24 (last bar 2020-12-24 12:15:00) -> 2020-12-28 (first bar 2020-12-27 17:01:00): 1 missing weekday(s)
+  2020-12-31 (last bar 2020-12-31 16:00:00) -> 2021-01-04 (first bar 2021-01-03 17:01:00): 1 missing weekday(s)
+  2021-12-23 (last bar 2021-12-23 16:00:00) -> 2021-12-27 (first bar 2021-12-26 17:01:00): 1 missing weekday(s)
+  2022-04-14 (last bar 2022-04-14 16:00:00) -> 2022-04-18 (first bar 2022-04-17 17:01:00): 1 missing weekday(s)
+  2022-12-23 (last bar 2022-12-23 16:00:00) -> 2022-12-27 (first bar 2022-12-26 17:01:00): 1 missing weekday(s)
+  2022-12-30 (last bar 2022-12-30 16:00:00) -> 2023-01-03 (first bar 2023-01-02 17:01:00): 1 missing weekday(s)
+  2023-01-31 (last bar 2023-01-31 15:59:00) -> 2023-02-02 (first bar 2023-02-02 16:00:00): 1 missing weekday(s)
+  2023-04-05 (last bar 2023-04-05 13:03:00) -> 2023-04-17 (first bar 2023-04-16 17:01:00): 7 missing weekday(s)  <-- > 3
+  2023-12-22 (last bar 2023-12-22 16:00:00) -> 2023-12-26 (first bar 2023-12-25 17:01:00): 1 missing weekday(s)
+  2023-12-29 (last bar 2023-12-29 16:00:00) -> 2024-01-02 (first bar 2024-01-01 17:01:00): 1 missing weekday(s)
+  2024-02-29 (last bar 2024-02-29 15:59:00) -> 2024-03-04 (first bar 2024-03-04 16:00:00): 1 missing weekday(s)
+  2024-03-28 (last bar 2024-03-28 16:00:00) -> 2024-04-01 (first bar 2024-03-31 17:01:00): 1 missing weekday(s)
+  2024-12-24 (last bar 2024-12-24 12:15:00) -> 2024-12-26 (first bar 2024-12-25 17:01:00): 1 missing weekday(s)
+  2024-12-31 (last bar 2024-12-31 16:00:00) -> 2025-01-02 (first bar 2025-01-01 17:01:00): 1 missing weekday(s)
+  2025-03-31 (last bar 2025-03-31 15:59:00) -> 2025-04-02 (first bar 2025-04-02 16:00:00): 1 missing weekday(s)
+  2025-04-17 (last bar 2025-04-17 16:00:00) -> 2025-04-21 (first bar 2025-04-20 17:01:00): 1 missing weekday(s)
+  2025-12-24 (last bar 2025-12-24 12:15:00) -> 2025-12-26 (first bar 2025-12-25 17:01:00): 1 missing weekday(s)
+  2025-12-31 (last bar 2025-12-31 16:00:00) -> 2026-01-02 (first bar 2026-01-01 17:01:00): 1 missing weekday(s)
+[FAIL] no gap > 3 trading dates | gaps > 3: [('2023-04-05 -> 2023-04-17', 7)]
+OBSERVATION sessions with < 300 one-minute bars (6):
+  2020-01-03: 1 bars (2020-01-03 16:00:00 -> 2020-01-03 16:00:00)
+  2021-02-02: 1 bars (2021-02-02 16:00:00 -> 2021-02-02 16:00:00)
+  2022-02-01: 1 bars (2022-02-01 16:00:00 -> 2022-02-01 16:00:00)
+  2023-02-02: 1 bars (2023-02-02 16:00:00 -> 2023-02-02 16:00:00)
+  2024-03-04: 1 bars (2024-03-04 16:00:00 -> 2024-03-04 16:00:00)
+  2025-04-02: 1 bars (2025-04-02 16:00:00 -> 2025-04-02 16:00:00)
+--- BT17 P1 data integrity: 5 checks, 3 failed: no duplicated BarTime; BarTime strictly increasing; no gap > 3 trading dates
+rc=1
+################ PINNED BT17 control (clean calendar)
+$ python -I -B validation/probes/channel_b_backtest/bt17_integrity.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --control
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+=== BT17 control: synthetic weekday calendar with only 1-day holidays ===
+[PASS] control: max gap == 1 (so the probe can PASS) | gaps=[(Timestamp('2021-04-01 00:00:00'), Timestamp('2021-04-05 00:00:00'), 1), (Timestamp('2021-12-23 00:00:00'), Timestamp('2021-12-27 00:00:00'), 1)]
+[PASS] control: a 4-weekday hole is reported as gap 4 | gaps=[(Timestamp('2021-06-04 00:00:00'), Timestamp('2021-06-11 00:00:00'), 4)]
+--- BT17 control: synthetic weekday calendar with only 1-day holidays: 2 checks, 0 failed
+rc=0
+################ PINNED XCHECK costs 1
+$ python -I -B validation/probes/channel_b_backtest/xcheck_ranking.py --qibt-root C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1 --pkl C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl --costs 1 --results results/v1_last_trade
+qibt loaded from: C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\pristine_v1\qibt\__init__.py
+1-minute source: pickle C:\Users\rajib\AppData\Local\Temp\claude\C--Users-rajib-OneDrive-Documents\533a663d-5efe-42d6-aafd-bb6df2ee5fa2\scratchpad\chanB_bt\raw_p1.pkl (2142391 bars)
+own frames: D 1578 bars, 15m 143136 bars
+FRAME PARITY D: own vs qibt.data.build_frames IDENTICAL (1578 vs 1578 rows)
+FRAME PARITY 15m: own vs qibt.data.build_frames IDENTICAL (143136 vs 143136 rows)
+[literal] V[SR per day] = 0.055192084, N = 25, SR0 per day = 0.469190333
+[literal] Channel B DSR (erfc Phi): RSI14 4.1868e-54, RSI2 1.0878e-56, ConsecDays 1.7124e-59, IBS 3.2725e-58, WideRangeBar 2.9492e-59, ATRRegime 8.5093e-58
+[nolast] V[SR per day] = 0.055193041, N = 25, SR0 per day = 0.469194404
+[nolast] Channel B DSR (erfc Phi): RSI14 4.1770e-54, RSI2 1.0903e-56, ConsecDays 1.7082e-59, IBS 3.2798e-58, WideRangeBar 2.9420e-59, ATRRegime 8.4894e-58
+
+===== variant literal, costs 1x =====
+rank order identical to ranking.csv: False
+  rank  1: Channel B RSI14              results RSI14              
+  rank  2: Channel B RSI2               results RSI2               
+  rank  3: Channel B IBS                results ConsecDays         <-- differs
+  rank  4: Channel B ConsecDays         results IBS                <-- differs
+  rank  5: Channel B WideRangeBar       results WideRangeBar       
+  rank  6: Channel B ATRRegime          results ATRRegime          
+  rank  7: Channel B VRPProxy           results VRPProxy           
+  rank  8: Channel B SMA200Trend        results SMA200Trend        
+  rank  9: Channel B CompositeVol       results CompositeVol       
+  rank 10: Channel B RVZScore           results RVZScore           
+  rank 11: Channel B StochFade          results StochFade          
+  rank 12: Channel B EMACross           results EMACross           
+  rank 13: Channel B HedgingPressure    results HedgingPressure    
+  rank 14: Channel B ConnorsRSI         results ConnorsRSI         
+  rank 15: Channel B TurnOfMonth        results TurnOfMonth        
+  rank 16: Channel B MACDHistogram      results MACDHistogram      
+  rank 17: Channel B TurnaroundTuesday  results TurnaroundTuesday  
+  rank 18: Channel B OvernightGap       results OvernightGap       
+  rank 19: Channel B VolumeDelta        results VolumeDelta        
+  rank 20: Channel B VolumeSpike        results VolumeSpike        
+  rank 21: Channel B BollingerPctB      results BollingerPctB      
+  rank 22: Channel B LiquiditySweep     results LiquiditySweep     
+  rank 23: Channel B VWAPDistance       results VWAPDistance       
+  rank 24: Channel B OrderFlowPlus      results OrderFlowPlus      
+  rank 25: Channel B SMC                results SMC                
+  rank 26: Channel B ChopIndex          results ChopIndex          
+  rank 27: Channel B KeyLevels          results KeyLevels          
+ranking.csv SR differences > 1e-6: 4 [('RSI2', 0.6492954724275234, 0.6494331452653861), ('IBS', 0.5653656441045931, 0.565508420361191), ('TurnaroundTuesday', -0.4494531758400351, -0.4491749935133323), ('OrderFlowPlus', -10.748309444046493, -10.748514317204751)]
+metrics_P1.csv cells differing (SR tol 1e-6 abs; others 1e-6 rel): 54
+  IBS                sr            Channel B 0.5653656441045931   results 0.565508420361191
+  IBS                sr_daily      Channel B 0.03561468795525247   results 0.0356236820140163
+  IBS                psr           Channel B 0.9061955601767337   results 0.9062518695404832
+  IBS                total_pnl     Channel B 8922.75   results 8925.0
+  IBS                total_costs   Channel B 2218.5   results 2216.25
+  IBS                changes       Channel B 840.0   results 839.0
+  IBS                sides         Channel B 986.0   results 985.0
+  IBS                sr_h2         Channel B 0.8194102925601902   results 0.819673147033435
+  IBS                sr_cost1      Channel B 0.5653656441045931   results 0.565508420361191
+  IBS                sr_cost2      Channel B 0.42484080287115206   results 0.425126258032814
+  IBS                pnl_cost1     Channel B 8922.75   results 8925.0
+  IBS                pnl_cost2     Channel B 6704.25   results 6708.75
+  IBS                skew          Channel B 1.3617174721262888   results 1.3616920919029012
+  RSI2               sr            Channel B 0.6492954724275234   results 0.6494331452653861
+  RSI2               sr_daily      Channel B 0.04090177017722435   results 0.040910442750826
+  RSI2               psr           Channel B 0.9346133939057468   results 0.9346545125397911
+  RSI2               total_pnl     Channel B 10631.75   results 10634.0
+  RSI2               total_costs   Channel B 1545.75   results 1543.5
+  RSI2               changes       Channel B 639.0   results 638.0
+  RSI2               sides         Channel B 687.0   results 686.0
+  RSI2               sr_h2         Channel B 0.3472694661382599   results 0.3475188306474339
+  RSI2               sr_cost1      Channel B 0.6492954724275234   results 0.6494331452653861
+  RSI2               sr_cost2      Channel B 0.5548683259643219   results 0.5551435803160815
+  RSI2               pnl_cost1     Channel B 10631.75   results 10634.0
+  RSI2               pnl_cost2     Channel B 9086.0   results 9090.5
+  RSI2               skew          Channel B 1.1586576574937375   results 1.1586331400085024
+  TurnaroundTuesday  sr            Channel B -0.4494531758400351   results -0.4491749935133323
+  TurnaroundTuesday  sr_daily      Channel B -0.0283128887914504   results -0.0282953649520316
+  TurnaroundTuesday  psr           Channel B 0.15170659863888086   results 0.1518558345868216
+  TurnaroundTuesday  total_pnl     Channel B -3637.0   results -3634.75
+  TurnaroundTuesday  total_costs   Channel B 1185.75   results 1183.5
+  TurnaroundTuesday  changes       Channel B 527.0   results 526.0
+  TurnaroundTuesday  sides         Channel B 527.0   results 526.0
+  TurnaroundTuesday  sr_h2         Channel B -0.5807750779556102   results -0.5802011132942624
+  TurnaroundTuesday  sr_cost1      Channel B -0.4494531758400351   results -0.4491749935133323
+  TurnaroundTuesday  sr_cost2      Channel B -0.5957131821734067   results -0.5951570352525785
+  TurnaroundTuesday  pnl_cost1     Channel B -3637.0   results -3634.75
+  TurnaroundTuesday  pnl_cost2     Channel B -4822.75   results -4818.25
+  TurnaroundTuesday  skew          Channel B -0.2479151991062988   results -0.2479675302135212
+  OrderFlowPlus      sr            Channel B -10.748309444046493   results -10.748514317204751
+  OrderFlowPlus      sr_daily      Channel B -0.6770798524598555   results -0.677092758255738
+  OrderFlowPlus      total_pnl     Channel B -101504.75   results -101502.5
+  OrderFlowPlus      total_costs   Channel B 95886.0   results 95883.75
+  OrderFlowPlus      mdd           Channel B 101504.75   results 101502.5
+  OrderFlowPlus      changes       Channel B 40607.0   results 40606.0
+  OrderFlowPlus      sides         Channel B 42616.0   results 42615.0
+  OrderFlowPlus      sr_h2         Channel B -10.537545667621183   results -10.537886079742496
+  OrderFlowPlus      sr_cost1      Channel B -10.748309444046493   results -10.748514317204751
+  OrderFlowPlus      sr_cost2      Channel B -20.199836364384183   results -20.20091150521209
+  OrderFlowPlus      pnl_cost1     Channel B -101504.75   results -101502.5
+  OrderFlowPlus      pnl_cost2     Channel B -197390.75   results -197386.25
+  OrderFlowPlus      skew          Channel B -0.049370846957900845   results -0.0490823635584448
+  OrderFlowPlus      kurt          Channel B 7.133649176636639   results 7.1335851486836725
+  OrderFlowPlus      corr_bh       Channel B 0.1091611692246821   results 0.1091651171259057
+
+===== variant nolast, costs 1x =====
+rank order identical to ranking.csv: False
+  rank  1: Channel B RSI14              results RSI14              
+  rank  2: Channel B RSI2               results RSI2               
+  rank  3: Channel B IBS                results ConsecDays         <-- differs
+  rank  4: Channel B ConsecDays         results IBS                <-- differs
+  rank  5: Channel B WideRangeBar       results WideRangeBar       
+  rank  6: Channel B ATRRegime          results ATRRegime          
+  rank  7: Channel B VRPProxy           results VRPProxy           
+  rank  8: Channel B SMA200Trend        results SMA200Trend        
+  rank  9: Channel B CompositeVol       results CompositeVol       
+  rank 10: Channel B RVZScore           results RVZScore           
+  rank 11: Channel B StochFade          results StochFade          
+  rank 12: Channel B EMACross           results EMACross           
+  rank 13: Channel B HedgingPressure    results HedgingPressure    
+  rank 14: Channel B ConnorsRSI         results ConnorsRSI         
+  rank 15: Channel B TurnOfMonth        results TurnOfMonth        
+  rank 16: Channel B MACDHistogram      results MACDHistogram      
+  rank 17: Channel B TurnaroundTuesday  results TurnaroundTuesday  
+  rank 18: Channel B OvernightGap       results OvernightGap       
+  rank 19: Channel B VolumeDelta        results VolumeDelta        
+  rank 20: Channel B VolumeSpike        results VolumeSpike        
+  rank 21: Channel B BollingerPctB      results BollingerPctB      
+  rank 22: Channel B LiquiditySweep     results LiquiditySweep     
+  rank 23: Channel B VWAPDistance       results VWAPDistance       
+  rank 24: Channel B OrderFlowPlus      results OrderFlowPlus      
+  rank 25: Channel B SMC                results SMC                
+  rank 26: Channel B ChopIndex          results ChopIndex          
+  rank 27: Channel B KeyLevels          results KeyLevels          
+ranking.csv SR differences > 1e-6: 0 []
+metrics_P1.csv cells differing (SR tol 1e-6 abs; others 1e-6 rel): 0
+
+rules whose last frame bar executes a position change (cost charged only in 'literal'): [('IBS', 'D', 1.0), ('RSI2', 'D', 1.0), ('TurnaroundTuesday', 'D', 1.0), ('OrderFlowPlus', '15m', 1.0)]
+
+Channel B ranking (literal): 1 RSI14 0.844658, 2 RSI2 0.649295, 3 IBS 0.565366, 4 ConsecDays 0.568885, 5 WideRangeBar 0.429089, 6 ATRRegime 0.392246, 7 VRPProxy 0.304731, 8 SMA200Trend 0.288767, 9 CompositeVol 0.279981, 10 RVZScore 0.170921, 11 StochFade 0.096565, 12 EMACross -0.159764, 13 HedgingPressure -0.196933, 14 ConnorsRSI -0.225851, 15 TurnOfMonth -0.266218, 16 MACDHistogram -0.386127, 17 TurnaroundTuesday -0.449453, 18 OvernightGap -0.779182, 19 VolumeDelta -2.255404, 20 VolumeSpike -3.117455, 21 BollingerPctB -3.716075, 22 LiquiditySweep -7.407985, 23 VWAPDistance -9.878645, 24 OrderFlowPlus -10.748309, 25 SMC -10.849793, 26 ChopIndex, 27 KeyLevels
+summary: {'literal': {'order_same': False, 'n_metric_diffs': 54, 'n_sr_diffs': 4}, 'nolast': {'order_same': False, 'n_metric_diffs': 0, 'n_sr_diffs': 0}}
+rc=1
+################ PINNED XCHECK DSR tie-break
+$ python -I -B validation/probes/channel_b_backtest/xcheck_dsr_tiebreak.py --results results/v1_last_trade
+N = 25, V[SR per day] = 0.055193041, SR0 per day = 0.469194404
+tie pair rank 3 ConsecDays (SR 0.568885) / rank 4 IBS (SR 0.565508): |dSR| = 0.003377
+   ConsecDays   z = -16.223926  DSR(scipy cdf) = 1.708200e-59  log DSR = -135.3171  NormalDist.cdf = 0.0  committed dsr = np.float64(0.0)
+   IBS          z = -16.041457  DSR(scipy cdf) = 3.279835e-58  log DSR = -132.3621  NormalDist.cdf = 0.0  committed dsr = np.float64(0.0)
+   PROTOCOL 8 (higher DSR, then A->Z) puts IBS first; committed order does NOT follow it
+statistics.NormalDist().cdf(x) == 0.0 for x <= -8.26 (scipy norm.cdf(-8.26) = 7.284e-17)
+committed dsr values: [0.0]
+rc=1

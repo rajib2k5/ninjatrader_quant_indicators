@@ -1,0 +1,8 @@
+# Versions the backtest was built and tested with (python 3.9.13).
+pandas==2.3.3
+numpy==2.0.2
+PyYAML==6.0.3
+pytest==8.4.2
+hypothesis==6.141.1
+# optional: equity-curve PNG is written only if matplotlib imports
+# matplotlib

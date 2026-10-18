@@ -194,7 +194,7 @@ def macd(x, fast=12, slow=26, signal=9):
 def bollinger(x, n=20, num_std=2.0):
     """Ledger B7. Returns (upper, middle, lower).
 
-    ASSUMPTION: the ledger states no parameters for QI_BollingerPctB; (2, 20) is used.
+    ASSUMPTION: the ledger states no parameters for QI_21_BollingerPctB; (2, 20) is used.
     """
     mid = sma(x, n)
     sd = stddev(x, n)
@@ -495,11 +495,11 @@ def hp_clamp_total(*terms):
 # ============================================================================================
 # M16 VWAP = sum(typical*vol)/sum(vol), typical = (H+L+C)/3, reset at each trading session
 #     (ADD-6: the module resets on Bars.IsFirstBarOfSession and exports that flag as
-#     QI_VWAPDistance.SessionStart; when the flag column is absent the calendar day of BarTime
+#     QI_23_VWAPDistance.SessionStart; when the flag column is absent the calendar day of BarTime
 #     is used as the session key, which is the original indicator's day-of-year behaviour);
 #     dist = (C - VWAP)/ATR14
 # ============================================================================================
-SESSION_FLAG_COL = "QI_VWAPDistance.SessionStart"
+SESSION_FLAG_COL = "QI_23_VWAPDistance.SessionStart"
 
 
 def vwap(df):
