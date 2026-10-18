@@ -114,3 +114,18 @@ is derived from the export precision, not from results.
 The README shows v1, A1 and a 15:00-close variant side by side, with the block-bootstrap rank
 probabilities. A later exact NinjaTrader Day-bar export, when available, is a cross-check of the
 inferred closes (expected: equal on every on-grid date).
+
+### A2 (2026-10-17) — documentation only
+
+The `rules.yaml` header described the frame rule as "first timeframe the ORIG DataBox label
+lists ... D when the list contains 1d, else 15m". The first clause contradicts the frames for 8
+rules (validation/channel-a-backtest.md); the frames always followed the second clause. The
+header wording was corrected; no frame, value or threshold changed.
+
+### Known limitation (not amended)
+
+CME assigns holiday sessions to a single trade date (e.g., Thanksgiving: Wednesday 17:00 CT
+through Friday 12:15 CT is Friday's trade date), and NinjaTrader ends its trading day at the
+trading-hours template's end of session. §3's fixed 17:00 CT roll splits such sessions into two
+dates (validation/channel-a-backtest.md). This affects a few dates per year; it is disclosed in the
+README and not amended.

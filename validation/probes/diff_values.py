@@ -62,34 +62,34 @@ OHLCV = ["Open", "High", "Low", "Close", "Volume"]
 
 # claim -> (ORIG databox name, harness column, note)
 MAP = OrderedDict([
-    ("C18", ("IBS",          "QI_IBS.Values[0]",               "")),
-    ("C19", ("RSI2",         "QI_RSI2.Values[0]",              "")),
-    ("C20", ("ConnorsRSI",   "QI_ConnorsRSI.Values[0]",        "")),
-    ("C21", ("StochK",       "QI_StochFade.K",                 "%K only (ORIG logged no %D)")),
-    ("C22", ("RVZScore",     "QI_RVZScore.Values[0]",          "")),
-    ("C23", ("CompositeVol", "QI_CompositeVol.Values[0]",      "")),
-    ("C24", ("TurnOfMonth",  "QI_TurnOfMonth.Values[0]",       "")),
-    ("C25", ("ConsecDays",   "QI_ConsecDays.Values[0]",        "")),
-    ("C26", ("OvernightGap", "QI_OvernightGap.Values[0]",      "")),
-    ("C27", ("Bollinger",    "QI_BollingerPctB.PctB",          "")),
-    ("C28", ("TurnaroundTue","QI_TurnaroundTuesday.Values[0]", "")),
-    ("C29", ("RSI14",        "QI_RSI14.Values[0]",             "")),
-    ("C30", ("VRPProxy",     "QI_VRPProxy.Values[0]",          "")),
-    ("C31", ("WideRange",    "QI_WideRangeBar.Values[0]",      "")),
-    ("C32", ("HPScore",      "QI_HedgingPressure.Values[0]",   "score only")),
-    ("C33", ("VWAPDist",     "QI_VWAPDistance.VwapDistance",   "intraday chart only")),
-    ("C34", ("MACDHist",     "QI_MACDHistogram.Values[0]",     "")),
-    ("C35", ("EMA2050",      "QI_EMACross.Spread",             "")),
-    ("C36", ("SMA200",       "QI_SMA200Trend.Distance",        "")),
-    ("C37", ("ATRRegime",    "QI_ATRRegime.Values[0]",         "")),
-    ("C38", ("VolSpike",     "QI_VolumeSpike.Values[0]",       "")),
-    ("C39a",("VolDelta",     "QI_VolumeDelta.CumDelta20",      "")),
-    ("C39b",("VolDeltaSMA",  "QI_VolumeDelta.DeltaSMA10",      "")),
-    ("C40a",("ChopIndex",    "QI_ChopIndex.Values[0]",         "")),
-    ("C40b",("ChoppyFlag",   "QI_ChopIndex.ChoppyFlag",        "")),
-    ("C41", ("LiqSweep",     "QI_LiquiditySweep.Confidence",   "ORIG logs End events only; harness also writes Start events (0.35) -> counted separately as 'start-only'")),
-    ("C42", ("OFSignal",     "QI_OrderFlowPlus.Confidence",    "")),
-    ("C43", ("SMCSignal",    "QI_SMC.Confidence",              "")),
+    ("C18", ("IBS",          "QI_10_IBS.Values[0]",               "")),
+    ("C19", ("RSI2",         "QI_03_RSI2.Values[0]",              "")),
+    ("C20", ("ConnorsRSI",   "QI_13_ConnorsRSI.Values[0]",        "")),
+    ("C21", ("StochK",       "QI_11_StochFade.K",                 "%K only (ORIG logged no %D)")),
+    ("C22", ("RVZScore",     "QI_09_RVZScore.Values[0]",          "")),
+    ("C23", ("CompositeVol", "QI_08_CompositeVol.Values[0]",      "")),
+    ("C24", ("TurnOfMonth",  "QI_15_TurnOfMonth.Values[0]",       "")),
+    ("C25", ("ConsecDays",   "QI_01_ConsecDays.Values[0]",        "")),
+    ("C26", ("OvernightGap", "QI_18_OvernightGap.Values[0]",      "")),
+    ("C27", ("Bollinger",    "QI_21_BollingerPctB.PctB",          "")),
+    ("C28", ("TurnaroundTue","QI_17_TurnaroundTuesday.Values[0]", "")),
+    ("C29", ("RSI14",        "QI_02_RSI14.Values[0]",             "")),
+    ("C30", ("VRPProxy",     "QI_06_VRPProxy.Values[0]",          "")),
+    ("C31", ("WideRange",    "QI_04_WideRangeBar.Values[0]",      "")),
+    ("C32", ("HPScore",      "QI_12_HedgingPressure.Values[0]",   "score only")),
+    ("C33", ("VWAPDist",     "QI_23_VWAPDistance.VwapDistance",   "intraday chart only")),
+    ("C34", ("MACDHist",     "QI_16_MACDHistogram.Values[0]",     "")),
+    ("C35", ("EMA2050",      "QI_14_EMACross.Spread",             "")),
+    ("C36", ("SMA200",       "QI_07_SMA200Trend.Distance",        "")),
+    ("C37", ("ATRRegime",    "QI_05_ATRRegime.Values[0]",         "")),
+    ("C38", ("VolSpike",     "QI_20_VolumeSpike.Values[0]",       "")),
+    ("C39a",("VolDelta",     "QI_19_VolumeDelta.CumDelta20",      "")),
+    ("C39b",("VolDeltaSMA",  "QI_19_VolumeDelta.DeltaSMA10",      "")),
+    ("C40a",("ChopIndex",    "QI_26_ChopIndex.Values[0]",         "")),
+    ("C40b",("ChoppyFlag",   "QI_26_ChopIndex.ChoppyFlag",        "")),
+    ("C41", ("LiqSweep",     "QI_22_LiquiditySweep.Confidence",   "ORIG logs End events only; harness also writes Start events (0.35) -> counted separately as 'start-only'")),
+    ("C42", ("OFSignal",     "QI_24_OrderFlowPlus.Confidence",    "")),
+    ("C43", ("SMCSignal",    "QI_25_SMC.Confidence",              "")),
 ])
 
 
@@ -288,7 +288,7 @@ def main():
             if o is None or h is None:
                 continue
             n += 1
-            # C27 (ADD-2): QI_BollingerPctB deliberately uses the Middle band where ORIG used
+            # C27 (ADD-2): QI_21_BollingerPctB deliberately uses the Middle band where ORIG used
             # the Upper band, so new = orig + 100 whenever the bandwidth is > 0 (both 0 otherwise).
             if cid == "C27" and not (o == 0.0 and h == 0.0):
                 h = h - 100.0

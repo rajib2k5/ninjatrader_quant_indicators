@@ -2,8 +2,8 @@
 
 Educational research only. Not financial advice. See DISCLAIMER.md.
 
-Every expected value below is derived by hand from the C# rules in indicators/QI_HedgingPressure.cs,
-QI_LiquiditySweep.cs, QI_OrderFlowPlus.cs and QI_SMC.cs (line references in the test docstrings), not
+Every expected value below is derived by hand from the C# rules in indicators/QI_12_HedgingPressure.cs,
+QI_22_LiquiditySweep.cs, QI_24_OrderFlowPlus.cs and QI_25_SMC.cs (line references in the test docstrings), not
 from the port's output.
 
 Base sequence `tri(n)` (a contracting triangle) is chosen so that no rule fires on its own:
@@ -109,7 +109,7 @@ def sP_equal(a, b):
 
 
 # ============================================================================================
-# QI_HedgingPressure (QI 152-196)
+# QI_12_HedgingPressure (QI 152-196)
 # ============================================================================================
 def _flat_hp(n=61):
     return [[100.0, 101.0, 99.0, 100.0, 100.0] for _ in range(n)]      # TR = 2 -> ATR14 = 2 exactly
@@ -220,7 +220,7 @@ def test_patterns_hp_matches_independent_reference_on_random_bars_and_is_within_
 
 
 # ============================================================================================
-# QI_LiquiditySweep (QI 426-705)
+# QI_22_LiquiditySweep (QI 426-705)
 # ============================================================================================
 def _swing_high_115():
     rows = tri(220)
@@ -477,7 +477,7 @@ def test_patterns_quirks_unreachable_rules_never_fire():
 
 
 # ============================================================================================
-# QI_OrderFlowPlus (QI 243-347)
+# QI_24_OrderFlowPlus (QI 243-347)
 # ============================================================================================
 def test_patterns_ofp_delta_divergence():
     """SH 115 confirmed at bar 120 with cumDelta10 snapshot 0 (alternating +-1000, QI 213). Bar 150: H 116 > SH,
@@ -527,7 +527,7 @@ def test_patterns_ofp_exhaustion():
 
 
 # ============================================================================================
-# QI_SMC (QI 254-428)
+# QI_25_SMC (QI 254-428)
 # ============================================================================================
 def test_patterns_smc_fvg_then_order_block_retest():
     """Bar 150 bullish impulse (range 32 > 1.5*ATR14 ~28, body 30.5 > 0.75*range) after the bearish bar 149

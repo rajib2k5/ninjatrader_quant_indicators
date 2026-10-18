@@ -1,0 +1,429 @@
+// ============================================================================
+//  QI_24_OrderFlowPlus - Volume-delta order-flow pattern detector (5 patterns)
+//  Part of ninjatrader_quant_indicators
+//
+//  DISCLAIMER
+//  This software is provided for educational and informational purposes only.
+//  It is NOT financial, investment, or trading advice, and nothing it computes
+//  or draws is a recommendation to buy or sell any instrument. Trading futures
+//  and other leveraged products carries a substantial risk of loss and is not
+//  suitable for every investor. Past performance is not indicative of future
+//  results. You are solely responsible for any decision you make. See
+//  DISCLAIMER.md in the repository root.
+//
+//  Lineage : split out of the "IBSFade" multi-strategy indicator, DataBox plots #27-28.
+//  Provenance: Practitioner heuristics on close-direction volume; no authoritative definition exists.
+//            Confidence values are heuristic constants.
+//  Concept : Order-flow proxies from a close-to-close signed volume delta:
+//            Delta Divergence (0.78), Absorption (0.65), Exhaustion (0.60),
+//            Stacked Delta / Volume Imbalance (0.55), Delta Reversal (0.70).
+//  Output  : price-panel labels "OF+ <first pattern> (conf%)" and two panel plots:
+//            Confidence (0..1, best confidence of the bar, 0 when nothing fired)
+//            and Structure (+1 bullish, -1 bearish, 0 none).
+//  Quirks preserved from ORIG:
+//            - volDelta is the bar-level signed volume (+Volume on up close,
+//              -Volume on down close, 0 unchanged), ORIG 1623-1634; cumulative
+//              delta is the plain sum of the last min(10, CurrentBar) bars.
+//            - cumDeltaAtLastSwingHigh/Low are sampled on the bar the swing is
+//              CONFIRMED (SwingLookback bars after the pivot), not at the pivot.
+//            - Swing points update only once CurrentBar >= SwingLookback*2+5
+//              (ORIG gates UpdateSwingPoints inside DetectLiquiditySweeps, 2040).
+//            - Direction is first-come: the first pattern to fire sets the
+//              direction; later patterns only raise confidence (DeltaDiv low side
+//              can overwrite the high side on the same bar, ORIG 2434-2437).
+//            - The ORIG CurrentBar < 20 guard is kept although the global
+//              CurrentBar < 50 guard already covers it.
+// ============================================================================
+#region Using declarations
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Xml.Serialization;
+using NinjaTrader.Cbi;
+using NinjaTrader.Gui;
+using NinjaTrader.Gui.Chart;
+using NinjaTrader.Gui.SuperDom;
+using NinjaTrader.Gui.Tools;
+using NinjaTrader.Data;
+using NinjaTrader.NinjaScript;
+using NinjaTrader.Core.FloatingPoint;
+using NinjaTrader.NinjaScript.DrawingTools;
+#endregion
+
+// This namespace holds Indicators in this folder and is required. Do not change it.
+namespace NinjaTrader.NinjaScript.Indicators
+{
+	public class QI_24_OrderFlowPlus : Indicator
+	{
+		// ── Local indicator instances ──
+		private ATR		atr14;
+		private SMA		volSma20;
+		private SMA		atrSma50;
+		private Series<double> volDelta;
+
+		// ── Swing points ──
+		private Series<double> swingHighSeries;
+		private Series<double> swingLowSeries;
+		private double		lastSwingHigh;
+		private int			lastSwingHighBar;
+		private double		lastSwingLow;
+		private int			lastSwingLowBar;
+		private double		prevSwingHigh;
+		private int			prevSwingHighBar;
+		private double		prevSwingLow;
+		private int			prevSwingLowBar;
+
+		// ── OrderFlow+ state ──
+		private double		cumDeltaAtLastSwingHigh;
+		private double		cumDeltaAtLastSwingLow;
+		private int			lastOfDir;
+		private int			barsSinceLastOf;
+
+		private bool		disclaimerDrawn;
+
+		protected override void OnStateChange()
+		{
+			if (State == State.SetDefaults)
+			{
+				Description					= "OrderFlow+ pattern detector on close-to-close signed volume delta: "
+											+ "Delta Divergence, Absorption, Exhaustion, Stacked Delta and Delta Reversal. "
+											+ "Draws pattern-name labels on the price panel and plots Confidence (0..1) "
+											+ "and Structure (+1/-1/0). "
+											+ "Educational use only - not financial advice.";
+				Name						= "QI_24_OrderFlowPlus";
+				Calculate					= Calculate.OnBarClose;
+				IsOverlay					= true;		// labels live on the price chart; no sub-panel
+				DisplayInDataBox			= true;
+				ShowTransparentPlotsInDataBox = true;
+				PaintPriceMarkers			= false;
+				ScaleJustification			= ScaleJustification.Right;
+				IsSuspendedWhileInactive	= true;
+
+				SwingLookback				= 20;
+
+				// Display
+				TextOffsetTicks				= 15;
+				SignalFontSize				= 13;
+				DuplicateBarWindow			= 5;
+				ShowDisclaimer				= false;
+
+				// Colors
+				OfBullishBrush				= Brushes.Cyan;
+				OfBearishBrush				= Brushes.Magenta;
+
+				AddPlot(Brushes.Transparent, "Confidence");	// DataBox only
+				AddPlot(Brushes.Transparent, "Structure");	// DataBox only (+1 bullish / -1 bearish structure)
+			}
+			else if (State == State.Configure)
+			{
+			}
+			else if (State == State.DataLoaded)
+			{
+				atr14		= ATR(14);
+				volSma20	= SMA(Volume, 20);
+				atrSma50	= SMA(atr14, 50);
+				volDelta	= new Series<double>(this);
+
+				// ── Swing point initialization ──
+				swingHighSeries		= new Series<double>(this);
+				swingLowSeries		= new Series<double>(this);
+				lastSwingHigh		= double.MinValue;
+				lastSwingHighBar	= 0;
+				lastSwingLow		= double.MaxValue;
+				lastSwingLowBar		= 0;
+				prevSwingHigh		= double.MinValue;
+				prevSwingHighBar	= 0;
+				prevSwingLow		= double.MaxValue;
+				prevSwingLowBar		= 0;
+
+				// ── OrderFlow+ init ──
+				cumDeltaAtLastSwingHigh = 0;
+				cumDeltaAtLastSwingLow  = 0;
+				lastOfDir = 0;
+				barsSinceLastOf = int.MaxValue;
+
+				disclaimerDrawn		= false;
+			}
+		}
+
+		protected override void OnBarUpdate()
+		{
+			if (CurrentBar < 50)
+				return;
+
+			UpdateVolumeDelta();
+
+			Values[0][0] = 0;
+			Values[1][0] = 0;
+
+			// ORIG updates swing points inside DetectLiquiditySweeps (gated at
+			// CurrentBar < SwingLookback*2+5, ORIG 2040) before ProcessOrderFlowSignals.
+			if (CurrentBar >= SwingLookback * 2 + 5)
+				UpdateSwingPoints();
+
+			ProcessOrderFlowSignals();
+
+			DrawDisclaimerOnce();
+		}
+
+		// ─────────────────────────────────────────────────────────
+		//  Volume delta
+		// ─────────────────────────────────────────────────────────
+		private void UpdateVolumeDelta()
+		{
+			if (CurrentBar < 1) { volDelta[0] = 0; return; }
+
+			double priceChange = Close[0] - Close[1];
+			if (priceChange > 0)
+				volDelta[0] = Volume[0];
+			else if (priceChange < 0)
+				volDelta[0] = -Volume[0];
+			else
+				volDelta[0] = 0;
+		}
+
+		// ─────────────────────────────────────────────────────────
+		//  Swing points (N-bar pivots) with cumulative delta snapshot
+		//  Equal-level pool bookkeeping from ORIG 2104-2110 / 2123-2129 / 2135-2136
+		//  is omitted: it is only read by the LiquiditySweep equal-level trap.
+		// ─────────────────────────────────────────────────────────
+		private void UpdateSwingPoints()
+		{
+			swingHighSeries[0] = double.NaN;
+			swingLowSeries[0]  = double.NaN;
+			int lb = SwingLookback;
+			if (CurrentBar < lb * 2) return;
+
+			double candidateHigh = High[lb];
+			bool isSwingHigh = true;
+			for (int i = 0; i <= lb * 2; i++)
+			{ if (i == lb) continue; if (High[i] > candidateHigh) { isSwingHigh = false; break; } }
+			if (isSwingHigh)
+			{
+				swingHighSeries[lb] = candidateHigh;
+				prevSwingHigh = lastSwingHigh; prevSwingHighBar = lastSwingHighBar;
+				lastSwingHigh = candidateHigh; lastSwingHighBar = CurrentBar - lb;
+				cumDeltaAtLastSwingHigh = ComputeCumDelta10();
+			}
+
+			double candidateLow = Low[lb];
+			bool isSwingLow = true;
+			for (int i = 0; i <= lb * 2; i++)
+			{ if (i == lb) continue; if (Low[i] < candidateLow) { isSwingLow = false; break; } }
+			if (isSwingLow)
+			{
+				swingLowSeries[lb] = candidateLow;
+				prevSwingLow = lastSwingLow; prevSwingLowBar = lastSwingLowBar;
+				lastSwingLow = candidateLow; lastSwingLowBar = CurrentBar - lb;
+				cumDeltaAtLastSwingLow = ComputeCumDelta10();
+			}
+		}
+
+		// ─────────────────────────────────────────────────────────
+		//  OrderFlow+ Signal Detection (5 patterns)
+		//  Delta Divergence, Absorption, Exhaustion,
+		//  Volume Imbalance, Delta Reversal
+		// ─────────────────────────────────────────────────────────
+		private double ComputeCumDelta10()
+		{
+			double cd = 0;
+			int len = Math.Min(10, CurrentBar);
+			for (int i = 0; i < len; i++)
+				cd += volDelta[i];
+			return cd;
+		}
+
+		private void ProcessOrderFlowSignals()
+		{
+			if (CurrentBar < 20) return;
+			barsSinceLastOf++;
+
+			var patterns = new List<string>();
+			double bestConf = 0;
+			int ofDir = 0;
+
+			double body  = Math.Abs(Close[0] - Open[0]);
+			double range = High[0] - Low[0];
+			double cumD10 = ComputeCumDelta10();
+
+			// ── Pattern 1: Delta Divergence (conf 0.78) ──
+			if (lastSwingHigh > double.MinValue && High[0] > lastSwingHigh && cumD10 < cumDeltaAtLastSwingHigh)
+			{ ofDir = -1; bestConf = Math.Max(bestConf, 0.78); patterns.Add("DeltaDiv"); }
+			if (lastSwingLow < double.MaxValue && Low[0] < lastSwingLow && cumD10 > cumDeltaAtLastSwingLow)
+			{ ofDir = 1; bestConf = Math.Max(bestConf, 0.78); patterns.Add("DeltaDiv"); }
+
+			// ── Pattern 2: Absorption (conf 0.65) ──
+			if (volSma20[0] > 0 && Volume[0] > 1.5 * volSma20[0] && range > 0.5 * atr14[0] && range > 0 && body < 0.30 * range)
+			{
+				int absDir = Close[0] > Open[0] ? 1 : -1;
+				if (ofDir == 0) ofDir = absDir;
+				bestConf = Math.Max(bestConf, 0.65);
+				patterns.Add("Absorption");
+			}
+
+			// ── Pattern 3: Exhaustion (conf 0.60) ──
+			if (CurrentBar >= 3)
+			{
+				bool newHigh = lastSwingHigh > double.MinValue && High[0] >= lastSwingHigh;
+				bool newLow  = lastSwingLow < double.MaxValue && Low[0] <= lastSwingLow;
+				bool decliningDelta = Math.Abs(volDelta[0]) < Math.Abs(volDelta[1]) && Math.Abs(volDelta[1]) < Math.Abs(volDelta[2]);
+				if ((newHigh || newLow) && decliningDelta)
+				{
+					int exhDir = newHigh ? -1 : 1;
+					if (ofDir == 0) ofDir = exhDir;
+					bestConf = Math.Max(bestConf, 0.60);
+					patterns.Add("Exhaustion");
+				}
+			}
+
+			// ── Pattern 4: Volume Imbalance / Stacked Delta (conf 0.55) ──
+			if (CurrentBar >= 3)
+			{
+				bool allPos = volDelta[0] > 0 && volDelta[1] > 0 && volDelta[2] > 0;
+				bool allNeg = volDelta[0] < 0 && volDelta[1] < 0 && volDelta[2] < 0;
+				if (allPos)
+				{
+					if (ofDir == 0) ofDir = 1;
+					bestConf = Math.Max(bestConf, 0.55);
+					patterns.Add("StackedDelta");
+				}
+				else if (allNeg)
+				{
+					if (ofDir == 0) ofDir = -1;
+					bestConf = Math.Max(bestConf, 0.55);
+					patterns.Add("StackedDelta");
+				}
+			}
+
+			// ── Pattern 5: Delta Reversal (conf 0.70) ──
+			if (CurrentBar >= 4)
+			{
+				bool prev3Pos = volDelta[1] > 0 && volDelta[2] > 0 && volDelta[3] > 0;
+				bool prev3Neg = volDelta[1] < 0 && volDelta[2] < 0 && volDelta[3] < 0;
+				if (prev3Pos && volDelta[0] < 0 && Close[0] > Close[1])
+				{
+					if (ofDir == 0) ofDir = -1;
+					bestConf = Math.Max(bestConf, 0.70);
+					patterns.Add("DeltaRev");
+				}
+				else if (prev3Neg && volDelta[0] > 0 && Close[0] < Close[1])
+				{
+					if (ofDir == 0) ofDir = 1;
+					bestConf = Math.Max(bestConf, 0.70);
+					patterns.Add("DeltaRev");
+				}
+			}
+
+			if (patterns.Count == 0 || ofDir == 0) return;
+			if (ofDir == lastOfDir && barsSinceLastOf < DuplicateBarWindow) return;
+
+			bestConf = Math.Min(bestConf, 1.0);
+			bool isBull = ofDir == 1;
+			int confPct = (int)Math.Round(bestConf * 100);
+			string label = "OF+ " + patterns[0] + " (" + confPct + "%)";
+
+			SimpleFont font = new SimpleFont("Arial", SignalFontSize) { Bold = true };
+			double anchor = isBull ? Low[0] : High[0];
+			int offset = isBull ? -(TextOffsetTicks + 45) : (TextOffsetTicks + 45);
+			Brush brush = isBull ? OfBullishBrush : OfBearishBrush;
+			string tag = (isBull ? "OF_Bull_" : "OF_Bear_") + CurrentBar;
+			Draw.Text(this, tag, true, label, 0, anchor, offset,
+				brush, font, TextAlignment.Center,
+				Brushes.Transparent, Brushes.Transparent, 0);
+
+			// Panel plots: confidence and structure direction for this bar
+			Values[0][0] = bestConf;
+			Values[1][0] = ofDir;
+
+			lastOfDir = ofDir;
+			barsSinceLastOf = 0;
+		}
+
+		private void DrawDisclaimerOnce()
+		{
+			if (!ShowDisclaimer || disclaimerDrawn)
+				return;
+
+			Draw.TextFixed(this, "QI_Disclaimer", "Educational use only - not financial advice",
+				TextPosition.BottomLeft, Brushes.Gray, new SimpleFont("Arial", 9),
+				Brushes.Transparent, Brushes.Transparent, 0);
+			disclaimerDrawn = true;
+		}
+
+		public override string DisplayName
+		{
+			get { return "QI 24 OrderFlowPlus"; }
+		}
+
+		#region Properties
+
+		[NinjaScriptProperty]
+		[Range(5, 50)]
+		[Display(Name = "Swing Lookback",
+			Description = "N-bar pivot point lookback for swing high/low detection. Default 20.",
+			Order = 1, GroupName = "Parameters")]
+		public int SwingLookback { get; set; }
+
+		[NinjaScriptProperty]
+		[Range(1, 100)]
+		[Display(Name = "Text Offset (pixels)", Description = "Pixel offset from bar high/low.",
+			Order = 1, GroupName = "Display")]
+		public int TextOffsetTicks { get; set; }
+
+		[NinjaScriptProperty]
+		[Range(6, 30)]
+		[Display(Name = "Signal Font Size",
+			Order = 2, GroupName = "Display")]
+		public int SignalFontSize { get; set; }
+
+		[NinjaScriptProperty]
+		[Range(1, 50)]
+		[Display(Name = "Duplicate Bar Window", Description = "Suppress same-direction label within N bars. Default 5",
+			Order = 3, GroupName = "Display")]
+		public int DuplicateBarWindow { get; set; }
+
+		[NinjaScriptProperty]
+		[Display(Name = "Show Disclaimer", Description = "Draw the educational-use disclaimer on the chart.",
+			Order = 4, GroupName = "Display")]
+		public bool ShowDisclaimer { get; set; }
+
+		[XmlIgnore]
+		[Display(Name = "OF+ Bullish Color", Description = "OrderFlow+ bullish-structure label color. Default Cyan.",
+			Order = 1, GroupName = "Colors")]
+		public Brush OfBullishBrush { get; set; }
+		[Browsable(false)]
+		public string OfBullishBrushSerialize
+		{ get { return Serialize.BrushToString(OfBullishBrush); } set { OfBullishBrush = Serialize.StringToBrush(value); } }
+
+		[XmlIgnore]
+		[Display(Name = "OF+ Bearish Color", Description = "OrderFlow+ bearish-structure label color. Default Magenta.",
+			Order = 2, GroupName = "Colors")]
+		public Brush OfBearishBrush { get; set; }
+		[Browsable(false)]
+		public string OfBearishBrushSerialize
+		{ get { return Serialize.BrushToString(OfBearishBrush); } set { OfBearishBrush = Serialize.StringToBrush(value); } }
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> Confidence
+		{
+			get { return Values[0]; }
+		}
+
+		[Browsable(false)]
+		[XmlIgnore]
+		public Series<double> Structure
+		{
+			get { return Values[1]; }
+		}
+
+		#endregion
+	}
+}

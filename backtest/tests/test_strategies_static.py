@@ -60,7 +60,19 @@ EXPECTED_ACCESSOR = {
     "smc_structure": "Structure",
 }
 
-REALTIME_GUARD = "if (BacktestOnly && State == State.Realtime) return;"
+REALTIME_GUARD = "if (BacktestOnly && !OrdersAllowed()) return;"
+# BT16 (validation/channel-a-backtest.md): OrdersAllowed() must refuse every non-historical state,
+# every account that is not Backtest/Sim*/Playback*, and the last two historical bars of a
+# non-Backtest account; Configure must force StartBehavior.WaitUntilFlat when BacktestOnly.
+ORDERS_ALLOWED_BODY = [
+    "if (State != State.Historical) return false;",
+    'string acct = Account != null ? Account.Name : string.Empty;',
+    'bool backtest = acct == "Backtest";',
+    'bool research = backtest || acct.StartsWith("Sim") || acct.StartsWith("Playback");',
+    "if (!research) return false;",
+    "if (!backtest && CurrentBars[0] >= BarsArray[0].Count - 2) return false;",
+    "return true;",
+]
 ORDER_CALL_RE = re.compile(
     r"\b(?:Enter|Exit)(?:Long|Short)\w*\s*\(|\b(?:SubmitOrder\w*|SetStopLoss|SetProfitTarget|SetTrailStop|"
     r"ChangeOrder|CancelOrder|CancelAllOrders)\b")
@@ -378,11 +390,33 @@ def test_indicator_logic_is_transplanted_unchanged(module):
 
 
 def test_no_extra_data_series_or_state_handling_beyond_the_qi_source():
-    """The strategies add no data series and exactly one State test (the realtime guard) to the QI source."""
+    """The strategies add no data series; the only added State test is OrdersAllowed's
+    `State != State.Historical`."""
     for r in RULES:
         qs, qi = strip_code(read(qs_file(r["module"]))), strip_code(read(qi_file(r["module"])))
         assert qs.count("AddDataSeries(") == qi.count("AddDataSeries(")
-        assert qs.count("State ==") == qi.count("State ==") + 1  # + the realtime guard
+        assert qs.count("State ==") == qi.count("State ==")
+        assert qs.count("State != State.Historical") == 1
+
+
+@pytest.mark.parametrize("module", RULE_IDS)
+def test_orders_allowed_guard_is_complete(module):
+    """BT16: the exact guard body, and the StartBehavior override as the first Configure statement."""
+    text = read(qs_file(module))
+    lines = text.split("\n")
+    s, e = method_span(lines, "private bool OrdersAllowed()")
+    # raw lines (strip_code blanks string literals, and the account names ARE the guard)
+    body = [ln.strip() for ln in lines[s + 2:e] if ln.strip() and not ln.strip().startswith("//")]
+    assert body == ORDERS_ALLOWED_BODY, body
+    m = re.search(r"else if \(State == State\.Configure\)\s*\{\s*if \(BacktestOnly\)\s*StartBehavior = StartBehavior\.WaitUntilFlat;",
+                  strip_code(text))
+    assert m, "Configure does not start with the BacktestOnly StartBehavior override"
+
+
+def test_falsifier_weak_guard_is_detected():
+    """A realtime-only guard (the pre-BT16 form) fails the guard-completeness test's body check."""
+    weak = ["if (State == State.Realtime) return false;", "return true;"]
+    assert weak != ORDERS_ALLOWED_BODY
 
 
 # ---- compile smoke (slow) ------------------------------------------------------------------

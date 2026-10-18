@@ -289,6 +289,16 @@ def edit_set_defaults(body, qi, qs):
     return body[:m1.end()] + sd + body[m2.start():]
 
 
+FORCE_WAIT_UNTIL_FLAT = (T * 4 + "// BacktestOnly: never let NinjaTrader synchronise the account with its own orders (BT16).\n"
+                         + T * 4 + "if (BacktestOnly)\n" + T * 5 + "StartBehavior = StartBehavior.WaitUntilFlat;\n")
+
+
+def edit_configure(body):
+    """Insert the StartBehavior override as the first statement of the State.Configure branch."""
+    return _sub1(r"^(\t\t\telse if \(State == State\.Configure\)\n\t\t\t\{\n)",
+                 lambda m: m.group(1) + FORCE_WAIT_UNTIL_FLAT, body, "State.Configure branch")
+
+
 def render_apply_rule(rule, qi_text):
     """ApplyRule()/OnBarUpdate() text (2-tab indented) plus the extra fields/DataLoaded lines."""
     module, value = rule["module"], rule["value"]
@@ -352,9 +362,26 @@ def render_apply_rule(rule, qi_text):
     a(T * 3 + "ApplyRule();")
     a(T * 2 + "}")
     a("")
+    a(T * 2 + "// Backtest-only safety (validation/channel-a-backtest.md BT16): a Realtime-only guard is not")
+    a(T * 2 + "// enough - an order submitted on the last historical bar carries into real time, and the")
+    a(T * 2 + "// account-synchronising start behaviours make NinjaTrader place its own orders. With")
+    a(T * 2 + "// BacktestOnly on, orders are allowed only during historical processing, only on the")
+    a(T * 2 + "// Strategy Analyzer 'Backtest' account or a Sim/Playback account, and never on the last two")
+    a(T * 2 + "// historical bars of a non-Backtest account; StartBehavior is forced to WaitUntilFlat.")
+    a(T * 2 + "private bool OrdersAllowed()")
+    a(T * 2 + "{")
+    a(T * 3 + "if (State != State.Historical) return false;")
+    a(T * 3 + 'string acct = Account != null ? Account.Name : string.Empty;')
+    a(T * 3 + 'bool backtest = acct == "Backtest";')
+    a(T * 3 + 'bool research = backtest || acct.StartsWith("Sim") || acct.StartsWith("Playback");')
+    a(T * 3 + "if (!research) return false;")
+    a(T * 3 + "if (!backtest && CurrentBars[0] >= BarsArray[0].Count - 2) return false;")
+    a(T * 3 + "return true;")
+    a(T * 2 + "}")
+    a("")
     a(T * 2 + "private void ApplyRule()")
     a(T * 2 + "{")
-    a(T * 3 + "if (BacktestOnly && State == State.Realtime) return;")
+    a(T * 3 + "if (BacktestOnly && !OrdersAllowed()) return;")
     a(T * 3 + "if (BarsInProgress != 0) return;")
     a("")
     L.extend(T * 3 + ln if ln else "" for ln in read)
@@ -420,6 +447,7 @@ def transplant(rule, qi_raw, qi, qs, frozen):
 
     # 2. SetDefaults edits (Name, Description, strategy defaults)
     body = edit_set_defaults(body, qi, qs)
+    body = edit_configure(body)
 
     # 3. DisplayName QI -> QS
     body = _sub1(r'^(\t\t\tget \{ return )"QI( [^"]*)"; \}$', r'\1"QS\2"; }', body, "DisplayName getter")

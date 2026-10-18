@@ -6,8 +6,10 @@
 # UpdateDataBoxValues (ORIG = C:\Users\rajib\Documents\NinjaTrader 8\bin\Custom\Indicators\IBSFade.cs,
 # lines cited per rule). Nothing here was chosen or tuned by looking at results.
 #
-# frame: home timeframe = first timeframe the ORIG DataBox label lists for that signal; "D" (daily
-#        session bar) when the list contains 1d, else "15m".
+# frame: home timeframe from the ORIG DataBox label's timeframe list for that signal: "D" (daily
+#        session bar) when the list contains 1d, else "15m". (Wording fixed by PROTOCOL A2 - the
+#        earlier text also said "first timeframe listed", which contradicted the frames for 8 rules;
+#        the frames themselves were never changed.)
 # value: name of the reference function (validation/pytests/qi_ref.py or backtest/qibt/patterns.py)
 #        whose output is classified. Conditions use x for that value.
 # long / short: position +1 / -1 while the condition holds at a bar close; otherwise 0.
