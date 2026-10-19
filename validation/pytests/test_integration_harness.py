@@ -15,7 +15,7 @@ import pandas as pd
 import pytest
 
 import qi_ref as R
-from conftest import CSV_QUANT
+from vp_helpers import CSV_QUANT
 
 RECURSIVE_WARMUP = 300
 

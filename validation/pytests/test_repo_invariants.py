@@ -10,7 +10,7 @@ import re
 
 import pytest
 
-from conftest import INDICATORS_DIR
+from vp_helpers import INDICATORS_DIR
 
 FILES = sorted(INDICATORS_DIR.glob("QI_*.cs"))
 assert FILES, "no indicators/QI_*.cs files found"

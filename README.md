@@ -290,6 +290,7 @@ file. How to run everything, including the NinjaTrader export comparison: [TESTI
 Test suites (Python 3.9; `pip install -r backtest/requirements.txt`):
 
 ```
+python -I -m pytest -q -m "not slow"                # all three suites (pytest.ini)
 python -I -m pytest tests/indicators -q -m "not slow"
 python -I -m pytest validation/pytests -q -m "not slow"
 python -I -m pytest backtest/tests -q -m "not slow"

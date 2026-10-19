@@ -7,6 +7,7 @@ exported from NinjaTrader. Python 3.9+; `pip install -r backtest/requirements.tx
 ## 1. Run anywhere (no NinjaTrader)
 
 ```
+python -I -m pytest -q -m "not slow"                     # everything below, from the repo root (pytest.ini)
 python -I -m pytest tests/indicators -q -m "not slow"     # one test file per indicator
 python -I -m pytest validation/pytests -q -m "not slow"   # reference formulas, properties, repo invariants
 python -I -m pytest backtest/tests -q -m "not slow"       # backtest engine, metrics, strategies (static)
