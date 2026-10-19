@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import COMPILE_PROBE, INDICATORS_DIR
+from vp_helpers import COMPILE_PROBE, INDICATORS_DIR
 
 FILES = sorted(INDICATORS_DIR.glob("QI_*.cs"))
 pytestmark = pytest.mark.slow

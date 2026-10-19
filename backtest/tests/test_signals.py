@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from conftest import random_bars, session_close_times, weekday_dates
+from bt_helpers import random_bars, session_close_times, weekday_dates
 from qibt import data, signals
 from qibt.signals import qi_ref
 

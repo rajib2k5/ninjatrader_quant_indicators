@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from conftest import OHLCV, OLD_EXPORT, harness_files, load_harness, load_old_export
+from vp_helpers import OHLCV, OLD_EXPORT, harness_files, load_harness, load_old_export
 
 # --------------------------------------------------------------------------------------------
 # data sources

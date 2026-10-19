@@ -24,7 +24,7 @@ import numpy as np
 import pytest
 
 from qibt import patterns as P
-from conftest import (REPO, assert_close, assert_names, bars, compile_alone, cs_contract, harness_col,
+from qi_helpers import (REPO, assert_close, assert_names, bars, compile_alone, cs_contract, harness_col,
                       harness_frame, indicator_file)
 
 MODULE = "HedgingPressure"

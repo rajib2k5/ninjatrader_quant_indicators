@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from conftest import p1_available
+from bt_helpers import p1_available
 from qibt import cli, data, engine, signals
 
 pytestmark = [pytest.mark.slow,

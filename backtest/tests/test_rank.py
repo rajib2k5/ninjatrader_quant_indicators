@@ -7,7 +7,7 @@ import math
 import pandas as pd
 import pytest
 
-from conftest import BACKTEST_DIR
+from bt_helpers import BACKTEST_DIR
 from qibt import rank
 
 NAN = math.nan

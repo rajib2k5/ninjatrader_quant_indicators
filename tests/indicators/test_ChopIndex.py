@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 import qi_ref as R
-from conftest import (assert_close, assert_names, bars, compile_alone, cs_contract, harness_col, harness_frame,
+from qi_helpers import (assert_close, assert_names, bars, compile_alone, cs_contract, harness_col, harness_frame,
                       indicator_file)
 
 MODULE = "ChopIndex"

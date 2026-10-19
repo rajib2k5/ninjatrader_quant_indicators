@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 
 import qi_ref as R
-from conftest import df_from_close, make_df
+from vp_helpers import df_from_close, make_df
 
 rng = np.random.default_rng(20261016)
 PRICES = 4000.0 + np.cumsum(rng.normal(0, 2.0, 400)).round(2)

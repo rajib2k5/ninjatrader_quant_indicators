@@ -13,7 +13,7 @@ from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 
 import qi_ref as R
-from conftest import df_from_close, make_df
+from vp_helpers import df_from_close, make_df
 
 SETTINGS = dict(max_examples=40, deadline=None, suppress_health_check=[HealthCheck.too_slow])
 # Bounds are mathematical; the references do not clamp (the ledger defines no clamp for RSI,

@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 
 import qi_ref as R
-from conftest import (REPO, assert_close, assert_names, compile_alone, cs_contract, harness_col,
+from qi_helpers import (REPO, assert_close, assert_names, compile_alone, cs_contract, harness_col,
                       harness_frame, indicator_file)
 
 MODULE = "RSI2"
