@@ -144,3 +144,14 @@ Other per-indicator findings recorded as strict xfails (no backtest effect in th
 VWAP zero-volume session-start fallback (C#: Close; qi_ref: typical price), OvernightGap bar 0
 (C#: 0; qi_ref: NaN), SMA200Trend distance before bar 200 (C#: 0; qi_ref: NaN), ChopIndex state
 (qi_ref count 0-3 vs C# flag 0/0.5/1, mapped in the export test).
+
+## ADD-11 (2026-10-18) — robustness run on R1 (Stooq SPY.US daily), per PROTOCOL A3
+Input: spy_us_d.csv, sha256 f48ac8eb…3475b6, 5,444 rows 2005-02-25 → 2026-10-16, downloaded by the user
+in a browser (Stooq refused CSV requests driven by the Chrome extension with "Access denied"); raw file
+in the private repo rajib2k5/ninjatrader_quant_data (byte-for-byte, manifest verified on a fresh clone).
+R3 (es_f_d.csv) not downloaded; the runner now runs whatever input exists and reports the rest
+(tests: test_runs_with_only_the_spy_file_and_reports_the_missing_one + falsifier).
+Result (results/robustness/ROBUSTNESS.md): Spearman vs P1 order 0.631 on the P1 window, 0.166 on the
+full 2006-05-05 → 2026-10-16 window; SPY buy-and-hold SR 0.824 / 0.657 beats every rule in both.
+Labels unchanged (§2: robustness never changes the ranking); README states the order is
+period-specific.

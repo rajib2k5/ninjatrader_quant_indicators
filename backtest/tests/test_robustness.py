@@ -302,3 +302,28 @@ def test_falsifier_zeroing_only_the_roll_bar_leaves_the_jump():
     wrong = engine.run_positions(d, pos, cal, gross_mask=only_r)
     right = engine.run_positions(d, pos, cal, gross_mask=rb.roll_gross_mask(flags))
     assert wrong.gross[i - 1] > 150 and right.gross[i - 1] == 0
+
+
+def test_runs_with_only_the_spy_file_and_reports_the_missing_one(tmp_path):
+    """A missing ES.F file is reported as 'not downloaded', not a crash (2026-10-18)."""
+    import pandas as pd
+    from qibt import robustness as rb
+    d = tmp_path / "stooq"; d.mkdir()
+    dates = pd.bdate_range("2019-01-01", periods=420)
+    close = 250 + (pd.Series(range(420)) % 7 - 3) * 0.5 + pd.Series(range(420)) * 0.05
+    df = pd.DataFrame({"Date": dates.strftime("%Y-%m-%d"), "Open": close - 0.2, "High": close + 0.6,
+                       "Low": close - 0.7, "Close": close, "Volume": 1_000_000})
+    df.to_csv(d / rb.FILES["R1"], index=False)
+    p1 = tmp_path / "metrics_P1.csv"
+    mods = [r.module for r in rb.d_rules(rb.signals.load_rules(rb.signals.RULES_PATH))]
+    pd.DataFrame({"module": mods, "sr": [0.1 * i for i in range(len(mods))]}).to_csv(p1, index=False)
+    res, _, meta, _ = rb.run_all(d, p1, tmp_path / "out")
+    assert set(res) == {"R1"} and meta["missing"] == [rb.FILES["R3"]]
+    assert "Not run (input file not downloaded)" in (tmp_path / "out" / "ROBUSTNESS.md").read_text(encoding="utf-8")
+
+
+def test_falsifier_no_input_files_is_an_error(tmp_path):
+    import pytest as _pt
+    from qibt import robustness as rb
+    with _pt.raises(FileNotFoundError):
+        rb.run_all(tmp_path, tmp_path / "none.csv", tmp_path / "out")
