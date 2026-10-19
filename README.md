@@ -111,8 +111,27 @@ How to read it:
   - The 1-minute history misses 2023-04-06 → 2023-04-14 and a day or two at five yearly-file seams.
   - CME holiday sessions are one trade date, but the fixed 17:00 CT roll splits them in two (a few
     dates per year).
-  - No independent intraday dataset was available without an account. The approved online daily
-    datasets (Stooq) block scripted downloads, so the robustness runs on them are pending.
+  - No independent intraday dataset was available without an account.
+
+### Robustness on independent data (SPY, Stooq)
+
+The 18 daily rules were re-run, exactly as pre-registered (amendment A3), on Stooq's SPY daily
+history: 5,444 rows, 2005–2026, prices × 10 to MES scale, same costs. The raw file is kept in a
+private repository, and its SHA-256 is in [results/robustness/ROBUSTNESS.md](results/robustness/ROBUSTNESS.md).
+This check never changes the ranking.
+
+| Window | Spearman vs the MES ranking | Top 4 MES rules on SPY (Sharpe, rank of 18) | Best rules on SPY | SPY buy & hold |
+|---|---:|---|---|---:|
+| 2021-01-04 → 2026-02-24 (same years) | 0.63 | ConsecDays 0.50 (4), RSI14 0.30 (6), RSI2 0.51 (3), WideRangeBar 0.21 (9) | ATRRegime 0.57, SMA200Trend 0.57 | 0.82 |
+| 2006-05-05 → 2026-10-16 (20 years) | 0.17 | ConsecDays 0.11 (7), RSI14 0.04 (10), RSI2 0.10 (8), WideRangeBar 0.03 (11) | ATRRegime 0.62, SMA200Trend 0.37, TurnaroundTuesday 0.32 | 0.66 |
+
+On the same years, a different instrument from a different vendor mostly agrees with the MES
+order. Over 20 years the order largely disappears: the top MES rules earn Sharpe 0.03–0.11, and
+the leaders are the long-biased rules. **The `QI_NN` order describes 2021–2026. It is not a lasting
+property of the indicators. Buy-and-hold beat every rule in both windows.**
+
+ES.F, the second approved Stooq file, has not been downloaded yet; the runner reports it as
+"not downloaded" until it is.
 
 Reproduce: see [backtest/README.md](backtest/README.md)
 (`python -I -m qibt.cli run --dataset P1 --costs 1 --close settle --out results`). The raw

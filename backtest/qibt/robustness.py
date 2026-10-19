@@ -279,24 +279,37 @@ def run_all(data_dir=STOOQ_DIR, p1_metrics="results/metrics_P1.csv", out_dir="re
     rules = d_rules(signals.load_rules(rules_path))
     mods = [r.module for r in rules]
     p1 = load_p1_sr(p1_metrics, mods)
-    r1, i1 = load_r1(data_dir / FILES["R1"])
-    r3, i3 = load_r3(data_dir / FILES["R3"])
-    flags = roll_dates(r3)
-    gmask = roll_gross_mask(flags)
-    res = {"R1": run_dataset(r1, rules, base_mult),
-           "R3": run_dataset(r3, rules, base_mult, gross_mask=gmask, na=NO_VOLUME),
-           "R3_unfiltered": run_dataset(r3, rules, base_mult, na=NO_VOLUME)}
+    # Run whichever input files exist; a missing file is reported, not fatal (both missing is).
+    have = {k: (data_dir / FILES[k]).exists() for k in ("R1", "R3")}
+    if not any(have.values()):
+        raise FileNotFoundError("neither %s nor %s in %s" % (FILES["R1"], FILES["R3"], data_dir))
+    res, info, frames = {}, {}, {}
+    rolls, zeroed = pd.DatetimeIndex([]), 0
+    if have["R1"]:
+        r1, info["R1"] = load_r1(data_dir / FILES["R1"])
+        frames["R1"] = r1
+        res["R1"] = run_dataset(r1, rules, base_mult)
+    if have["R3"]:
+        r3, info["R3"] = load_r3(data_dir / FILES["R3"])
+        frames["R3"] = r3
+        flags = roll_dates(r3)
+        gmask = roll_gross_mask(flags)
+        res["R3"] = run_dataset(r3, rules, base_mult, gross_mask=gmask, na=NO_VOLUME)
+        res["R3_unfiltered"] = run_dataset(r3, rules, base_mult, na=NO_VOLUME)
+        rolls, zeroed = pd.DatetimeIndex(r3.loc[flags, "TradingDate"]), int(gmask.sum())
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = []
     for ds in RUNS:
+        if ds not in res:
+            continue
         for w in WINDOWS:
             p = out_dir / ("%s_%s_metrics.csv" % (ds, w))
             res[ds][w].to_csv(p, index=False)
             paths.append(p)
     meta = {
-        "manifest": [file_manifest(data_dir / FILES[k]) for k in ("R1", "R3")],
-        "info": {"R1": i1, "R3": i3}, "frames": {"R1": r1, "R3": r3},
-        "rolls": pd.DatetimeIndex(r3.loc[flags, "TradingDate"]), "bars_zeroed": int(gmask.sum()),
+        "manifest": [file_manifest(data_dir / FILES[k]) for k in ("R1", "R3") if have[k]],
+        "missing": [FILES[k] for k in ("R1", "R3") if not have[k]],
+        "info": info, "frames": frames, "rolls": rolls, "bars_zeroed": zeroed,
         "p1_metrics": Path(p1_metrics).as_posix(), "base_mult": base_mult,
         "run_at": _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
@@ -325,20 +338,27 @@ def render(res, p1, mods, meta):
         "- **R1** = Stooq SPY.US daily, Open/High/Low/Close x 10 (MES scale), Volume as delivered; Stooq's split/dividend adjustment taken as is.",
         "- **R3** = Stooq ES.F daily from 1997-09-09; HedgingPressure n/a (no volume); roll-gap filter: %d roll dates, %d bars with gross P&L set to 0 (bars r-1 and r of each roll date r)." % (len(meta["rolls"]), meta["bars_zeroed"]),
         "- **R3_unfiltered** = R3 without the roll-gap filter.", "",
-        "## MANIFEST", "", "```",
     ]
+    if meta.get("missing"):
+        lines += ["**Not run (input file not downloaded):** %s." % ", ".join(meta["missing"]), ""]
+    lines += ["## MANIFEST", "", "```"]
     for m in meta["manifest"]:
         lines.append("file: %s  sha256: %s  data rows: %d  first: %s  last: %s  file mtime: %s"
                      % (m["file"], m["sha256"], m["data_rows"], m["first"], m["last"], m["mtime"]))
+    used = []
+    if "R1" in meta["info"]:
+        used.append("R1 %d" % meta["info"]["R1"]["rows_used"])
+    if "R3" in meta["info"]:
+        used.append("R3 %d (%d rows before 1997-09-09 dropped)" % (
+            meta["info"]["R3"]["rows_used"], meta["info"]["R3"]["rows_before_launch_dropped"]))
     lines += ["```", "",
-              "Rows used: R1 %d; R3 %d (%d rows before 1997-09-09 dropped). Run %s." % (
-                  meta["info"]["R1"]["rows_used"], meta["info"]["R3"]["rows_used"],
-                  meta["info"]["R3"]["rows_before_launch_dropped"], meta["run_at"]), "",
+              "Rows used: %s. Run %s." % ("; ".join(used), meta["run_at"]), "",
               "## Agreement with P1", "",
               "| Dataset | Window | First -> last date | Days | Rules with SR | Spearman vs P1 | Buy & hold SR |",
               "|---|---|---|---:|---:|---:|---:|"]
     rho = {}
-    for ds in RUNS:
+    runs = [ds for ds in RUNS if ds in res]
+    for ds in runs:
         for w in WINDOWS:
             t = res[ds][w].set_index("module")
             sr = t.loc[mods, "sr"].astype(float)
@@ -347,7 +367,7 @@ def render(res, p1, mods, meta):
             lines.append("| %s | %s | %s -> %s | %d | %d | %s | %s |" % (
                 ds, w, win[0].date(), win[1].date(), t.attrs["days"], int(sr.notna().sum()),
                 _f(rho[(ds, w)]), _f(t.loc[cli.BENCH, "sr"])))
-    for ds in RUNS:
+    for ds in runs:
         for w in WINDOWS:
             t = res[ds][w].set_index("module")
             lines += ["", "## %s, %s window" % (ds, w), "",
@@ -369,10 +389,13 @@ def render(res, p1, mods, meta):
 
 def main(args):
     res, p1, meta, paths = run_all(args.data_dir, args.p1_metrics, args.out, args.rules, args.costs)
-    for ds in RUNS:
+    for ds in [d for d in RUNS if d in res]:
         for w in WINDOWS:
             sr = res[ds][w].set_index("module").loc[list(p1.index), "sr"].astype(float)
             print("%-14s %-8s Spearman vs P1 %s" % (ds, w, _f(spearman(sr, p1))))
-    print("R3 roll dates: %d, bars zeroed: %d" % (len(meta["rolls"]), meta["bars_zeroed"]))
+    if meta.get("missing"):
+        print("not run (file not downloaded): " + ", ".join(meta["missing"]))
+    else:
+        print("R3 roll dates: %d, bars zeroed: %d" % (len(meta["rolls"]), meta["bars_zeroed"]))
     print("wrote: " + ", ".join(str(p) for p in paths))
     return 0
