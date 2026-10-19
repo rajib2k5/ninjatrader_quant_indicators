@@ -130,8 +130,10 @@ order. Over 20 years the order largely disappears: the top MES rules earn Sharpe
 the leaders are the long-biased rules. **The `QI_NN` order describes 2021–2026. It is not a lasting
 property of the indicators. Buy-and-hold beat every rule in both windows.**
 
-ES.F, the second approved Stooq file, has not been downloaded yet; the runner reports it as
-"not downloaded" until it is.
+ES.F, the second approved Stooq dataset, is **not available**. Stooq's ES.F history page has no CSV
+download link, and the direct CSV address is refused, including from the user's own browser
+(2026-10-19). The SPY run is therefore the only independent check. If a CSV becomes available,
+`python -I -m qibt.cli robustness` picks it up without code changes.
 
 Reproduce: see [backtest/README.md](backtest/README.md)
 (`python -I -m qibt.cli run --dataset P1 --costs 1 --close settle --out results`). The raw

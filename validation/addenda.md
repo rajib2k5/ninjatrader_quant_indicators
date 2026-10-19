@@ -155,3 +155,12 @@ Result (results/robustness/ROBUSTNESS.md): Spearman vs P1 order 0.631 on the P1 
 full 2006-05-05 → 2026-10-16 window; SPY buy-and-hold SR 0.824 / 0.657 beats every rule in both.
 Labels unchanged (§2: robustness never changes the ranking); README states the order is
 period-specific.
+
+## ADD-12 (2026-10-19) — R3 (Stooq ES.F daily) unavailable
+Stooq's ES.F history page (https://stooq.com/q/d/?s=es.f) shows the table but has no "Download data in
+csv file" link (the SPY.US page has one), and the direct CSV address https://stooq.com/q/d/l/?s=es.f&i=d
+is refused both when driven by the Chrome extension ("Access denied") and when the user opens it in
+their own browser. R3 and R3_unfiltered are therefore not run; robustness rests on R1 (ADD-11). No
+substitute source was adopted: NinjaTrader's own ES daily data is not independent of P1, and Yahoo
+Finance was rejected in docs/DATASETS.md on licence grounds. The runner needs no change if an ES.F CSV
+appears later (it runs whichever inputs exist).

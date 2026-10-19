@@ -6,7 +6,7 @@ Status: [ ] open · [~] in progress · [x] done (only with evidence run in-sessi
 |---|---------|-------|--------|----------|
 | 1 | Protocol, rules.yaml and backtest claims ledger frozen before any run | main | [x] | backtest/PROTOCOL.md, backtest/rules.yaml, validation/backtest-claims-ledger.md (2026-10-17) |
 | 2 | Online dataset shortlist with provenance/licence/size (docs/DATASETS.md) | agent: datasets (sonnet) | [x] | docs/DATASETS.md read by main: R1 Stooq SPY.US daily, R3 Stooq ES.F daily, no account-free intraday source |
-| 3 | User approves which online datasets to download | user | [!] | approved R1+R3 (2026-10-17); curl got a Stooq bot-verification page (not solved, by policy) - user must download in a browser |
+| 3 | User approves which online datasets to download | user | [x] | R1 SPY downloaded by the user 2026-10-18 (private data repo, ADD-11); R3 ES.F unavailable from Stooq (ADD-12) |
 | 4 | Python ports of HP / LiquiditySweep / OrderFlowPlus / SMC, matched to ORIG on P1 (PT1–PT4) | agent: patterns (opus) | [x] | validation/channel-b-patterns.md: PT1-PT4 0 mismatches on 2,134,141 bars (at ORIG's window 6), falsifiers fail; main re-ran backtest fast suite 358 passed |
 | 5 | Backtest engine + loader + metrics + ranking CLI with unit/integration tests | agent: engine (opus) | [x] | main re-ran: backtest/tests -m 'not slow' 358 passed; results/ written by qibt.cli |
 | 6 | QS_* NinjaScript strategies generated from the QI modules + rules.yaml, all compile | agent: strategies (sonnet) | [x] | re-run by main: 25 QS files; compile_probe indicators+strategies rc=0; test_strategies_static.py 181 passed |
@@ -16,5 +16,5 @@ Status: [ ] open · [~] in progress · [x] done (only with evidence run in-sessi
 | 10 | Adversarial validation of the ranking numbers | agent: validator (opus) | [x] | validation/adversarial-ranking.md: look-ahead/arithmetic/RSI14 SURVIVED; close definition + noise BROKEN -> amendment A1 (user-chosen) |
 | 11 | Relabel QI_NN_ / QS_NN_ / QIV_NN_ by rank; tests, harness, README, NT folder updated | main | [x] | relabel.py --apply (27 git mv), gen_strategies --names, gen_harness; 79 files compile rc=0; README rewritten; NT folders synced byte-identical (6a7d3b78…, f2012912…) |
 | 12 | Full test suite + compile probe green after relabel | main | [x] | main ran: 79 NinjaScript files rc=0; backtest fast 431 passed, slow 66 passed; validation fast 320 passed (65 skipped, 2 xfailed), slow 29 passed |
-| 13 | Branch → PR → merge to main; NinjaTrader folder synced | main | [~] | branch pushed (08c834e → 130fd17 → 1c463c5 → 5aa6563); NT folders synced byte-identical; PR next |
+| 13 | Branch → PR → merge to main; NinjaTrader folder synced | main | [x] | PRs #2, #4, #5 merged (fd72f75, 6627c53, a5067c6); NT folders synced byte-identical |
 | 14 | User: F5 + Strategy Analyzer cross-check of one QS (BT5/BT15) | user | [ ] | |
