@@ -27,3 +27,6 @@ Authoritative compile : NinjaTrader's own NinjaScript Editor (F5) compiling Ninj
 ## Tooling
 git                   : 2.45.2.windows.1
 gh (portable)         : C:\Users\rajib\tools\gh\bin\gh.exe  v2.98.0, authenticated as rajib2k5
+
+## Update 2026-10-28 (iceberg phase 1, channel-b-research.md)
+NinjaTrader.Core.dll / Gui.dll installed version: 8.1.8.4 (updated 2026-10-19). Verdicts from 2026-10-28 on apply to 8.1.8.4.
