@@ -16,8 +16,8 @@ MODULES = sorted(re.sub(r"^QI_(?:\d\d_)?", "", p.stem) for p in IND_DIR.glob("QI
 MIN_TESTS = 5
 
 
-def test_there_are_27_indicators():
-    assert len(MODULES) == 27, MODULES
+def test_there_are_28_indicators():
+    assert len(MODULES) == 28, MODULES
 
 
 @pytest.mark.parametrize("module", MODULES)

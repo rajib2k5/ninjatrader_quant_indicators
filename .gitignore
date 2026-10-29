@@ -16,3 +16,4 @@ __pycache__/
 
 # daily P&L series embed daily price changes from the NinjaTrader feed (licence) - keep local
 results/**/daily_pnl_*.csv
+validation/iceberg/harness/_out/

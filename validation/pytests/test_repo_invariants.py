@@ -92,7 +92,7 @@ def test_overlay_has_no_addline_and_panel_has_visible_plot(path):
 
 
 def test_expected_module_count():
-    assert len(FILES) == 27, [p.name for p in FILES]
+    assert len(FILES) == 28, [p.name for p in FILES]
 
 
 def test_falsifier_literal_scanner_detects_planted_buy():

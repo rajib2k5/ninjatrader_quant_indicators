@@ -5,6 +5,8 @@ Twenty-seven standalone NinjaTrader 8 indicators, one per signal module, split o
 or pattern family. None of them draw buy/sell labels, arrows, profit targets, stop losses, or
 ensemble "alpha counts". Those were removed on purpose. Twenty-five matching **backtest
 strategies** let you test each indicator's original rule in NinjaTrader's Strategy Analyzer.
+A 28th, unranked indicator, [`QI_28_IcebergDetector`](#qi_28_icebergdetector-unranked-live-and-market-replay-only),
+labels probable iceberg orders at the best bid/ask on live or Market Replay data.
 
 > **Educational and informational use only. Not financial advice.** Nothing in this repository
 > is a recommendation to buy or sell any instrument. Trading futures and other leveraged products
@@ -34,7 +36,7 @@ strategies** let you test each indicator's original rule in NinjaTrader's Strate
 2. Optional: copy `strategies/*.cs` into `Documents\NinjaTrader 8\bin\Custom\Strategies\quant_strategies\`.
 3. In NinjaTrader open **New › NinjaScript Editor** and press **F5** (Compile).
 4. Add indicators from the chart's **Indicators** dialog. They are listed as `QI 01 …` to
-   `QI 27 …`.
+   `QI 28 …`.
 
 Every file is self-contained; you can copy a single indicator or strategy on its own. Tested
 against NinjaTrader 8.1.8.3 (see [validation/env-pin.txt](validation/env-pin.txt)).
@@ -194,6 +196,40 @@ Each indicator lives in exactly one place:
 | `QI_26_ChopIndex` | Choppiness Index (14) with an ADX(14) + volume 2-of-3 "choppy" state | 61.8 / 38.2 | Panel |
 | `QI_27_KeyLevels` | Previous-day RTH high/low (8:30–16:00 CT), monthly high/low, 30-min opening range, Asian session (17:00–02:00 CT) | – | Overlay |
 
+## QI_28_IcebergDetector (unranked; live and Market Replay only)
+
+An **iceberg** is a resting limit order that shows only part of its size; when the shown part
+trades, the exchange refills it from the hidden remainder. CME Globex supports such
+display-quantity orders. On a price-level feed nobody can see the hidden part. What you **can**
+see is a best bid (or ask) that keeps trading at one price while its displayed size keeps coming
+back. The indicator flags a level when:
+
+- volume traded into it is at least `HiddenRatio` (2.0) times the largest size it ever showed;
+- its displayed size was refilled at least `MinRefills` (2) times after trades;
+- at least `MinVolume` (20) contracts traded there.
+
+It draws a label such as `Iceberg bid 7012.25 ~340 hidden (6 refills, 82%)` and a short line at the
+price. The label gets ` - held`, ` - broken` or ` - open` when the level ends. Four DataBox values
+per bar: `IcebergBidVolume`, `IcebergAskVolume` (estimated hidden size of levels that ended in the
+bar), `IcebergCount` (new flags) and `MaxConfidence`.
+
+What it can and cannot do (validated in `validation/iceberg/`):
+- **No history.** It needs best bid/ask *with displayed sizes*. NinjaTrader supplies those live
+  and in **Market Replay (Playback)**, but not in historical Tick Replay, which carries bid/ask
+  prices only (claim R8, rejected). On historical bars it shows a notice and computes nothing, so
+  it **cannot be backtested** and has no rank. Free ways to get data: NinjaTrader's Market Replay
+  downloads, or recording your own live data for replay (Tools › Options › Market data).
+- **Probable, not proven.** NinjaTrader's depth is market-by-price, with no order ids (claim R7).
+  A market maker that re-quotes the same price after every fill, with large volume, looks the
+  same as an iceberg on this data.
+- **Tested on simulated books only.** On 200 simulated sessions it found 580 of 580 planted
+  icebergs and flagged 0 of 1,210 decoys. The decoys are a large single resting order, a crowd
+  joining without trades, and a small market maker. The simulator is built from the same
+  definitions, so these numbers show that the rules work as written, **not** how often real
+  icebergs are found. A real-data check needs a Market Replay run (TESTING.md section 4).
+- Its rules run in a plain C# class (`IcebergEngine`). An independently written Python reference
+  (`backtest/qibt/iceberg.py`) gives identical records on 1,006 runs.
+
 ## Screenshots
 
 NinjaTrader 8.1.8.3, MES DEC26, default parameters, in [screenshots/](screenshots/). The images
@@ -285,7 +321,7 @@ The Python ports of the four pattern modules reproduce the original indicator ex
 indicator (e.g. `tests/indicators/test_ConsecDays.py` for `QI_01_ConsecDays`) with hand-computed
 formula cases, the C# interface contract, a single-file compile, a comparison with values exported
 from NinjaTrader, and at least one falsifier. A coverage gate fails if any indicator lacks its
-file. How to run everything, including the NinjaTrader export comparison: [TESTING.md](TESTING.md).
+file. The iceberg detector's rules are tested in `backtest/tests/test_iceberg.py`. How to run everything, including the NinjaTrader export comparison: [TESTING.md](TESTING.md).
 
 Test suites (Python 3.9; `pip install -r backtest/requirements.txt`):
 
