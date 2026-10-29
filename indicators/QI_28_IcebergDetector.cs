@@ -25,9 +25,13 @@
 //            trades with bid/ask prices but no sizes (research-report.md, R8).
 //            Detection therefore runs only in State.Realtime; on historical bars
 //            the indicator draws one fixed notice and leaves its plots unset.
-//  Output  : price labels "Iceberg bid 7012.25 ~340 hidden (6 refills, 82%)" with a
-//            short horizontal line at the level (updated with the end reason when
-//            the level ends) and four DataBox-only plots per bar: IcebergBidVolume,
+//  Output  : one table in a box at the lower right of the price panel, newest row
+//            first (validation/iceberg/table-spec.md): detected time, side, price,
+//            ~hidden, traded, shown, refills, confidence, status and end time. The
+//            box never covers other QI_28 boxes, TextFixed notes of any script, the
+//            chart labels, the copyright text or the axes. At each flagged price a
+//            short line and a "#n" tag link the level to its table row. Four
+//            DataBox-only plots per bar: IcebergBidVolume,
 //            IcebergAskVolume (sum of hidden_est of levels finalized in the bar),
 //            IcebergCount (levels flagged in the bar), MaxConfidence (largest conf
 //            of any record emitted in the bar, 0 if none).
@@ -55,6 +59,12 @@ using NinjaTrader.NinjaScript;
 using NinjaTrader.Core.FloatingPoint;
 using NinjaTrader.NinjaScript.DrawingTools;
 using NinjaTrader.NinjaScript.Indicators.QuantIndicators.Engines;
+// SharpDX names that would clash with WPF ones (Brush, Factory, Color, Point) are aliased.
+using DxBrush		= SharpDX.Direct2D1.Brush;
+using RectangleF	= SharpDX.RectangleF;
+using Vector2		= SharpDX.Vector2;
+using TextFormat	= SharpDX.DirectWrite.TextFormat;
+using TextLayout	= SharpDX.DirectWrite.TextLayout;
 #endregion
 
 // This namespace holds Indicators in this folder and is required. Do not change it.
@@ -88,8 +98,27 @@ namespace NinjaTrader.NinjaScript.Indicators
 		private DateTime		askFlagTime;
 		private DateTime		lastEventTime;
 
-		private bool			noticeDrawn;
 		private bool			disclaimerDrawn;
+
+		// the table behind the box (guarded by 'sync')
+		private IcebergTable	table;
+
+		// Boxes of every QI_28 instance, so a later instance on the same panel stacks above an
+		// earlier one. OnRender of different chart windows can run on different UI threads.
+		private static readonly object							registryLock	= new object();
+		private static readonly List<QI_28_IcebergDetector>	registry		= new List<QI_28_IcebergDetector>();
+		private ChartPanel		lastPanel;		// guarded by registryLock
+		private BoxRect?		lastBox;		// guarded by registryLock
+		private List<BoxRect>	lastTextFixed	= new List<BoxRect>();
+
+		// SharpDX brushes: created on first use per render target, disposed when it changes
+		private DxBrush			dxBackground, dxBorder, dxText, dxMuted, dxBid, dxAsk;
+
+		private const float		BoxPad		= 6f;
+		private const float		CellPadX	= 6f;
+		private const float		LineGap		= 2f;
+		private const double	BoxMargin	= 8;
+		private const double	BoxGap		= 6;
 
 		private sealed class DrawJob
 		{
@@ -134,7 +163,11 @@ namespace NinjaTrader.NinjaScript.Indicators
 				MinRefills					= 2;
 				MinVolume					= 20;
 				MinRefillSize				= 1;
-				ShowLabels					= true;
+				ShowTable					= true;
+				MaxTableRows				= 8;
+				TableFontSize				= 11;
+				TableOpacity				= 85;
+				ShowLevelLines				= true;
 				BidBrush					= Brushes.DeepSkyBlue;
 				AskBrush					= Brushes.Orange;
 				ShowDisclaimer				= false;
@@ -158,9 +191,15 @@ namespace NinjaTrader.NinjaScript.Indicators
 					bidFlagTime		= DateTime.MinValue;
 					askFlagTime		= DateTime.MinValue;
 					lastEventTime	= DateTime.MinValue;
+					table			= new IcebergTable();
 				}
-				noticeDrawn		= false;
 				disclaimerDrawn	= false;
+			}
+			else if (State == State.Terminated)
+			{
+				lock (registryLock)
+					registry.Remove(this);
+				DisposeDx();
 			}
 		}
 
@@ -171,7 +210,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (State == State.Historical)
 			{
 				// No bid/ask sizes on historical bars: detect nothing, leave plots unset.
-				DrawNoticeOnce();
+				// The notice is shown inside the table box (OnRender).
 				return;
 			}
 			if (State != State.Realtime)
@@ -194,7 +233,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 						List<IcebergRecord> recs = engine.LastRecords;
 						Accumulate(recs);
 						DateTime end = lastEventTime != DateTime.MinValue ? lastEventTime : Time[0];
-						jobs = MakeJobs(recs, end);
+						jobs = ApplyRecords(recs, end);
 						UpdateLevelStarts(end);
 					}
 				}
@@ -236,10 +275,12 @@ namespace NinjaTrader.NinjaScript.Indicators
 				lastEventTime = e.Time;
 				List<IcebergRecord> recs = engine.LastRecords;
 				Accumulate(recs);
-				jobs = MakeJobs(recs, e.Time);
+				jobs = ApplyRecords(recs, e.Time);
 				UpdateLevelStarts(e.Time);
 			}
 			RunJobs(jobs);
+			if (jobs != null)
+				ForceRefresh();		// repaint the table box
 		}
 
 		// NinjaTrader reports 0 for a bid/ask price that is not known yet; the engine's
@@ -284,7 +325,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		}
 
 		// ─────────────────────────────────────────────────────────
-		//  Labels (jobs prepared with 'sync' held, drawn after)
+		//  Table rows and level lines (prepared with 'sync' held, drawn after)
 		// ─────────────────────────────────────────────────────────
 		private void UpdateLevelStarts(DateTime now)
 		{
@@ -294,7 +335,8 @@ namespace NinjaTrader.NinjaScript.Indicators
 			if (a != askStartSeq) { askStartSeq = a; askStartTime = now; }
 		}
 
-		private List<DrawJob> MakeJobs(List<IcebergRecord> recs, DateTime now)
+		// Applies every record to the table and returns the level-line jobs ("#n" = table row id).
+		private List<DrawJob> ApplyRecords(List<IcebergRecord> recs, DateTime now)
 		{
 			if (recs.Count == 0)
 				return null;
@@ -318,12 +360,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 					labelTime = ft != DateTime.MinValue ? ft : now;
 				}
 
-				string text = "Iceberg " + r.Side + " " + Instrument.MasterInstrument.FormatPrice(r.Price)
-					+ " ~" + r.HiddenEst.ToString(CultureInfo.InvariantCulture) + " hidden ("
-					+ r.Refills.ToString(CultureInfo.InvariantCulture) + " refills, "
-					+ ((int)Math.Round(r.Conf * 100.0)).ToString(CultureInfo.InvariantCulture) + "%)";
-				if (!r.IsFlag)
-					text += " - " + r.Reason;
+				int id = table.Apply(r, now);
+				if (id == 0)
+					continue;		// FINAL of a row already dropped by the capacity limit
+				string text = "#" + id.ToString(CultureInfo.InvariantCulture);
 
 				jobs.Add(new DrawJob
 				{
@@ -342,7 +382,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		private void RunJobs(List<DrawJob> jobs)
 		{
 			// CurrentBar < 0: market data before the first bar exists (nothing to anchor to yet).
-			if (jobs == null || !ShowLabels || CurrentBar < 0)
+			if (jobs == null || !ShowLevelLines || CurrentBar < 0)
 				return;
 
 			SimpleFont font = new SimpleFont("Arial", 10);
@@ -356,17 +396,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 			}
 		}
 
-		private void DrawNoticeOnce()
-		{
-			if (noticeDrawn)
-				return;
-
-			Draw.TextFixed(this, "QI28_HistoricalNotice", HistoricalNotice,
-				TextPosition.TopLeft, Brushes.Gray, new SimpleFont("Arial", 10),
-				Brushes.Transparent, Brushes.Transparent, 0);
-			noticeDrawn = true;
-		}
-
 		private void DrawDisclaimerOnce()
 		{
 			if (!ShowDisclaimer || disclaimerDrawn)
@@ -376,6 +405,287 @@ namespace NinjaTrader.NinjaScript.Indicators
 				TextPosition.BottomLeft, Brushes.Gray, new SimpleFont("Arial", 9),
 				Brushes.Transparent, Brushes.Transparent, 0);
 			disclaimerDrawn = true;
+		}
+
+		// ─────────────────────────────────────────────────────────
+		//  Table box (validation/iceberg/table-spec.md sections 3-5)
+		// ─────────────────────────────────────────────────────────
+		public override void OnRenderTargetChanged()
+		{
+			// SharpDX brushes belong to one render target: drop them, they are recreated on the next OnRender.
+			DisposeDx();
+		}
+
+		protected override void OnRender(ChartControl chartControl, ChartScale chartScale)
+		{
+			base.OnRender(chartControl, chartScale);
+			if (IsInHitTest || RenderTarget == null || ChartPanel == null || chartControl == null)
+				return;
+			if (!ShowTable)
+			{
+				SetLastBox(null);
+				return;
+			}
+
+			// Rows are updated in place by FINAL records on the data thread, so their text is
+			// built while 'sync' is held; nothing below reads a row object.
+			List<string[]> cells;
+			List<bool> isBid;
+			int total;
+			lock (sync)
+			{
+				if (table == null)
+					return;
+				List<IcebergTableRow> rows = table.Rows(MaxTableRows);
+				total	= table.Count;
+				cells	= new List<string[]>(rows.Count);
+				isBid	= new List<bool>(rows.Count);
+				foreach (IcebergTableRow r in rows)
+				{
+					cells.Add(IcebergTable.Cells(r, p => Instrument.MasterInstrument.FormatPrice(p)));
+					isBid.Add(r.Side == "bid");
+				}
+			}
+
+			try
+			{
+				EnsureDx(chartControl);
+			}
+			catch (Exception)
+			{
+				DisposeDx();
+				return;
+			}
+			BoxRect panel = new BoxRect(ChartPanel.X, ChartPanel.Y, ChartPanel.W, ChartPanel.H);
+			List<BoxRect> occupied = Occupied(panel);
+
+			List<string> top = new List<string> { IcebergTable.Title };
+			if (State != State.Realtime)
+			{
+				// spec.md section 0 notice, verbatim, split in two lines so the box stays narrow
+				int cut = HistoricalNotice.IndexOf(" (", StringComparison.Ordinal);
+				top.Add(HistoricalNotice.Substring(0, cut));
+				top.Add(HistoricalNotice.Substring(cut + 1));
+			}
+			string[] header		= IcebergTable.Header;
+			bool[] rightAligned	= IcebergTable.RightAligned;
+
+			List<TextLayout> made = new List<TextLayout>();
+			try
+			{
+				using (TextFormat fmt = new SimpleFont("Consolas", TableFontSize).ToDirectWriteTextFormat())
+				{
+					Func<string, TextLayout> make = text =>
+					{
+						TextLayout l = new TextLayout(NinjaTrader.Core.Globals.DirectWriteFactory, text, fmt, 4000f, 400f);
+						made.Add(l);
+						return l;
+					};
+
+					List<TextLayout> topL = new List<TextLayout>();
+					foreach (string t in top)
+						topL.Add(make(t));
+					TextLayout[] headL = new TextLayout[header.Length];
+					for (int c = 0; c < header.Length; c++)
+						headL[c] = make(header[c]);
+					List<TextLayout[]> cellL = new List<TextLayout[]>(cells.Count);
+					foreach (string[] row in cells)
+					{
+						TextLayout[] l = new TextLayout[row.Length];
+						for (int c = 0; c < row.Length; c++)
+							l[c] = make(row[c]);
+						cellL.Add(l);
+					}
+					TextLayout emptyL	= make(IcebergTable.EmptyText);
+					TextLayout widestFooterL = make(IcebergTable.Footer(Math.Max(total, 1)));
+
+					float lineH = headL[0].Metrics.Height;
+					foreach (TextLayout l in made)
+						lineH = Math.Max(lineH, l.Metrics.Height);
+					lineH += LineGap;
+
+					float[] colW = new float[header.Length];
+					for (int c = 0; c < header.Length; c++)
+					{
+						colW[c] = headL[c].Metrics.Width;
+						foreach (TextLayout[] l in cellL)
+							colW[c] = Math.Max(colW[c], l[c].Metrics.Width);
+						colW[c] += 2 * CellPadX;
+					}
+					float contentW = cells.Count > 0 ? colW.Sum() : emptyL.Metrics.Width;
+					foreach (TextLayout l in topL)
+						contentW = Math.Max(contentW, l.Metrics.Width);
+					contentW = Math.Max(contentW, widestFooterL.Metrics.Width);
+					double boxW = contentW + 2 * BoxPad;
+
+					// Fewest rows dropped until the box fits without overlap (spec section 3).
+					for (int n = cells.Count; n >= 0; n--)
+					{
+						int notShown = total - n;
+						int bodyLines = cells.Count == 0 ? 1 : 1 + n;
+						int lines = top.Count + bodyLines + (notShown > 0 ? 1 : 0);
+						double boxH = 2 * BoxPad + lines * lineH + 3;		// +3: rule under the header
+						BoxRect? placed = BoxLayout.Place(panel, boxW, boxH, occupied, BoxMargin, BoxGap);
+						if (!placed.HasValue)
+							continue;
+
+						DrawBox(placed.Value, topL, headL, cellL, isBid, n, notShown > 0 ? make(IcebergTable.Footer(notShown)) : null,
+							cells.Count == 0 ? emptyL : null, colW, rightAligned, lineH);
+						SetLastBox(placed);
+						return;
+					}
+					SetLastBox(null);		// not even the title fits: draw nothing this frame
+				}
+			}
+			finally
+			{
+				foreach (TextLayout l in made)
+					l.Dispose();
+			}
+		}
+
+		private void DrawBox(BoxRect b, List<TextLayout> topL, TextLayout[] headL, List<TextLayout[]> cellL,
+			List<bool> isBid, int n, TextLayout footerL, TextLayout emptyL, float[] colW, bool[] rightAligned, float lineH)
+		{
+			RectangleF rect = new RectangleF((float)b.X, (float)b.Y, (float)b.W, (float)b.H);
+			RenderTarget.FillRectangle(rect, dxBackground);
+			RenderTarget.DrawRectangle(rect, dxBorder, 1f);
+
+			float x0 = rect.X + BoxPad;
+			float y = rect.Y + BoxPad;
+			for (int i = 0; i < topL.Count; i++)
+			{
+				RenderTarget.DrawTextLayout(new Vector2(x0, y), topL[i], i == 0 ? dxText : dxMuted);
+				y += lineH;
+			}
+
+			if (emptyL != null)
+			{
+				RenderTarget.DrawTextLayout(new Vector2(x0, y), emptyL, dxMuted);
+				y += lineH;
+			}
+			else
+			{
+				DrawCells(headL, x0, y, colW, rightAligned, null);
+				y += lineH;
+				RenderTarget.FillRectangle(new RectangleF(x0, y, rect.Width - 2 * BoxPad, 1f), dxBorder);
+				y += 3;
+				for (int i = 0; i < n; i++)
+				{
+					DrawCells(cellL[i], x0, y, colW, rightAligned, isBid[i] ? dxBid : dxAsk);
+					y += lineH;
+				}
+			}
+
+			if (footerL != null)
+				RenderTarget.DrawTextLayout(new Vector2(x0, y), footerL, dxMuted);
+		}
+
+		// sideBrush colours the Side and Price columns of a data row; null for the header.
+		private void DrawCells(TextLayout[] l, float x0, float y, float[] colW, bool[] rightAligned, DxBrush sideBrush)
+		{
+			float x = x0;
+			for (int c = 0; c < l.Length; c++)
+			{
+				float tx = rightAligned[c] ? x + colW[c] - CellPadX - l[c].Metrics.Width : x + CellPadX;
+				DxBrush brush = (sideBrush != null && (c == 2 || c == 3)) ? sideBrush : dxText;
+				RenderTarget.DrawTextLayout(new Vector2(tx, y), l[c], brush);
+				x += colW[c];
+			}
+		}
+
+		// Everything the box must not cover (spec section 4).
+		private List<BoxRect> Occupied(BoxRect panel)
+		{
+			List<BoxRect> occ = PanelReserve.Strips(panel, ChartPanel.IsYAxisDisplayedOverlay);
+
+			lock (registryLock)
+			{
+				if (!registry.Contains(this))
+					registry.Add(this);
+				foreach (QI_28_IcebergDetector other in registry)
+				{
+					if (other == this)
+						break;		// only instances registered earlier; later ones stack above this one
+					if (other.lastPanel == ChartPanel && other.lastBox.HasValue)
+						occ.Add(other.lastBox.Value);
+				}
+			}
+
+			// TextFixed notes of any script or the user. DrawObjects.ToList() is NinjaTrader's thread-safe
+			// copy (Draw.* also runs on data threads). If the copy fails, the previous frame's estimates are
+			// reused; an object that cannot be measured is skipped.
+			List<IDrawingTool> drawn = null;
+			try
+			{
+				drawn = DrawObjects.ToList();
+			}
+			catch (Exception)
+			{
+			}
+			if (drawn != null)
+			{
+				List<BoxRect> fixedBoxes = new List<BoxRect>();
+				foreach (IDrawingTool d in drawn)
+				{
+					TextFixed tf = d as TextFixed;
+					if (tf == null || string.IsNullOrEmpty(tf.DisplayText) || tf.Font == null)
+						continue;
+					try
+					{
+						using (TextFormat f = tf.Font.ToDirectWriteTextFormat())
+						using (TextLayout l = new TextLayout(NinjaTrader.Core.Globals.DirectWriteFactory, tf.DisplayText, f,
+							(float)panel.W, (float)panel.H))
+						{
+							BoxRect? r = PanelReserve.ForTextFixed(tf.TextPosition.ToString(), panel,
+								l.Metrics.Width, l.Metrics.Height, tf.YPixelOffset);
+							if (r.HasValue)
+								fixedBoxes.Add(r.Value);
+						}
+					}
+					catch (Exception)
+					{
+					}
+				}
+				lastTextFixed = fixedBoxes;
+			}
+			occ.AddRange(lastTextFixed);
+			return occ;
+		}
+
+		private void SetLastBox(BoxRect? box)
+		{
+			lock (registryLock)
+			{
+				lastBox		= box;
+				lastPanel	= box.HasValue ? ChartPanel : null;
+			}
+		}
+
+		private void EnsureDx(ChartControl chartControl)
+		{
+			if (dxText != null)
+				return;
+			Brush background	= chartControl.Properties.ChartBackground ?? Brushes.Black;
+			Brush text			= chartControl.Properties.ChartText ?? Brushes.White;
+			dxBackground		= background.ToDxBrush(RenderTarget);
+			dxBackground.Opacity = TableOpacity / 100f;
+			dxBorder			= text.ToDxBrush(RenderTarget);
+			dxBorder.Opacity	= 0.5f;
+			dxMuted				= text.ToDxBrush(RenderTarget);
+			dxMuted.Opacity		= 0.75f;
+			dxBid				= (BidBrush ?? Brushes.DeepSkyBlue).ToDxBrush(RenderTarget);
+			dxAsk				= (AskBrush ?? Brushes.Orange).ToDxBrush(RenderTarget);
+			dxText				= text.ToDxBrush(RenderTarget);	// last: marks the set as complete
+		}
+
+		private void DisposeDx()
+		{
+			DxBrush[] all = { dxBackground, dxBorder, dxText, dxMuted, dxBid, dxAsk };
+			foreach (DxBrush b in all)
+				if (b != null)
+					b.Dispose();
+			dxBackground = dxBorder = dxText = dxMuted = dxBid = dxAsk = null;
 		}
 
 		public override string DisplayName
@@ -409,18 +719,36 @@ namespace NinjaTrader.NinjaScript.Indicators
 			Order = 4, GroupName = "Parameters")]
 		public int MinRefillSize { get; set; }
 
-		[NinjaScriptProperty]
-		[Display(Name = "Show Labels", Description = "Draw a label and a short line at each flagged level.",
+		[Display(Name = "Show Table", Description = "Show the iceberg table in a box at the lower right of the price panel.",
 			Order = 1, GroupName = "Display")]
-		public bool ShowLabels { get; set; }
+		public bool ShowTable { get; set; }
+
+		[Range(1, 50)]
+		[Display(Name = "Max Table Rows", Description = "Newest rows shown in the table (fewer if the panel is too short). Default 8.",
+			Order = 2, GroupName = "Display")]
+		public int MaxTableRows { get; set; }
+
+		[Range(8, 24)]
+		[Display(Name = "Table Font Size", Description = "Font size of the table text. Default 11.",
+			Order = 3, GroupName = "Display")]
+		public int TableFontSize { get; set; }
+
+		[Range(10, 100)]
+		[Display(Name = "Table Opacity %", Description = "Opacity of the table background. Default 85.",
+			Order = 4, GroupName = "Display")]
+		public int TableOpacity { get; set; }
+
+		[Display(Name = "Show Level Lines", Description = "Draw a short line and a #n tag (the table row) at each flagged level.",
+			Order = 5, GroupName = "Display")]
+		public bool ShowLevelLines { get; set; }
 
 		[NinjaScriptProperty]
 		[Display(Name = "Show Disclaimer", Description = "Draw the educational-use disclaimer on the chart.",
-			Order = 2, GroupName = "Display")]
+			Order = 6, GroupName = "Display")]
 		public bool ShowDisclaimer { get; set; }
 
 		[XmlIgnore]
-		[Display(Name = "Bid Color", Description = "Color for bid-side labels. Default DeepSkyBlue.",
+		[Display(Name = "Bid Color", Description = "Color for bid rows and lines. Default DeepSkyBlue.",
 			Order = 1, GroupName = "Colors")]
 		public Brush BidBrush { get; set; }
 		[Browsable(false)]
@@ -428,7 +756,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		{ get { return Serialize.BrushToString(BidBrush); } set { BidBrush = Serialize.StringToBrush(value); } }
 
 		[XmlIgnore]
-		[Display(Name = "Ask Color", Description = "Color for ask-side labels. Default Orange.",
+		[Display(Name = "Ask Color", Description = "Color for ask rows and lines. Default Orange.",
 			Order = 2, GroupName = "Colors")]
 		public Brush AskBrush { get; set; }
 		[Browsable(false)]
@@ -808,6 +1136,240 @@ namespace NinjaTrader.NinjaScript.Indicators.QuantIndicators.Engines
 			foreach (IcebergRecord r in current)
 				lines.Add(r.Csv);
 			return lines;
+		}
+	}
+
+	/// <summary>An axis-aligned rectangle in RenderTarget pixels (Y grows downward). Overlap is strict.</summary>
+	public struct BoxRect : IEquatable<BoxRect>
+	{
+		public readonly double X, Y, W, H;
+
+		public BoxRect(double x, double y, double w, double h) { X = x; Y = y; W = w; H = h; }
+
+		public double Right		{ get { return X + W; } }
+		public double Bottom	{ get { return Y + H; } }
+
+		/// <summary>True when the interiors intersect; touching edges do not overlap.</summary>
+		public bool Overlaps(BoxRect o)
+		{
+			return X < o.Right && o.X < Right && Y < o.Bottom && o.Y < Bottom;
+		}
+
+		public BoxRect Inflate(double d) { return new BoxRect(X - d, Y - d, W + 2 * d, H + 2 * d); }
+
+		public bool Equals(BoxRect o) { return X == o.X && Y == o.Y && W == o.W && H == o.H; }
+		public override bool Equals(object o) { return o is BoxRect && Equals((BoxRect)o); }
+		public override int GetHashCode() { return X.GetHashCode() ^ (Y.GetHashCode() * 31) ^ (W.GetHashCode() * 17) ^ H.GetHashCode(); }
+		public override string ToString()
+		{
+			return string.Format(CultureInfo.InvariantCulture, "[{0},{1} {2}x{3}]", X, Y, W, H);
+		}
+	}
+
+	/// <summary>Bottom-right placement that avoids occupied rectangles (table-spec.md section 3).</summary>
+	public static class BoxLayout
+	{
+		public static BoxRect? Place(BoxRect panel, double w, double h, IList<BoxRect> occupied, double margin, double gap)
+		{
+			if (w > panel.W - 2 * margin || h > panel.H - 2 * margin)
+				return null;
+
+			double x = panel.Right - margin - w;
+			double y = panel.Bottom - margin - h;
+			// Each pass moves the box strictly upward past every rectangle it hits, so at most
+			// occupied.Count + 1 passes are needed.
+			for (int pass = 0; pass <= occupied.Count; pass++)
+			{
+				BoxRect grown = new BoxRect(x, y, w, h).Inflate(gap);
+				double minTop = double.PositiveInfinity;
+				foreach (BoxRect o in occupied)
+					if (grown.Overlaps(o) && o.Y < minTop)
+						minTop = o.Y;
+				if (double.IsPositiveInfinity(minTop))
+					return new BoxRect(x, y, w, h);
+				y = minTop - gap - h;
+				if (y < panel.Y + margin)
+					return null;
+			}
+			return null;
+		}
+	}
+
+	/// <summary>
+	/// Areas the table must not cover (table-spec.md section 4, amendment A2). The TextFixed geometry follows the
+	/// vendor @Text.cs of NinjaTrader 8.1.8.4: text 10.5 px from the panel edges (BottomLeft x2 on the last panel,
+	/// TopLeft +21 for labels, TopRight up to +42 for the scroll arrow) and a box padding p that is 3 or 5, so each
+	/// estimate is the union of every case.
+	/// </summary>
+	public static class PanelReserve
+	{
+		public const double TopStrip		= 48;
+		public const double CopyrightH		= 24;
+		public const double CopyrightMaxW	= 360;
+		public const double OverlayAxisW	= 80;
+
+		/// <param name="position">A NinjaTrader TextPosition name: BottomLeft, BottomRight, Center, TopLeft or TopRight.</param>
+		public static BoxRect? ForTextFixed(string position, BoxRect panel, double w, double h, double yPixelOffset)
+		{
+			double o = Math.Abs(yPixelOffset);
+			switch (position)
+			{
+				case "BottomRight":
+					return Span(panel.Right - 10.5 - w - 5, panel.Right - 5.5, panel.Bottom - 10.5 - h - 5 - o, panel.Bottom - 5.5 + o);
+				case "BottomLeft":
+					return Span(panel.X + 5.5, panel.X + 10.5 + w + 5, panel.Bottom - 21 - h - 5 - o, panel.Bottom - 5.5 + o);
+				case "TopLeft":
+					return Span(panel.X + 5.5, panel.X + 10.5 + w + 5, panel.Y + 21 - 5 - o, panel.Y + 21 + h + 5 + o);
+				case "TopRight":
+					return Span(panel.Right - 10.5 - w - 5, panel.Right - 5.5, panel.Y + 10 - 5 - o, panel.Y + 42 + h + 5 + o);
+				case "Center":
+					return new BoxRect(panel.X + (panel.W - w) / 2 - 5, panel.Y + (panel.H - h) / 2 - 5 - o, w + 10, h + 10 + 2 * o);
+				default:
+					return null;
+			}
+		}
+
+		/// <summary>The fixed strips: top (labels, scroll arrow), bottom-left copyright, and the overlay Y-axis when shown.</summary>
+		public static List<BoxRect> Strips(BoxRect panel, bool yAxisOverlay)
+		{
+			List<BoxRect> s = new List<BoxRect>
+			{
+				new BoxRect(panel.X, panel.Y, panel.W, TopStrip),
+				new BoxRect(panel.X, panel.Bottom - CopyrightH, Math.Min(CopyrightMaxW, panel.W / 2), CopyrightH)
+			};
+			if (yAxisOverlay)
+				s.Add(new BoxRect(panel.Right - OverlayAxisW, panel.Y, OverlayAxisW, panel.H));
+			return s;
+		}
+
+		private static BoxRect Span(double x0, double x1, double y0, double y1)
+		{
+			return new BoxRect(x0, y0, x1 - x0, y1 - y0);
+		}
+	}
+
+	/// <summary>One table row: a flagged level, updated in place when it ends.</summary>
+	public sealed class IcebergTableRow
+	{
+		public int			Id			{ get; internal set; }
+		public DateTime		Detected	{ get; internal set; }
+		public string		Side		{ get; internal set; }
+		public double		Price		{ get; internal set; }
+		public long			StartSeq	{ get; internal set; }
+		public long			Hidden		{ get; internal set; }
+		public long			Traded		{ get; internal set; }
+		public long			Shown		{ get; internal set; }
+		public int			Refills		{ get; internal set; }
+		public double		Conf		{ get; internal set; }
+		/// <summary>active, held, broken or open.</summary>
+		public string		Status		{ get; internal set; }
+		public DateTime?	Ended		{ get; internal set; }
+	}
+
+	/// <summary>The rows behind the on-chart table (table-spec.md section 2). Not thread-safe; the caller locks.</summary>
+	public sealed class IcebergTable
+	{
+		public const int Capacity = 500;
+		public const string Title = "QI 28 Iceberg levels (probable) - newest first";
+		public const string EmptyText = "No probable iceberg levels yet.";
+
+		private static readonly string[] header =
+			{ "#", "Detected", "Side", "Price", "Hidden", "Traded", "Shown", "Refills", "Conf", "Status", "Ended" };
+		private static readonly bool[] rightAligned =
+			{ true, false, false, true, true, true, true, true, true, false, false };
+
+		private readonly List<IcebergTableRow> rows = new List<IcebergTableRow>();
+		private int nextId = 1;
+
+		public static string[] Header		{ get { return (string[])header.Clone(); } }
+		public static bool[] RightAligned	{ get { return (bool[])rightAligned.Clone(); } }
+
+		public int Count { get { return rows.Count; } }
+
+		public static string Footer(int notShown)
+		{
+			return "+" + notShown.ToString(CultureInfo.InvariantCulture) + " older not shown";
+		}
+
+		/// <summary>Applies one record; returns the row id it created or updated, 0 if none.</summary>
+		public int Apply(IcebergRecord r, DateTime t)
+		{
+			if (r.IsFlag)
+			{
+				IcebergTableRow added = new IcebergTableRow
+				{
+					Id = nextId++, Detected = t, Side = r.Side, Price = r.Price, StartSeq = r.StartSeq,
+					Hidden = r.HiddenEst, Traded = r.Traded, Shown = r.ShownMax, Refills = r.Refills, Conf = r.Conf,
+					Status = "active", Ended = null
+				};
+				rows.Add(added);
+				if (rows.Count > Capacity)
+					rows.Remove(Oldest());
+				return added.Id;
+			}
+			foreach (IcebergTableRow row in rows)
+			{
+				if (row.Status != "active" || row.Side != r.Side || row.StartSeq != r.StartSeq)
+					continue;
+				row.Hidden	= r.HiddenEst;
+				row.Traded	= r.Traded;
+				row.Shown	= r.ShownMax;
+				row.Refills	= r.Refills;
+				row.Conf	= r.Conf;
+				row.Status	= r.Reason;
+				row.Ended	= t;
+				return row.Id;
+			}
+			return 0;
+		}
+
+		/// <summary>At most max rows, newest Detected first, ties by higher Id.</summary>
+		public List<IcebergTableRow> Rows(int max)
+		{
+			List<IcebergTableRow> sorted = new List<IcebergTableRow>(rows);
+			sorted.Sort(NewestFirst);
+			if (max < sorted.Count)
+				sorted.RemoveRange(Math.Max(max, 0), sorted.Count - Math.Max(max, 0));
+			return sorted;
+		}
+
+		public static string[] Cells(IcebergTableRow r, Func<double, string> formatPrice)
+		{
+			CultureInfo inv = CultureInfo.InvariantCulture;
+			string ended = "-";
+			if (r.Ended.HasValue)
+				ended = r.Ended.Value.Date == r.Detected.Date
+					? r.Ended.Value.ToString("HH:mm:ss", inv)
+					: r.Ended.Value.ToString("MM-dd HH:mm:ss", inv);
+			return new[]
+			{
+				"#" + r.Id.ToString(inv),
+				r.Detected.ToString("MM-dd HH:mm:ss", inv),
+				r.Side,
+				formatPrice(r.Price),
+				"~" + r.Hidden.ToString(inv),
+				r.Traded.ToString(inv),
+				r.Shown.ToString(inv),
+				r.Refills.ToString(inv),
+				((long)Math.Round(r.Conf * 100.0, MidpointRounding.AwayFromZero)).ToString(inv) + "%",
+				r.Status,
+				ended
+			};
+		}
+
+		private static int NewestFirst(IcebergTableRow a, IcebergTableRow b)
+		{
+			int c = b.Detected.CompareTo(a.Detected);
+			return c != 0 ? c : b.Id.CompareTo(a.Id);
+		}
+
+		private IcebergTableRow Oldest()
+		{
+			IcebergTableRow o = rows[0];
+			foreach (IcebergTableRow r in rows)
+				if (NewestFirst(r, o) > 0)
+					o = r;
+			return o;
 		}
 	}
 }
