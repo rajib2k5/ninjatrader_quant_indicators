@@ -62,6 +62,7 @@ python -I -m pytest backtest/tests/test_iceberg.py -q                 # rules, s
 bash validation/iceberg/harness/build_harness.sh                      # builds the C# engine as a console exe
 python -I validation/iceberg/diff_engines.py                          # C# engine vs Python reference, 1,006 runs
 python -I validation/iceberg/diff_engines.py --falsify                # must report differences (HiddenRatio 1.9 vs 2.0)
+bash validation/iceberg/harness/build_tests.sh && validation/iceberg/harness/_out/TableTests.exe   # table + box placement
 ```
 
 Three facts can only be checked inside NinjaTrader (claims R4, R9, R16 and I8 in
@@ -76,7 +77,10 @@ events and prints them to the Output window. It places no orders.
 3. **Market Replay run (R4 / R9 / I8):** Connections › Playback. Use a Market Replay day you already have (this PC has GC 04-26)
    or download one in Tools › Historical Data. Open a 1 Minute chart of that instrument and add both
    `EgvTickReplayDiag` and `QI 28 IcebergDetector`. Press Play for 15–30 minutes of market time.
-   Expected: in the `Realtime` bucket `BidVol>0` and `AskVol>0` are non-zero and `Depth` > 0; iceberg labels
-   appear on some levels with no errors in the Log tab.
+   Expected: in the `Realtime` bucket `BidVol>0` and `AskVol>0` are non-zero and `Depth` > 0; the QI 28 table box
+   sits at the lower right of the price panel, newest row first, with `#n` tags at the flagged prices and
+   no errors in the Log tab. To check the overlap rules, also add `QI 12 HedgingPressure` (score box, top right),
+   switch on `Show Disclaimer`, and add a second QI 28 (its box must stack above the first). Take one screenshot
+   (claims P7, T5/T6/T15–T18 in `validation/iceberg/table-report.md`).
 4. Paste the `EGV|` lines (and a screenshot) back to the assistant. They are recorded in
    `validation/iceberg/addenda.md` to close R4/R9/R16/I8.

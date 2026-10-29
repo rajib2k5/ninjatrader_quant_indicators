@@ -4,6 +4,7 @@ set -u
 S="$(cd "$(dirname "$0")" && pwd)"
 OUT="${OUT:-$S/_out/IcebergHarness.exe}"
 REPO="$(cd "$S/../../.." && pwd)"
+IND="${IND:-$REPO/indicators/QI_28_IcebergDetector.cs}"
 CSC="/c/Program Files/dotnet/sdk/8.0.100/Roslyn/bincore/csc.dll"
 NT="/c/Program Files/NinjaTrader 8/bin"
 CUSTOM="/c/Users/rajib/Documents/NinjaTrader 8/bin/Custom"
@@ -17,5 +18,5 @@ while IFS= read -r f; do REFS+=("$f"); done < <(find "$NT" -maxdepth 3 -iname "S
 ARGS=(); for r in "${REFS[@]}"; do [ -f "$r" ] && ARGS+=("-r:$(cygpath -w "$r")"); done
 dotnet exec "$(cygpath -w "$CSC")" -nologo -nostdlib -noconfig -target:exe -langversion:latest -platform:x64 \
   -nowarn:1701,1702,1591 -out:"$(cygpath -w "$OUT")" "${ARGS[@]}" \
-  "$(cygpath -w "$S/Program.cs")" "$(cygpath -w "$REPO/indicators/QI_28_IcebergDetector.cs")"
+  "$(cygpath -w "$S/Program.cs")" "$(cygpath -w "$IND")"
 rc=$?; echo "rc=$rc"; exit $rc

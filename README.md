@@ -208,8 +208,24 @@ back. The indicator flags a level when:
 - its displayed size was refilled at least `MinRefills` (2) times after trades;
 - at least `MinVolume` (20) contracts traded there.
 
-It draws a label such as `Iceberg bid 7012.25 ~340 hidden (6 refills, 82%)` and a short line at the
-price. The label gets ` - held`, ` - broken` or ` - open` when the level ends. Four DataBox values
+It lists every flagged level in **one table in a box at the lower right of the price panel**, newest
+first:
+
+| # | Detected | Side | Price | Hidden | Traded | Shown | Refills | Conf | Status | Ended |
+|---|----------|------|-------|--------|--------|-------|---------|------|--------|-------|
+| #2 | 04-26 09:41:07 | ask | 7013.00 | ~15 | 21 | 6 | 3 | 70% | held | 09:42:01 |
+| #1 | 04-26 09:30:12 | bid | 7012.25 | ~23 | 35 | 12 | 3 | 64% | broken | 09:31:40 |
+
+- **Status:** `active` while the level is still live, then `held`, `broken` or `open` (session reset).
+- **Chart marks:** a short line and a `#n` tag sit at each flagged price, linking it to its table row.
+- **Settings:** `Max Table Rows` (8), `Table Font Size` (11) and `Table Opacity %` (85). A footer counts rows
+  that don't fit.
+- **Placement:** the box stays inside the price panel. It never covers the chart's labels, the copyright text or
+  the axes, the `TextFixed` notes of any indicator or of you (for example the disclaimers or QI_12's score panel),
+  or another QI_28 box. When there is no room it shows fewer rows. On historical bars it shows the "live or
+  Market Replay only" notice.
+
+Four DataBox values
 per bar: `IcebergBidVolume`, `IcebergAskVolume` (estimated hidden size of levels that ended in the
 bar), `IcebergCount` (new flags) and `MaxConfidence`.
 
