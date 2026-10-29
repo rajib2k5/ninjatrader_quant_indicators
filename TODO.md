@@ -18,3 +18,6 @@ Status: [ ] open · [~] in progress · [x] done (only with evidence run in-sessi
 | 12 | Full test suite + compile probe green after relabel | main | [x] | main ran: 79 NinjaScript files rc=0; backtest fast 431 passed, slow 66 passed; validation fast 320 passed (65 skipped, 2 xfailed), slow 29 passed |
 | 13 | Branch → PR → merge to main; NinjaTrader folder synced | main | [x] | PRs #2, #4, #5 merged (fd72f75, 6627c53, a5067c6); NT folders synced byte-identical |
 | 14 | User: F5 + Strategy Analyzer cross-check of one QS (BT5/BT15) | user | [ ] | |
+| 15 | Iceberg detector research claims R1–R16 (dual channel) | agents: channel A/B + main | [x] | validation/iceberg/research-report.md: R8 REJECTED → live/Market Replay only; R4/R9/R16 pending user run |
+| 16 | QI_28_IcebergDetector: C# + independent Python reference, I1–I7 | agents: C# (opus), Python (sonnet) + main | [x] | validation/iceberg/implementation-report.md: 0 mismatches on 1,006 runs, falsifier 540; recall 1.00 / FA 0.00 on simulated books |
+| 17 | User: EgvTickReplayDiag + Market Replay run of QI_28 (R4, R9, R16, I8) | user | [ ] | TESTING.md section 4 |
